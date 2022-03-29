@@ -18,47 +18,73 @@ import L2img from "assets/l2.png";
 import L3img from "assets/l3.png";
 import L4img from "assets/l4.png";
 import L5img from "assets/l5.png";
+import { useLocation } from "react-router-dom";
 
+/**
+ * 页面左侧的导航栏
+ * @returns 
+ */
 export const Navlist: React.FC = () => {
+  /**
+   * 展开收起二级路由
+   */
   const [Bgcolor, setBgcolor] = useState(false);
+  /**
+   * 获取当前路由
+   */
+  const location = useLocation();
+
   return (
     <Box>
       <Uls>
-        <LIs>
-          {/* <Link to={""}> */}
+        <LIs to="/" className={location.pathname === "/" ? "LinkBg" : ""}>
           <IconImgs src={a1img} />
           <SizeBox>Vault</SizeBox>
-          {/* </Link> */}
         </LIs>
-        <LIs>
-          {/* <Link to={""}> */}
+        <LIs
+          to="/stake"
+          className={location.pathname === "/stake" ? "LinkBg" : ""}
+        >
           <IconImgs src={a2img} />
           <SizeBox>Stake</SizeBox>
-          {/* </Link> */}
         </LIs>
         <LIs3 Bgcolor={Bgcolor} onClick={() => setBgcolor(!Bgcolor)}>
-          {/* <Link to={""}> */}
           <IconImgs src={a3img} />
           <SizeBox>Farm</SizeBox>
           <IconImgs2 src={xiaimg} Bgcolor={Bgcolor} />
-          {/* </Link> */}
         </LIs3>
         {Bgcolor ? (
           <>
-            <LIs2 Bgcolor={Bgcolor} className="list-l1">
-              {/* <Link to={""}> */}
+            <LIs2
+              Bgcolor={Bgcolor}
+              to="/allFarms"
+              className={
+                location.pathname === "/allFarms" ? "LinkBg list-l1" : "list-l1"
+              }
+            >
               <SizeBox>All Farms</SizeBox>
-              {/* </Link> */}
             </LIs2>
-            <LIs2 Bgcolor={Bgcolor} className="list-l2">
-              {/* <Link to={""}> */}
+            <LIs2
+              Bgcolor={Bgcolor}
+              to="/myPositions"
+              className={
+                location.pathname === "/myPositions"
+                  ? "LinkBg list-l2"
+                  : "list-l2"
+              }
+            >
               <SizeBox>My Positions</SizeBox>
-              {/* </Link> */}
             </LIs2>
-            <LIs2 Bgcolor={Bgcolor} className="list-l3">
-              {/* <Link to={""}> */}
+            <LIs2
+              Bgcolor={Bgcolor}
+              to="/liquidation"
+              className={
+                location.pathname === "/liquidation"
+                  ? "LinkBg list-l3"
+                  : "list-l3"
+              }
+            >
               <SizeBox>Liquidation</SizeBox>
-              {/* </Link> */}
             </LIs2>
           </>
         ) : null}
@@ -118,7 +144,7 @@ const Box = styled.div`
   flex-direction: column;
 `;
 const Uls = styled.ul``;
-const LIs = styled.li`
+const LIs = styled(Link)`
   width: 270px;
   padding: 25px 0;
   padding-left: 32px;
@@ -131,7 +157,7 @@ const LIs = styled.li`
     opacity: 1;
   }
 `;
-const LIs2 = styled.div<{ Bgcolor: boolean }>`
+const LIs2 = styled(Link)<{ Bgcolor: boolean }>`
   background-color: #ffffff10;
   width: 270px;
   padding: 25px 0;
@@ -140,13 +166,24 @@ const LIs2 = styled.div<{ Bgcolor: boolean }>`
   align-items: center;
   cursor: pointer;
   transition: all 0.5s;
-  opacity: 0.5;
+  /* opacity: 0.5;
   :hover {
     opacity: 1;
     background-color: #ffffff20;
-  }
+  } */
 `;
-const LIs3 = styled(LIs)<{ Bgcolor: boolean }>`
+const LIs3 = styled.div<{ Bgcolor: boolean }>`
+  width: 270px;
+  padding: 25px 0;
+  padding-left: 32px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.5s;
+  opacity: 0.5;
+  :hover {
+    opacity: 1;
+  }
   background-color: ${(props) => (props.Bgcolor ? "#ffffff20" : "")};
   opacity: ${(props) => (props.Bgcolor ? 1 : 0.5)};
 `;

@@ -5,32 +5,44 @@ import { hidehash } from "hooks/useWallet";
 import { Button, Btn } from "components/button/button";
 import { useWeb3React } from "@web3-react/core";
 import { Navlist } from "./NavList";
+import { WalletAssembly } from "../WalletAssembly/index";
 
 export const TypePageBox: React.FC<{ children: any }> = ({ children }) => {
   /**
    * 钱包地址
    */
   const { account, library, chainId } = useWeb3React();
+
+  const [WalletPopup, setWalletPopup] = useState<boolean>(false);
+  const onWalletPopup = () => {
+    setWalletPopup(!WalletPopup);
+  };
+
   return (
-    <Box>
-      {/* 顶部logo 和链接钱包按钮 */}
-      <TopBox>
-        <Logo src={Logoimg}></Logo>
-        <BtnBoxs>
-          <Button w={150} h={40}>
-            {hidehash(account)}
-          </Button>
-        </BtnBoxs>
-      </TopBox>
-      <BodyBox>
-        {/* 左侧导航栏 */}
-        <LeftBox>
-          <Navlist />
-        </LeftBox>
-        {/* 内容部分 */}
-        <ChildrenBox>{children}</ChildrenBox>
-      </BodyBox>
-    </Box>
+    <>
+      <Box>
+        {/* 顶部logo 和链接钱包按钮 */}
+        <TopBox>
+          <Logo src={Logoimg}></Logo>
+          <BtnBoxs>
+            <Button w={150} h={40} onClick={onWalletPopup}>
+              {hidehash(account)}
+            </Button>
+          </BtnBoxs>
+        </TopBox>
+        <BodyBox>
+          {/* 左侧导航栏 */}
+          <LeftBox>
+            <Navlist />
+          </LeftBox>
+          {/* 内容部分 */}
+          <ChildrenBox>{children}</ChildrenBox>
+        </BodyBox>
+      </Box>
+      {WalletPopup ? (
+        <WalletAssembly onClick={onWalletPopup}></WalletAssembly>
+      ) : null}
+    </>
   );
 };
 
@@ -59,6 +71,13 @@ const LeftBox = styled.div`
 `;
 const ChildrenBox = styled.div`
   flex: 1;
+  height: 85vh;
+  overflow: hidden;
+  padding-right: 40px;
+  overflow-y: scroll;
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Logo = styled.img`
@@ -66,5 +85,5 @@ const Logo = styled.img`
 `;
 
 const BtnBoxs = styled.div`
-    margin-top: 5px;
+  margin-top: 5px;
 `;

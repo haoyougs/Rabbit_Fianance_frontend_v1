@@ -6,15 +6,11 @@ import { useAuth } from "hooks/useAuth";
  * 链接钱包
  */
 export const useWallet = () => {
-    console.log("use wallet")
     const Login = useAuth();
     useEffect(() => {
         Login();
     }, []);
-   
-  
 }
-// 截取钱包地址的方法
 /**
  * 截取钱包地址的方法
  * @param str 钱包地址
