@@ -4,18 +4,19 @@ import closeImg from "assets/close@2x.png";
 import { TokenIcon } from "components/icon/tokenIcon";
 import { Button } from "components/button/button";
 import { ethers } from "ethers";
-
+import { useWeb3React } from '@web3-react/core'
 interface parameter {
   onClick: () => void;
 }
 
 export const WalletAssembly: React.FC<parameter> = ({ onClick }) => {
+  const { account} = useWeb3React()
   return (
     <>
       <BG onClick={onClick} />
       <Box>
         <TitleBox>
-          <div>{'  '}</div>
+          <div>{account}</div>
           <CloseBtn src={closeImg} onClick={onClick} />
         </TitleBox>
       </Box>

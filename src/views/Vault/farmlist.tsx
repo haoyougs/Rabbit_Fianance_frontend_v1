@@ -20,7 +20,7 @@ import store from "state";
 import { useSelector } from "react-redux";
 import { TokenList } from "./farmlist2";
 import { Link } from "react-router-dom";
-
+import ValueSkeleton from "components/ValueSkeleton"
 /**
  * Vault页面里的数据展示表格
  * @returns
@@ -33,13 +33,16 @@ export const ListBox: React.FC = () => {
   const onIbTokneBalance = useIbTokneBalance();
 
   useEffect(() => {
+    //没有钱包地址，不请求
     if (!account) {
       return;
     }
     onTotalBorrowedData();
     onTotalDepositData();
+    //library当前账户 account钱包地址
     onBNBTokneBalanc({ library: library, TokenAddress: account });
-
+    //Address当前钱包地址 Abi: ERC20 合约规范 library当前账户
+    //TokenAddress: ibBNB_ADDRESS, ibbnb地址
     onIbTokneBalance({
       Address: account,
       Abi: ERC20,
@@ -54,16 +57,17 @@ export const ListBox: React.FC = () => {
     onIbTokneBalance,
   ]);
   const listData = useSelector(store.getState);
-  const Data1 = listData.VaultReducer.BNB;
+  const BNBData = listData.VaultReducer.BNB;
+  // console.log(111, BNBData)
   /**
    * 路由跳转
    */
   const navigate = useNavigate();
   const DepositClick = () => {
-    navigate("/Deposit", { state: Data1.tokenName });
+    navigate("/Deposit", { state: BNBData.tokenName });
   };
   const WithdrawClick = () => {
-    navigate("/Withdraw", { state: Data1.tokenName });
+    navigate("/Withdraw", { state: BNBData.tokenName });
   };
 
   return (
@@ -82,8 +86,11 @@ export const ListBox: React.FC = () => {
       <TheadBox>
         <TdBox>Pool</TdBox>
         <TdBox>APY</TdBox>
+        {/* 总存款 */}
         <TdBox>Total Deposit</TdBox>
+        {/* 总借款 */}
         <TdBox>Total Borrowed</TdBox>
+        {/* 资金使用率  */}
         <TdBox>Utilization</TdBox>
         <TdBox>Your Balance</TdBox>
         <TdBox className="TdWdith">Action</TdBox>
@@ -92,39 +99,78 @@ export const ListBox: React.FC = () => {
         <TrBox>
           <TdBox>
             <TokenIcon IconName={"BNB"} />
-            <div style={{ marginLeft: 10 }}>BNB</div>
+            <div style={{ marginLeft: 10 }}>{BNBData.tokenName}</div>
           </TdBox>
-          <TdBox>Apy</TdBox>
           <TdBox>
+            {BNBData?.APY ?
+              BNBData?.APY
+              :
+              <ValueSkeleton width={50}></ValueSkeleton>
+            }
+          </TdBox>
+          <TdBox>
+            {/* 总存款 */}
             <div>
-              <div>{(Data1.TotalDeposit / 1).toFixed(2)}k</div>
-              <div style={{ marginTop: 10 }}>BNB</div>
+              <div>
+                {BNBData?.TotalDeposit ?
+                  `${(BNBData.TotalDeposit / 1).toFixed(2)}k`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+                {/* {(BNBData.TotalDeposit / 1).toFixed(2)}k */}
+              </div>
+              <div style={{ marginTop: 10 }}>{BNBData.tokenName}</div>
             </div>
           </TdBox>
           <TdBox>
+            {/* 总借款 */}
             <div>
-              <div>{(Data1.TotalBorrowed / 1).toFixed(2)}k</div>
-              <div style={{ marginTop: 10 }}>BNB</div>
+              <div>
+                {BNBData?.TotalBorrowed ?
+                  `${(BNBData.TotalBorrowed / 1).toFixed(2)}k`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+                {/* {(BNBData.TotalBorrowed / 1).toFixed(2)}k */}
+              </div>
+              <div style={{ marginTop: 10 }}>{BNBData.tokenName}</div>
             </div>
           </TdBox>
           <TdBox>
-            {((Data1.TotalBorrowed / Data1.TotalDeposit) * 100).toFixed(2)}%
+            {/* 资金使用率 总借款 / 总存款  */}
+            {BNBData?.TotalBorrowed ?
+              `${((BNBData.TotalBorrowed / BNBData.TotalDeposit) * 100).toFixed(2)}%`
+              :
+              <ValueSkeleton width={50}></ValueSkeleton>
+            }
+            {/* {((BNBData.TotalBorrowed / BNBData.TotalDeposit) * 100).toFixed(2)}% */}
           </TdBox>
           <TdBox>
+            {/* 余额 */}
             <div>
-              <div>{(Data1.Balance / 1).toFixed(6)} BNB</div>
+              <div>
+                {BNBData?.Balance ?
+                  `${(BNBData.Balance / 1).toFixed(2)} ${BNBData.tokenName}`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+              </div>
               <div style={{ marginTop: 10 }}>
-                {(Data1.ibBalance / 1).toFixed(6)} ibBNB
+                {BNBData?.ibBalance ?
+                  `${(BNBData.ibBalance / 1).toFixed(2)} ibBNB`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
               </div>
             </div>
           </TdBox>
           <TdBox className="TdWdith">
-            <Link to={`/Deposit/${Data1.tokenName}`}>
+            <Link to={`/Deposit/${BNBData.tokenName}`}>
               <Button w={100} h={35}>
                 Deposit
               </Button>
             </Link>
-            <Link to={`/Withdraw/${Data1.tokenName}`}>
+            <Link to={`/Withdraw/${BNBData.tokenName}`}>
               <Button w={100} h={35} ml={10}>
                 Withdraw
               </Button>

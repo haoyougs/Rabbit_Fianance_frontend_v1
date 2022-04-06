@@ -111,10 +111,11 @@ export const TokneBalanceS = createAsyncThunk<any, { library: any, TokenAddress:
     'tokenBalanceS',
     async ({ library, TokenAddress, key }) => {
         try {
-            if(library){
-             const Balances = await library?.getBalance(TokenAddress);
-            let Value = ethers.utils.formatUnits(Balances, 18)
-            return { value: Value, key: key }   
+            if (library) {
+                const Balances = await library?.getBalance(TokenAddress);
+                let Value = ethers.utils.formatUnits(Balances, 18)
+                console.log(333, Value)
+                return { value: Value, key: key }
             }
         } catch (e) {
             console.error('BNBTokneBalance获取时错误');
@@ -129,7 +130,7 @@ export const IbTokenBalance = createAsyncThunk<any, { Address: any, Abi: any, li
     'ibTokenBalanceS',
     async ({ Address, Abi, library, TokenAddress, key }) => {
         try {
-            
+
             const Tokenaddress = new Contract(TokenAddress, Abi, library);
             const Balances = await Tokenaddress.balanceOf(Address)
             let Value = ethers.utils.formatUnits(Balances, 18)

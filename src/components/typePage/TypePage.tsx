@@ -6,29 +6,45 @@ import { Button, Btn } from "components/button/button";
 import { useWeb3React } from "@web3-react/core";
 import { Navlist } from "./NavList";
 import { WalletAssembly } from "../WalletAssembly/index";
+import  useModal  from "hooks/useModal";
+import  SwitchNet  from "components/switchNetwork";
 
+import { ListenNetworkChanged } from "hooks/useAuth";
+// import { InjectConnector } from '../../utils/web3'
+// import { InjectedConnector } from '@web3-react/injected-connector'
+// import { useWallet } from 'use-wallet';
+import { getLibray } from "../../utils/web3";
 export const TypePageBox: React.FC<{ children: any }> = ({ children }) => {
   /**
    * 钱包地址
    */
-  const { account, library, chainId } = useWeb3React();
-
+  ListenNetworkChanged();
+  const { account,active, library, chainId,error,activate } = useWeb3React();
   const [WalletPopup, setWalletPopup] = useState<boolean>(false);
   const onWalletPopup = () => {
     setWalletPopup(!WalletPopup);
   };
-
+  const [onShow, onHide] =
+        useModal(<SwitchNet onHide={() => onHide()} />)
   return (
     <>
       <Box>
         {/* 顶部logo 和链接钱包按钮 */}
+        {/* <SwitchNet></SwitchNet> */}
         <TopBox>
           <Logo src={Logoimg}></Logo>
-          <BtnBoxs>
-            <Button w={150} h={40} onClick={onWalletPopup}>
-              {hidehash(account)}
-            </Button>
+          {account ?
+            <BtnBoxs>
+              <Button w={150} h={40} onClick={onShow}>
+                {hidehash(account)}
+              </Button>
+            </BtnBoxs>:
+              <BtnBoxs>
+              <Button w={150} h={40} onClick={onShow}>
+                Unlock Wallet
+              </Button>
           </BtnBoxs>
+        }
         </TopBox>
         <BodyBox>
           {/* 左侧导航栏 */}

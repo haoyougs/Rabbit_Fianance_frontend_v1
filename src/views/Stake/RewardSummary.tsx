@@ -21,19 +21,21 @@ export const RewardSummaryBox: React.FC = () => {
   const [Deposits, setDeposits] = useState<any>();
 
   useEffect(() => {
-    GETRewardSummary(ibBNB_FAIRLAUNCH_PID,account,FAIR_LAUNCH_ADDRESS).then((res) => {
+    GETRewardSummary(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then((res) => {
+      console.log(111, res)
       setEarned(res);
     });
-    DepositAmount(ibBNB_FAIRLAUNCH_PID,account,FAIR_LAUNCH_ADDRESS).then((res) => {
+    DepositAmount(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then((res) => {
+      console.log(222, res)
       setDeposits(res);
     });
   }, [GETRewardSummary, DepositAmount, account]);
 
   const ClaimClick = () => {
-    Claim(ibBNB_FAIRLAUNCH_PID,FAIR_LAUNCH_ADDRESS).then((res)=>{
-      if(res === true){
+    Claim(ibBNB_FAIRLAUNCH_PID, FAIR_LAUNCH_ADDRESS).then((res) => {
+      if (res === true) {
         alert('领取成功')
-      }else{
+      } else {
         alert('领取失败')
       }
     });
@@ -51,12 +53,12 @@ export const RewardSummaryBox: React.FC = () => {
           </RewardSummaryListBoxVal>
           <RewardSummaryListBoxVal>
             <RewardSummaryListBoxValBox1>Deposits:</RewardSummaryListBoxValBox1>
-            <TokenName>{(Deposits/1).toFixed(6)}</TokenName>
+            <TokenName>{(Deposits / 1).toFixed(6)}</TokenName>
           </RewardSummaryListBoxVal>
           <RewardSummaryListBoxVal>
             <RewardSummaryListBoxValBox1>Earned:</RewardSummaryListBoxValBox1>
             <RewardSummaryListBoxValBox2>
-              {(Earned/1).toFixed(6)} RABBIT
+              {(Earned / 1).toFixed(6)} RABBIT
             </RewardSummaryListBoxValBox2>
           </RewardSummaryListBoxVal>
           <RewardSummaryListBoxVal2>

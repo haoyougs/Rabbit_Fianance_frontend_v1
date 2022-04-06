@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TVL_ADDRESS, BANK_ADDRESS, BNB_ADDRESS } from "config/address";
 import { ERC20, BankABI, TVLABI } from "config/ABI";
-import { TotalDeposit, TotalBorrowed, Balance, IbToken } from "hooks/useVault";
-import { useEffect } from "react";
-import { useWeb3React } from "@web3-react/core";
+// import { TotalDeposit, TotalBorrowed, Balance, IbToken } from "hooks/useVault";
+// import { useEffect } from "react";
+// import { useWeb3React } from "@web3-react/core";
 import { getDefaultProvider, getSigner } from 'utils/provider'
 import { Contract, ethers } from "ethers";
 
@@ -13,9 +13,13 @@ const initialState = {
     {
         tokenName: 'BNB',
         APY: 1,
+        //银行BNB总存款
         TotalDeposit: 0,
+        //银行BNB借存款
         TotalBorrowed: 0,
+        //用户BNB余额
         Balance: 0,
+        //用户ibBNB余额
         ibBalance: 0
     },
 }
@@ -57,7 +61,6 @@ export const TotalBorrowedData = createAsyncThunk<any>(
 export const BNBTokneBalance = createAsyncThunk<any, { library: any, TokenAddress: any }>(
     'tokenBalances',
     async ({ library, TokenAddress }) => {
-
         try {
             const Balances = await library?.getBalance(TokenAddress);
             let Value = ethers.utils.formatUnits(Balances, 18)
@@ -95,26 +98,25 @@ const Slice = createSlice({
         // 异步action 的三种状态，完成没有错误的情况
         builder.addCase(TotalDepositData.pending, (state) => { })
         builder.addCase(TotalDepositData.fulfilled, (state, action) => {
-            state.BNB.TotalDeposit = action.payload
+            state.BNB.TotalDeposit = action?.payload
         })
+        // // rejected状态
+        builder.addCase(TotalDepositData.rejected, (state) => { })
 
         builder.addCase(TotalBorrowedData.pending, (state) => { })
         builder.addCase(TotalBorrowedData.fulfilled, (state, action) => {
-            state.BNB.TotalBorrowed = action.payload
+            state.BNB.TotalBorrowed = action?.payload
         })
 
         builder.addCase(BNBTokneBalance.pending, (state) => { })
         builder.addCase(BNBTokneBalance.fulfilled, (state, action) => {
-            state.BNB.Balance = action.payload
+            state.BNB.Balance = action?.payload
         })
 
         builder.addCase(IbTokenBalance.pending, (state) => { })
         builder.addCase(IbTokenBalance.fulfilled, (state, action) => {
-            state.BNB.ibBalance = action.payload
+            state.BNB.ibBalance = action?.payload
         })
-
-
-
     }
 })
 

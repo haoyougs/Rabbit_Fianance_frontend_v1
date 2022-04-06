@@ -83,7 +83,7 @@ const Box = styled.div<{
   margin-bottom: ${(props) => props.mb}px;
   margin-top: ${(props) => props.mt}px;
   border-radius: ${(props) => props.h}px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -94,7 +94,7 @@ const Box = styled.div<{
   font-style: normal;
   line-height: 1;
   letter-spacing: normal;
-  color: rgba(255, 255, 255);
+  color: rgba(255, 255, 255,0.5);
   background: ${(props) => (props.Select ? "rgba(255, 255, 255,0.1)" : "")};
   opacity: ${(props) => (props.disabled ? "1" : "0.2")};
   cursor: ${(props) => (props.disabled ? "pointer" : "not-allowed")};

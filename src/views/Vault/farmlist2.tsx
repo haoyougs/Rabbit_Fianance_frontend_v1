@@ -17,7 +17,7 @@ import {
 } from "state/VaultList/hooks";
 import { Router } from "react-router-dom";
 import { ERC20 } from "config/ABI";
-
+import ValueSkeleton from "components/ValueSkeleton"
 /**
  * Vault页面里的数据展示表格
  * @returns
@@ -29,24 +29,30 @@ export const TokenList: React.FC = () => {
   const OnTotalBorrowedData = useTotalBorrowedData();
   const OnTokneBalance = useTokneBalance();
   const OnIbTokenBalance = useIbTokenBalance();
-  const awer = (library: any) => {    
+  //请求接口
+  const awer = (library: any) => {
     VAultListAddress.forEach((item, key) => {
+      //银行币种存款总量
       OnTotalDeposit({
         bankAddress: item.bankAddress,
         tikenAddress: item.tikenAddress,
         key: key,
       });
+      //获取银行总借款
       OnTotalBorrowedData({
         TokenAddress: item.tikenAddress,
         key: key,
       });
+      //获取用户币种余额
       if (library) {
+        console.log(item)
         OnTokneBalance({
           library: library,
           TokenAddress: item.tikenAddress,
           key: key,
         });
       }
+      //获取用户ibtoken余额
       if (library) {
         OnIbTokenBalance({
           Address: account,
@@ -60,14 +66,16 @@ export const TokenList: React.FC = () => {
   };
   const Store = useSelector(store.getState);
   let Data = Store.VaultList;
-  // console.log(Store.VaultList);
+  // console.log(333, Data);
   // const [Data, setData] = useState(Store.VaultList);
-
   const navigate = useNavigate();
-
   useEffect(() => {
+    //没有钱包地址，不请求
+    if (!account) {
+      return;
+    }
     awer(library);
-  }, [library]);
+  }, [library, account]);
 
   return (
     <>
@@ -77,29 +85,63 @@ export const TokenList: React.FC = () => {
             <TokenIcon IconName={item.tokenName} />
             <div style={{ marginLeft: 10 }}>{item.tokenName}</div>
           </TdBox>
-          <TdBox>Apy</TdBox>
           <TdBox>
-            <div>
-              <div>{(item.TotalDeposit / 1).toFixed(2)}</div>
-              <div style={{ marginTop: 10 }}>{item.tokenName}</div>
-            </div>
+            {item?.APY ?
+              item?.APY
+              :
+              <ValueSkeleton width={50}></ValueSkeleton>
+            }
           </TdBox>
           <TdBox>
-            <div>
-              <div>{(item.TotalBorrowed / 1).toFixed(2)}</div>
-              <div style={{ marginTop: 10 }}>{item.tokenName}</div>
-            </div>
-          </TdBox>
-          <TdBox>
-            {((item.TotalBorrowed / item.TotalDeposit) * 100).toFixed(2)}%
-          </TdBox>
-          <TdBox>
+            {/* 总存款 */}
             <div>
               <div>
-                {(item.Balance / 1).toFixed(6)} {item.tokenName}
+                {item?.TotalDeposit ?
+                  `${(item?.TotalDeposit / 1).toFixed(2)}k`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+              </div>
+              <div style={{ marginTop: 10 }}>{item.tokenName}</div>
+            </div>
+          </TdBox>
+          <TdBox>
+            <div>
+              {/* 总借款 */}
+              <div>
+                {item?.TotalBorrowed ?
+                  `${(item?.TotalBorrowed / 1).toFixed(2)}k`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+              </div>
+              <div style={{ marginTop: 10 }}>{item.tokenName}</div>
+            </div>
+          </TdBox>
+          <TdBox>
+            {/* 资金使用率 总借款 / 总存款  */}
+            {item?.TotalBorrowed ?
+              `${((item.TotalBorrowed / item.TotalDeposit) * 100).toFixed(2)}%`
+              :
+              <ValueSkeleton width={50}></ValueSkeleton>
+            }
+          </TdBox>
+          <TdBox>
+            {/* 余额 */}
+            <div>
+              <div>
+                {item?.Balance ?
+                  `${(item.Balance / 1).toFixed(6)} ${item.tokenName}`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
               </div>
               <div style={{ marginTop: 10 }}>
-                {(item.ibBalance / 1).toFixed(6)} ib{item.tokenName}
+                {item?.ibBalance ?
+                  `${(item.ibBalance / 1).toFixed(6)} ib${item.tokenName}`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
               </div>
             </div>
           </TdBox>

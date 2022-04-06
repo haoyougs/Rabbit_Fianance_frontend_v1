@@ -1,7 +1,7 @@
 /**
  * 支持的链
  */
- export const SuportChain = {
+export const SuportChain = {
     eth: {
         chainId: 1,
         name: 'eth'
@@ -95,7 +95,7 @@ export const SupportChains = [SuportChain.bsc].map(item => item.chainId)
  * wallet connect 支持的链
  */
 export const WalletMapChains = {
-    [SuportChain.bsc.chainId]: 'https://bsc-dataseed.binance.org'
+    [SuportChain.bsc.chainId]: 'https://bsc-dataseed1.binance.org'
 }
 /**
  * 应用初始应用链

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux'
 
 /**
  * 获取银行币种存款总量
- * @returns 
+ * @returns
  */
 export const useTotalDepositData = () => {
     const dispatch = useDispatch() //store.dispatch
@@ -14,7 +14,7 @@ export const useTotalDepositData = () => {
 }
 /**
  * 获取银行币种借款总量
- * @returns 
+ * @returns
  */
 export const useTotalBorrowedData = () => {
     const dispatch = useDispatch()
@@ -24,7 +24,7 @@ export const useTotalBorrowedData = () => {
 }
 /**
  * 获取用户的币种余额
- * @returns 
+ * @returns
  */
 export const useBNBTokneBalance = () => {
     const dispatch = useDispatch();

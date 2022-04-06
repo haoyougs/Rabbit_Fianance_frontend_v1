@@ -7,8 +7,8 @@ import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
  * 过度动画
  */
 export const LoadingBox: React.FC<{ height?: number; width?: number }> = ({
-  height=20,
-  width=60,
+  height = 20,
+  width = 60,
 }) => {
   return (
     <SkeletonTheme
@@ -49,21 +49,22 @@ export function fmoney(s: string, n: number) {
 
 /**
  * 数字滚动
- * @param param0 
- * @returns 
+ * @param param0
+ * @returns
  */
 export const NumberRoll: React.FC<{
   item: {
     numerical: any;
     decimal: number;
-    loadW:number;
-    loadH:number;
+    loadW: number;
+    loadH: number;
   };
-}> = ({ item: { numerical, decimal,loadW,loadH } }) => {
+}> = ({ item: { numerical, decimal, loadW, loadH } }) => {
+  // 动画
   const props = useSpring({ number: numerical ? Number(numerical) : 0 });
 
   if (numerical === null) {
-    return <LoadingBox width={loadW} height={loadH}/>;
+    return <LoadingBox width={loadW} height={loadH} />;
   }
 
   // const field = numerical && String(numerical)?.split('.')[1] ? String(numerical)?.split('.')[1].length : 0

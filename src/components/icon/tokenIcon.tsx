@@ -33,7 +33,7 @@ import ibMDX from "assets/currency/ibmdx@3x.png";
 // import ibTUSD from 'assets/currency/ibTUSD@2x.png'
 import ibADA from "assets/currency/ibada@2x.png";
 import ibFIL from "assets/currency/ibfil@2x.png";
-import ibDOT from "assets/currency/ibDOT@2x.png";
+import ibDOT from "assets/currency/ibdot@2x.png";
 import ibLINK from "assets/currency/iblink@2x.png";
 import ibXVS from "assets/currency/ibxvs@2x.png";
 import ibUNI from "assets/currency/ibuni@2x.png";

@@ -7,16 +7,27 @@ import { AuditBox } from "components/backgroundBox/AuditBox";
 import { ListBox } from "./farmlist";
 import '../index.css'
 import { NoticeBox } from "components/notice";
+import { useWeb3React } from "@web3-react/core";
 /**
  * Vault页面内容部分
  */
 export const Vault: React.FC = () => {
-  let [Tvl, setTvl] = useState(Number);
+  const { account, library } = useWeb3React();
+  let [Tvl, setTvl] = useState<Number>(0.00);
+
+  //获取Total Value Locked
   useEffect(() => {
+    // console.log(111, account)
+    //没有钱包地址，不请求
+    if (!account) {
+      setTvl(0);
+      return;
+    }
     TvlValue().then((res) => {
+      setTvl(0);
       setTvl(res);
     });
-  }, [TvlValue]);
+  }, [TvlValue, account, library]);
   return (
     <Content>
       {/* Total Value Locked 数值展示 */}
@@ -35,9 +46,9 @@ export const Vault: React.FC = () => {
         </div>
       </Box>
       {/* 银行表单 */}
-      <ListBox/>
+      <ListBox />
       {/* 审计 */}
-      <AuditBox/>
+      <AuditBox />
     </Content>
   );
 };

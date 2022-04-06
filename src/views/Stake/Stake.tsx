@@ -43,8 +43,8 @@ export const Stake: React.FC = () => {
     setAmount(ibBalance);
   };
   const StateClick = () => {
-    Pledge(account, ibBNB_FAIRLAUNCH_PID, Amount, FAIR_LAUNCH_ADDRESS).then((res)=>{
-      if(res === true){
+    Pledge(account, ibBNB_FAIRLAUNCH_PID, Amount, FAIR_LAUNCH_ADDRESS).then((res) => {
+      if (res === true) {
         alert('质押成功')
       }
     });

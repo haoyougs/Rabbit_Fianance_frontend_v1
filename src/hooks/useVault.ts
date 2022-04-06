@@ -11,6 +11,7 @@ import { Contract, ethers } from "ethers";
 export const TvlValue = async () => {
     const TvlAddress = new Contract(TVL_ADDRESS, TVL_ABI, getDefaultProvider())
     const TvlAddressVal = await TvlAddress.getTvl('tvl')
+    //二进制转换
     let Value = Number(TvlAddressVal._hex)
     return Value
 }
@@ -63,9 +64,11 @@ export const IbToken = async (Address: any, Abi: any, library: any, TokenAddress
  */
 export const Deposit = async (address: string, abi: any, token: string, amount: string) => {
     try {
+        console.log(333, amount)
         const Banks = new Contract(address, abi, getSigner());
+        console.log(444, Banks)
         const Result = await Banks.deposit(token, ethers.utils.parseEther(amount));
-        await Result.wait()
+        // await Result.wait()
         // console.log('存入成功', Result);
         return true
     } catch (e) {

@@ -1,3 +1,12 @@
 {
-    "problems.showCurrentInStatus": true
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "emmet.includeLanguages": {
+        "javascript": "javascriptreact"
+    },
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.rulers": [],
+    "editor.tabSize": 4,
+    "editor.wordWrapColumn": 80,
+    "files.trimTrailingWhitespace": true,
 }

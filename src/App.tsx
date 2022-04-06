@@ -17,7 +17,7 @@ import { AllFarmsPage } from "views/Farm/AllFarms/AllFarms";
 import { LiquidationPage } from "views/Farm/Liquidation/Liquidation";
 import { MyPositionsPage } from "views/Farm/MyPositions/MyPosition";
 import { SupplyPage } from "views/Farm/AllFarms/Supply";
-
+import ModalsProvider from "contexts/Motal";
 function App() {
   useWallet();
   return (
@@ -26,22 +26,24 @@ function App() {
         <Router>
           <Box>
             {/* 页面的框架 */}
-            <TypePageBox>
-              <Routes>
-                {/* 页面的内容 */}
-                <Route path="/" element={<Vault />} />
-                <Route path="/Deposit/:id" element={<DepositBox />} />
-                <Route path="/Withdraw/:id" element={<WithdrawBox />} />
-                <Route path="/stake" element={<StakePage />} />
-                <Route path="/stake/stake/:id" element={<Stake />} />
-                <Route path="/stake/unstake/:id" element={<Unstake />} />
+            <ModalsProvider>
+              <TypePageBox>
+                <Routes>
+                  {/* 页面的内容 */}
+                  <Route path="/" element={<Vault />} />
+                  <Route path="/Deposit/:id" element={<DepositBox />} />
+                  <Route path="/Withdraw/:id" element={<WithdrawBox />} />
+                  <Route path="/stake" element={<StakePage />} />
+                  <Route path="/stake/stake/:id" element={<Stake />} />
+                  <Route path="/stake/unstake/:id" element={<Unstake />} />
 
-                <Route path="/allFarms" element={<AllFarmsPage />} />
-                <Route path="/positions/:id" element={<SupplyPage />} />
-                <Route path="/myPositions" element={<MyPositionsPage />} />
-                <Route path="/liquidation" element={<LiquidationPage />} />
-              </Routes>
-            </TypePageBox>
+                  <Route path="/allFarms" element={<AllFarmsPage />} />
+                  <Route path="/positions/:id" element={<SupplyPage />} />
+                  <Route path="/myPositions" element={<MyPositionsPage />} />
+                  <Route path="/liquidation" element={<LiquidationPage />} />
+                </Routes>
+              </TypePageBox>
+            </ModalsProvider>
           </Box>
         </Router>
       </Suspense>

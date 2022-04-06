@@ -21,25 +21,34 @@ import { NoticeBox } from "components/notice";
  */
 export const DepositBox: React.FC = () => {
   let Routes = useParams();
+  const navigate = useNavigate();
   const TokenNames = Routes.id;
+  const { account, library } = useWeb3React();
+
   const [Notice, setNotice] = useState(false);
   const [Notice2, setNotice2] = useState(false);
   const [NoticeText, setNoticeText] = useState("");
-
+  //获取
   const ListData = useSelector(store.getState);
-  console.log(ListData as unknown as string);
+  // console.log(111, ListData);
   let data = ListData.VaultList.filter((el) => el.tokenName === TokenNames);
+  // console.log(222, data)
   //拿到的数据
   let Data: any = {};
   data.map((item) => {
     Data = item;
   });
+  const Store = useSelector(store.getState);
+  console.log(444, Store.VaultList)
+  // 可存的钱
+  let Amounts = () => {
+    if (TokenNames == 'BNB') {
+      return ListData.VaultReducer.BNB.Balance;
+    } else {
+      return 1;
+    }
+  }
 
-  let Amounts = ListData.VaultReducer.BNB.Balance;
-
-  const { account, library } = useWeb3React();
-
-  const navigate = useNavigate();
   /**
    * 返回上一级
    */
@@ -59,6 +68,7 @@ export const DepositBox: React.FC = () => {
       }
       setAmount(value);
       if (value) {
+        // 计息币ibBNB
         Receive(BANK_ADDRESS, BankABI, BNB_ADDRESS, value.toString()).then(
           (res) => {
             setReceiveVal(res);
@@ -67,10 +77,9 @@ export const DepositBox: React.FC = () => {
       }
     }
   };
+  // 存款
   const DepositClick = () => {
     if (Amount) {
-      console.log(Amount);
-
       Deposit(BANK_ADDRESS, BankABI, BNB_ADDRESS, Amount.toString()).then(
         (res) => {
           if (res === true) {
@@ -88,9 +97,11 @@ export const DepositBox: React.FC = () => {
   /**
    * 最多可存入的币
    */
+
+
   const MaxClick = () => {
-    // console.log(Amounts);
     setAmount(Amounts);
+    // 计息币ibBNB
     Receive(BANK_ADDRESS, BankABI, BNB_ADDRESS, Amounts.toString()).then(
       (res) => {
         setReceiveVal(res);
@@ -101,17 +112,31 @@ export const DepositBox: React.FC = () => {
   //判断是否已授权
   const [BtnDisabled, setBtnDisabled] = useState(false);
   const [ApproveBtn, setApproveBtn] = useState(false);
+
   const TokenAddress = Data.tokenAddress;
+  // 授权
   useEffect(() => {
+    //BNB不需要授权
+    if (TokenNames === "BNB") {
+      setApproveBtn(true);
+      return;
+    }
+    //TokenNames 当前币name TokenAddress 当前币的地址 ERC20 合约规范
+    //account钱包地址
     Approveds(TokenNames, TokenAddress, ERC20, account).then((res) => {
       console.log("是否授权", res);
-      setApproveBtn(res as boolean);
+      if (res) {
+        setApproveBtn(res as boolean);
+      }
     });
   }, [TokenAddress]);
   const [ApproveBtn2, setApproveBtn2] = useState(false);
   //授权操作
   const OnApproveClick = () => {
+    console.log(444)
     setBtnDisabled(true);
+    //TokenNames 当前币name TokenAddress 当前币的地址 ERC20 合约规范
+    //account钱包地址 library当前账户
     ApproveWay(TokenNames, TokenAddress, ERC20, account, library).then(
       (res) => {
         if (res) {
@@ -127,7 +152,6 @@ export const DepositBox: React.FC = () => {
       }
     );
   };
-
   return (
     <>
       {Notice ? (
@@ -185,6 +209,7 @@ export const DepositBox: React.FC = () => {
             staking reward
           </TipsBox>
           {ApproveBtn ? (
+            // 存款
             <Button
               w={0}
               h={40}
@@ -195,6 +220,7 @@ export const DepositBox: React.FC = () => {
               Deposit
             </Button>
           ) : (
+            // 授权
             <Button
               w={0}
               h={40}
