@@ -3,12 +3,14 @@ import reducer from "./reducer";
 import { VaultReducer } from "./Vault/slise";
 import { VaultList } from './VaultList/slise'
 import { AllFroms } from './AllFarm/slise';
+import { Notice } from "./TypePage/slice"
 
 export const store = configureStore({
     reducer: {
         VaultReducer: VaultReducer,
         VaultList: VaultList,
-        AllFroms:AllFroms
+        AllFroms: AllFroms,
+        Notice: Notice
     }
 })
 

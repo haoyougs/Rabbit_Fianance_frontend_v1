@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { BgBox } from "components/backgroundBox/background";
 import { TokenIcon } from "components/icon/tokenIcon";
 import { Button } from "components/button/button";
 import "../index.css";
 import { Deposit, Receive } from "hooks/useVault";
-import { BANK_ADDRESS, BNB_ADDRESS } from "config/address";
+import { BANK_ADDRESS, BNB_ADDRESS, ibBNB_ADDRESS, VAultListAddress, BUSD_ADDRESS } from "config/address";
 import { ERC20, BankABI } from "config/ABI";
 import store from "state";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
 import { Approveds, ApproveWay } from "utils/tokenApproved";
 import { useWeb3React } from "@web3-react/core";
 import { NoticeBox } from "components/notice";
-
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import {
+  getBNBTokneBalance,
+  getIbTokenBalance,
+  TokneBalanceS
+} from "state/Vault/hooks";
 /**
  * Deposit存款页面
  * @returns
@@ -23,97 +27,59 @@ export const DepositBox: React.FC = () => {
   let Routes = useParams();
   const navigate = useNavigate();
   const TokenNames = Routes.id;
+  const urlIndex = useLocation()?.search.replace("?", "");
+  const setNotice = UpdateNotice();
+  const setNotice2 = UpdateNotice2();
+  const setNoticeText = UpdateNoticeText();
   const { account, library } = useWeb3React();
-
-  const [Notice, setNotice] = useState(false);
-  const [Notice2, setNotice2] = useState(false);
-  const [NoticeText, setNoticeText] = useState("");
-  //获取
-  const ListData = useSelector(store.getState);
-  // console.log(111, ListData);
-  let data = ListData.VaultList.filter((el) => el.tokenName === TokenNames);
-  // console.log(222, data)
-  //拿到的数据
-  let Data: any = {};
-  data.map((item) => {
-    Data = item;
-  });
-  const Store = useSelector(store.getState);
-  console.log(444, Store.VaultList)
-  // 可存的钱
-  let Amounts = () => {
-    if (TokenNames == 'BNB') {
-      return ListData.VaultReducer.BNB.Balance;
+  //判断是否已授权
+  const [BtnDisabled, setBtnDisabled] = useState(false);
+  const [ApproveBtn, setApproveBtn] = useState(false);
+  const [DepositBtn, setDepositBtn] = useState(false);
+  //原始数据
+  const [Amounts, setAmounts] = useState<any>(0);
+  const [ReceiveVal, setReceiveVal] = useState<any>(0);
+  //输入框输入的存款数量
+  const [Amount, setAmount] = useState<any>("");
+  const [VAultListAddressInfo, setVAultListAddressInfo] = useState<any>({})
+  useEffect(() => {
+    setVAultListAddressInfo(VAultListAddress[Number(urlIndex)])
+  }, [urlIndex])
+  // console.log("VAultListAddressInfo", VAultListAddressInfo)
+  //获取币的数量
+  useEffect(() => {
+    if (TokenNames === "BNB") {
+      if (!account) {
+        return;
+      }
+      //library当前账户 account钱包地址
+      getBNBTokneBalance(library, account).then(res => {
+        console.log("aaa", res);
+        setAmounts(res);
+      });
     } else {
-      return 1;
+      if (library && VAultListAddressInfo?.tikenAddress) {
+        TokneBalanceS(
+          account,
+          ERC20,
+          library,
+          VAultListAddressInfo?.tikenAddress,
+        ).then(res => {
+          setAmounts(res);
+        })
+      }
     }
-  }
-
+  }, [account, library, VAultListAddressInfo])
   /**
    * 返回上一级
    */
   const BackClick = () => {
     navigate("/");
   };
-  //输入框输入的存款数量
-  const [Amount, setAmount] = useState<any>();
-  const [ReceiveVal, setReceiveVal] = useState("0");
-  //输入框事件
-  const AmountChange = (e: any) => {
-    let { value } = e.target;
-    const reg = /^-?\d*(\.\d*)?$/;
-    if ((!isNaN(value) && reg.test(value)) || value === "") {
-      if (value > Number(Amounts)) {
-        value = Number(Amounts);
-      }
-      setAmount(value);
-      if (value) {
-        // 计息币ibBNB
-        Receive(BANK_ADDRESS, BankABI, BNB_ADDRESS, value.toString()).then(
-          (res) => {
-            setReceiveVal(res);
-          }
-        );
-      }
-    }
-  };
-  // 存款
-  const DepositClick = () => {
-    if (Amount) {
-      Deposit(BANK_ADDRESS, BankABI, BNB_ADDRESS, Amount.toString()).then(
-        (res) => {
-          if (res === true) {
-            setAmount(Number);
-            setNoticeText("存款成功");
-            setNotice(true);
-          } else {
-            setNoticeText("存款失败");
-            setNotice2(true);
-          }
-        }
-      );
-    }
-  };
-  /**
-   * 最多可存入的币
-   */
-
-
-  const MaxClick = () => {
-    setAmount(Amounts);
-    // 计息币ibBNB
-    Receive(BANK_ADDRESS, BankABI, BNB_ADDRESS, Amounts.toString()).then(
-      (res) => {
-        setReceiveVal(res);
-      }
-    );
-  };
-
-  //判断是否已授权
-  const [BtnDisabled, setBtnDisabled] = useState(false);
-  const [ApproveBtn, setApproveBtn] = useState(false);
-
-  const TokenAddress = Data.tokenAddress;
+  // 当前的tokenAddress
+  const TOKEN_ADDRESS = TokenNames === "BNB" ? BNB_ADDRESS : VAultListAddressInfo?.tikenAddress;
+  // 当前的tokenAddress
+  const IB_TOKEN_ADDRESS = TokenNames === "BNB" ? BNB_ADDRESS : VAultListAddressInfo?.ibtokenAddress;
   // 授权
   useEffect(() => {
     //BNB不需要授权
@@ -121,40 +87,119 @@ export const DepositBox: React.FC = () => {
       setApproveBtn(true);
       return;
     }
-    //TokenNames 当前币name TokenAddress 当前币的地址 ERC20 合约规范
+    setBtnDisabled(true);
+    //TokenNames 当前币name TOKEN_ADDRESS 当前币的地址 ERC20 合约规范
     //account钱包地址
-    Approveds(TokenNames, TokenAddress, ERC20, account).then((res) => {
+    if (!TOKEN_ADDRESS || !account) {
+      return;
+    }
+    const ApprovedAddress = IB_TOKEN_ADDRESS;
+    Approveds(TokenNames, account, ERC20, TOKEN_ADDRESS, library, ApprovedAddress).then((res) => {
+      setBtnDisabled(false);
       console.log("是否授权", res);
       if (res) {
+        // setBtnDisabled(res as boolean)
         setApproveBtn(res as boolean);
       }
     });
-  }, [TokenAddress]);
-  const [ApproveBtn2, setApproveBtn2] = useState(false);
+  }, [TOKEN_ADDRESS, account]);
+  // const [ApproveBtn2, setApproveBtn2] = useState(false);
   //授权操作
   const OnApproveClick = () => {
-    console.log(444)
     setBtnDisabled(true);
-    //TokenNames 当前币name TokenAddress 当前币的地址 ERC20 合约规范
+    //TokenNames 当前币name TOKEN_ADDRESS 当前币的地址 ERC20 合约规范
     //account钱包地址 library当前账户
-    ApproveWay(TokenNames, TokenAddress, ERC20, account, library).then(
+    const ApprovedAddress = IB_TOKEN_ADDRESS;
+    ApproveWay(TokenNames, TOKEN_ADDRESS, ERC20, account, library, ApprovedAddress).then(
       (res) => {
+        setBtnDisabled(false);
         if (res) {
-          setNoticeText("授权成功");
+          setNoticeText("Approve succeed");
           setNotice(true);
           setApproveBtn(res as boolean);
-          setApproveBtn2(res as boolean);
-          setBtnDisabled(false);
+          // setApproveBtn2(res as boolean);
         } else {
           setNotice2(true);
-          setNoticeText("授权失败");
+          setNoticeText("Approve fail");
         }
       }
     );
   };
+  //输入框事件
+  const AmountChange = (e: any) => {
+    let { value } = e.target;
+    const reg = /^-?\d*(\.\d*)?$/;
+    if ((!isNaN(value) && reg.test(value)) || value === "") {
+      if (value > Number(Amounts)) {
+        value = parseFloat(Amounts).toFixed(6);
+      }
+      setAmount(value);
+      if (value) {
+        // 计息币ibBNB
+        Receive(BANK_ADDRESS, BankABI, TOKEN_ADDRESS, value.toString()).then(
+          (res) => {
+            setReceiveVal(res);
+          }
+        );
+      }
+    }
+  };
+  useEffect(() => {
+    if (Amount > 0) {
+      setDepositBtn(true);
+    } else {
+      setDepositBtn(false);
+      setReceiveVal(0);
+    }
+  }, [Amount])
+  /**
+   * 最多可存入的币
+   */
+  const MaxClick = () => {
+
+    if (0 >= Number(Amounts)) {
+      return;
+    }
+    setAmount(parseFloat(Amounts).toFixed(6));
+    if (!TOKEN_ADDRESS) {
+      return;
+    }
+    // 计息币ibBNB
+    Receive(BANK_ADDRESS, BankABI, TOKEN_ADDRESS, Amounts.toString()).then(
+      (res) => {
+        console.log(res)
+        setReceiveVal(res);
+      }
+    );
+  };
+
+  // 存款
+  const DepositClick = () => {
+    if (Amount) {
+      setBtnDisabled(true);
+      Deposit(BANK_ADDRESS, BankABI, TOKEN_ADDRESS, Amount.toString(), TokenNames).then(
+        (res) => {
+          console.log(res);
+          if (res === true) {
+            setAmount(Number);
+            setNoticeText("Deposit Approve");
+            setNotice(true);
+            setBtnDisabled(false);
+          } else {
+            setNoticeText("Deposit fail");
+            setNotice2(true);
+            setBtnDisabled(false);
+          }
+        }
+      );
+    } else {
+      setNoticeText("Amount not empty");
+      setNotice2(true);
+    }
+  };
   return (
     <>
-      {Notice ? (
+      {/* {Notice ? (
         <div onClick={() => setNotice(false)}>
           <NoticeBox>{NoticeText} </NoticeBox>
         </div>
@@ -163,7 +208,7 @@ export const DepositBox: React.FC = () => {
         <div onClick={() => setNotice2(false)}>
           <NoticeBox Shou={!Notice2}>{NoticeText}</NoticeBox>
         </div>
-      ) : null}
+      ) : null} */}
 
       <Box className="textAnimation2">
         <LBox>
@@ -184,7 +229,7 @@ export const DepositBox: React.FC = () => {
         <RBox>
           <Title>I’d like to deposit</Title>
           <BalanceBox>
-            Balance ： {Amounts} {TokenNames as string}
+            Balance ： {parseFloat(Amounts).toFixed(6)} {TokenNames as string}
           </BalanceBox>
           <InpBox>
             <TokenIcon IconName={TokenNames as string} />
@@ -201,7 +246,7 @@ export const DepositBox: React.FC = () => {
           <ReceiveBox>
             You will receive ：
             <Values>
-              {ReceiveVal} ib{TokenNames as string}
+              {!ReceiveVal ? "0.00" : parseFloat(ReceiveVal).toFixed(6)} ib{TokenNames as string}
             </Values>
           </ReceiveBox>
           <TipsBox>
@@ -214,7 +259,7 @@ export const DepositBox: React.FC = () => {
               w={0}
               h={40}
               mt={60}
-              disabled={!BtnDisabled}
+              disabled={DepositBtn}
               onClick={DepositClick}
             >
               Deposit
@@ -228,7 +273,7 @@ export const DepositBox: React.FC = () => {
               disabled={!BtnDisabled}
               onClick={OnApproveClick}
             >
-              Approve USDT
+              Approve {TokenNames}
             </Button>
           )}
         </RBox>

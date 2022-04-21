@@ -4,150 +4,310 @@ import closeImg from "assets/close@2x.png";
 import { TokenIcon } from "components/icon/tokenIcon";
 import { Button } from "components/button/button";
 import { useWeb3React } from "@web3-react/core";
-import { TokenBalance1 } from "hooks/useMyPosition";
 import { LoadingBox } from "components/Loading";
 import { Replenishment } from "hooks/useMyPosition";
 import { AssetsBorrowed } from "hooks/useSupply";
-import { PANCAKE_ROUTE } from "config/LPAddress";
+import { PANCAKE_ROUTE, MDEX_ROUTE } from "config/LPAddress";
 import { ethers } from "ethers";
 import store from "state";
 import { useSelector } from "react-redux";
 import { NoticeBox } from "components/notice/index";
-
+import { TokenBalance1, TokneBalanceS } from "hooks/useMyPosition";
+import { Approveds, ApproveWay } from "utils/tokenApproved";
+import { ERC20 } from "config/ABI";
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
 interface parameter {
   onClick: () => void;
-  Data: any;
+  info: any;
 }
 
-export const AddCollateralPage: React.FC<parameter> = ({ onClick, Data }) => {
+export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   //获取钱包地址
   let { account, library } = useWeb3React();
-  console.log(Data);
-
-  //判断当前币种是否是bnb
-  let token0: string | null | undefined;
-  if (Data.token0 == "0x0000000000000000000000000000000000000000") {
-    token0 = account;
-  } else {
-    token0 = Data.token0;
-  }
-  let token1: string | null | undefined;
-  if (Data.token1 == "0x0000000000000000000000000000000000000000") {
-    token1 = account;
-  } else {
-    token1 = Data.token1;
-  }
+  //杠杆比例
+  const RatioArrs = [0.25, 0.5, 0.75, 1]
+  const LPAddress = info.LPAddress;
+  const Ellipsis = LPAddress.Ellipsis;
+  const Data = info.item;
+  const Names = info.LPAddress.LPtokenName
+  const Token0Name = Names?.split("-")[0];
+  const Token1Name = Names?.split("-")[1];
+  // console.log(info, Ellipsis);
   //获取账户余额的变量
-  let [Token0Balance, setToken0Balance] = useState<Number>();
-  let [Token1Balance, setToken1Balance] = useState<Number>();
-
+  let [Token0Balance, setToken0Balance] = useState<any>();
+  let [Token1Balance, setToken1Balance] = useState<any>();
   //token0的输入框
-  const [Amount0, setAmount0] = useState<any>();
+  const [Amount0, setAmount0] = useState<any>("0");
+  //token1的输入框
+  const [Amount1, setAmount1] = useState<any>("0");
+  //授权按钮的状态默认为true
+  const [ApprovdDisabled, setApprovdDisabled] = useState<boolean>(true);
+  const [ApproveBtn0, setApproveBtn0] = useState(true);
+  const [ApproveBtn1, setApproveBtn1] = useState(true);
+  const [FarmBtn, setFarmBtn] = useState(false);
+  const [FarmDisabled, setFarmDisabled] = useState<boolean>(false);
+  //提示
+  const setNotice = UpdateNotice();
+  const setNotice2 = UpdateNotice2();
+  const setNoticeText = UpdateNoticeText();
+  //判断当前币种是否是bnb
+  let token0IsBNB: any = Data.token0 == "0x0000000000000000000000000000000000000000" ? true : false;
+  let token1IsBNB: any = Data.token1 == "0x0000000000000000000000000000000000000000" ? true : false;
+  //获取账户余额
+  useEffect(() => {
+    // 获取token0余额
+    if (account) {
+      // console.log(account);
+      if (token0IsBNB) {
+        TokenBalance1(library, account).then((res) => {
+          setToken0Balance(res);
+        });
+      } else {
+        TokneBalanceS(account, library, info.LPAddress.LPtokenAddress0).then((res) => {
+          const result = ethers.utils.formatUnits(ethers.BigNumber.from(res), 18)
+          setToken0Balance(result);
+        });
+      }
+      if (token1IsBNB) {
+        TokenBalance1(library, account).then((res) => {
+          setToken1Balance(res);
+        });
+      } else {
+        TokneBalanceS(account, library, info.LPAddress.LPtokenAddress1).then((res) => {
+          const result = ethers.utils.formatUnits(ethers.BigNumber.from(res), 18)
+          setToken1Balance(result);
+        });
+      }
+    }
+  }, [account]);
+  //token0的输入
   const AmountChange0 = (e: any) => {
     let { value } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
     if ((!isNaN(value) && reg.test(value)) || value === "") {
-      if (value > Number(Token0Balance)) {
-        value = Token0Balance;
-      }
+      // value = value ? parseFloat(value).toFixed(6) : value;
       setAmount0(value);
     }
   };
-  //百分比按钮时间
-  const Token0percent25 = () => {
-    setAmount0(Number(Token0Balance) * 0.25);
-  };
-  const Token0percent50 = () => {
-    setAmount0(Number(Token0Balance) * 0.5);
-  };
-  const Token0percent75 = () => {
-    setAmount0(Number(Token0Balance) * 0.75);
-  };
-  const Token0percent100 = () => {
-    setAmount0(Number(Token0Balance));
-  };
-
-  //token1的输入框
-  const [Amount1, setAmount1] = useState<any>();
+  //token1的输入
   const AmountChange1 = (e: any) => {
     let { value } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
     if ((!isNaN(value) && reg.test(value)) || value === "") {
-      if (value > Number(Token1Balance)) {
-        value = Token1Balance;
-      }
       setAmount1(value);
     }
   };
-  const Token1percent25 = () => {
-    setAmount1(Number(Token1Balance) * 0.25);
+  const balance0Ratio = (ratio: number) => {
+    setAmount0((Token0Balance * ratio).toFixed(6));
+  }
+  const balance1Ratio = (ratio: number) => {
+    setAmount1((Token1Balance * ratio).toFixed(6));
   };
-  const Token1percent50 = () => {
-    setAmount1(Number(Token1Balance) * 0.5);
-  };
-  const Token1percent75 = () => {
-    setAmount1(Number(Token1Balance) * 0.75);
-  };
-  const Token1percent100 = () => {
-    setAmount1(Number(Token1Balance));
-  };
-  //获取账户余额
+  //页面授权
+  const ApprovedsEvent = async () => {
+    //给token0授权
+    if (Token0Name != "BNB") {
+      await Approveds(
+        Token0Name,
+        account,
+        ERC20,
+        info.LPAddress.LPtokenAddress0,
+        library,
+        info.LPAddress.AddTwoStrategyAddr
+      ).then((res) => {
+        console.log("是否授权0", res);
+        // setTokenApproved0(res as boolean);
+        if (res) {
+          setApproveBtn0(false);
+        } else {
+          setApproveBtn0(true);
+        }
+      });
+    } else {
+      //token0免授权
+      setApproveBtn0(false);
+    }
+    //给token1授权
+    if (Token1Name != "BNB") {
+      await Approveds(
+        Token1Name,
+        account,
+        ERC20,
+        info.LPAddress.LPtokenAddress1,
+        library,
+        info.LPAddress.AddTwoStrategyAddr
+      ).then((res) => {
+        console.log("是否授权1", res);
+        // setTokenApproved1(res as boolean);
+        if (res) {
+          console.log("是否授权11", res);
+          setApproveBtn1(false);
+        } else {
+          console.log("是否授权222", res);
+          setApproveBtn1(true);
+        }
+      });
+    } else {
+      //token1免授权
+      setApproveBtn1(false);
+    }
+  }
+  //页面授权
   useEffect(() => {
-    // 获取token0余额
-    if (token0) {
-      TokenBalance1(library, token0).then((res) => {
-        let resData = Number(res);
-        setToken0Balance(resData);
-      });
+    if (!library) {
+      return;
     }
-    if (token1) {
-      TokenBalance1(library, token1).then((res) => {
-        let resData = Number(res);
-        setToken1Balance(resData);
-      });
+    //页面授权
+    ApprovedsEvent()
+  }, [library]);
+  // 手动授权token0
+  const ApprovedClick0 = () => {
+    setApprovdDisabled(false);
+    ApproveWay(
+      Token0Name,
+      account,
+      ERC20,
+      info.LPAddress.LPtokenAddress0,
+      library,
+      info.LPAddress.AddTwoStrategyAddr
+    ).then((res) => {
+      // console.log(res);
+      if (res) {
+        setNoticeText("Approve succeed");
+        setNotice(true);
+        setApprovdDisabled(true);
+        setApproveBtn0(false);
+      } else {
+        setApprovdDisabled(true);
+        setNotice2(true);
+        setNoticeText("Approve fail");
+      }
+    });
+  };
+  // 手动授权token1
+  const ApprovedClick1 = () => {
+    setApprovdDisabled(false);
+    ApproveWay(
+      Token1Name,
+      account,
+      ERC20,
+      info.LPAddress.LPtokenAddress1,
+      library,
+      info.LPAddress.AddTwoStrategyAddr
+    ).then((res) => {
+      console.log(res);
+      if (res) {
+        setNoticeText("Approve succeed");
+        setNotice(true);
+        setApprovdDisabled(true);
+        setApproveBtn1(false);
+      } else {
+        setApprovdDisabled(true);
+        setNotice2(true);
+        setNoticeText("Approve fail");
+      }
+    });
+  };
+  //是否出现farm按钮
+  useEffect(() => {
+    if (!ApproveBtn0 && !ApproveBtn1) {
+      setFarmBtn(true)
     }
-  }, [account, token0, token1]);
-
+  }, [ApproveBtn0, ApproveBtn1]);
+  useEffect(() => {
+    // console.log(999, Amount0 != 0, Amount1 != 0)
+    if (Amount0 != 0 || Amount1 != 0) {
+      setFarmDisabled(true)
+    } else {
+      setFarmDisabled(false)
+    }
+  }, [Amount0, Amount1]);
+  const ROUTE = info.LPAddress.Type == "Pancake" ? PANCAKE_ROUTE : MDEX_ROUTE;
   //Assets to be Added to Position 中展示的数据
   let [AddedtoPosition0, setAddedtoPosition0] = useState<any>();
   let [AddedtoPosition1, setAddedtoPosition1] = useState<any>();
   //Updated Assets in Position Value 中的数据
   let [AssetsPositionValue0, setAssetsPositionValue0] = useState<any>();
   let [AssetsPositionValue1, setAssetsPositionValue1] = useState<any>();
+
   // //更新后的债务率
   let [TotalValueAfter, setTotalValueAfter] = useState<any>();
   useEffect(() => {
+    if (!info.LPAddress.LPtokenAddress0) {
+      return;
+    }
     // 获取币种的价格
-    if (token0 !== undefined || (null && token1 !== undefined) || null) {
+    if (Data.token0 || ROUTE) {
       AssetsBorrowed(
-        PANCAKE_ROUTE,
+        ROUTE,
         //这个地址是WBNB的地址，暂时放在这里
-        "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
-        Data.token0
+        info.LPAddress.LPtokenAddress0,
+        info.LPAddress.LPtokenAddress1
       ).then((res) => {
+        console.log("res", res)
+        let token0Price = 1;
+        //非稳定币价格
+        let token1Price = 1 / (Math.floor(res * 100000) / 100000);
+        console.log(222, token1Price, Amount0, Amount1);
+
+        const new_Amount0 = Amount0 ? Amount0 : 0;
+        const new_Amount1 = Amount1 ? Amount1 : 0;
+        console.log(res);
+        //非稳定币价格
+        console.log(222, new_Amount0, new_Amount1);
         // 获取平均后的币种各个币种的数量
-        let AddToken = (Amount0 + Amount1) / 2;
-        let token0Totalvalue = AddToken * res;
-        let token1Totalvalue = AddToken * 1;
+        let AddToken = token0Price * parseFloat(new_Amount0) + token1Price * parseFloat(new_Amount1);
+        //单币的价格
+        const singleToken = AddToken / 2
+        console.log(111, AddToken, singleToken);
+        // if (AddToken == 0) {
+        //   return;
+        // }
+        let token0Totalvalue = singleToken / token0Price;
+        let token1Totalvalue = singleToken / token1Price;
         setAddedtoPosition0(token0Totalvalue);
         setAddedtoPosition1(token1Totalvalue);
-        // 更新后的头寸value价值
+        //借款币是不是token0
+        const borrowToken0 = Data.borrowToken == Data.token0 ? true : false;
+        console.log(borrowToken0)
+        // // 更新后的头寸value价值
         let positionsValue =
           Number(ethers.utils.formatUnits(Data.positionsValue, 18)) / 2;
-        let PositionValue0 = positionsValue * 1 + token0Totalvalue;
-        let PositionValue1 = positionsValue / res + token1Totalvalue;
-        setAssetsPositionValue0(PositionValue0);
-        setAssetsPositionValue1(PositionValue1);
-
-        //更新后的总价值
-        let totalValue = PositionValue0 + PositionValue1 * res;
+        let PositionValue0;
+        let PositionValue1;
+        //假如是稳定币
+        if (Ellipsis) {
+          console.log(333, positionsValue)
+          if (borrowToken0) {
+            PositionValue0 = positionsValue * 1 + token0Totalvalue;
+            PositionValue1 = positionsValue / token1Price + token1Totalvalue;
+          } else {
+            PositionValue0 = positionsValue * token1Price + token0Totalvalue;
+            PositionValue1 = positionsValue * 1 + token1Totalvalue;
+          }
+          setAssetsPositionValue0(PositionValue0);
+          setAssetsPositionValue1(PositionValue1);
+        } else {
+          console.log(444, positionsValue)
+          //以第一个计价
+          if (borrowToken0) {
+            PositionValue0 = positionsValue * 1 + token0Totalvalue;
+            PositionValue1 = positionsValue / token1Price + token1Totalvalue;
+          } else {
+            PositionValue0 = positionsValue * token1Price + token0Totalvalue;
+            PositionValue1 = positionsValue * 1 + token1Totalvalue;
+          }
+          setAssetsPositionValue0(PositionValue0);
+          setAssetsPositionValue1(PositionValue1);
+        }
+        // //更新后的总价值
+        let totalValue = PositionValue0 + PositionValue1 * token1Price;
         let RiskRatioAfter =
           Number(ethers.utils.formatUnits(Data.totalValue, 18)) / totalValue;
         setTotalValueAfter(RiskRatioAfter);
       });
     }
-  }, [Amount0, Amount1]);
-
+  }, [Amount0, Amount1, info]);
   //更新前的债务率
   let RiskRatioBefore =
     Number(ethers.utils.formatUnits(Data.totalValue, 18)) /
@@ -166,16 +326,13 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, Data }) => {
     AddressData = { ...item };
   });
   //补仓操作
-  const [Notice, setNotice] = useState<any>(false);
-  const [Notice2, setNotice2] = useState<any>(true);
-
   const ConfirmClick = () => {
-    const strategyAddress =
-      AddressData.address.PancakeUSDT_BNBAddTwoStrategyAddr;
-    const token0Address = AddressData.address.PancakeUSDT_BNB_USDTtoken;
-    const token1Address = AddressData.address.BNB_ADDRESS;
-    const token0Amount = Amount0.toString();
-    const token1Amount = Amount1.toString();
+    console.log(Amount0, Amount1)
+    const strategyAddress = info.LPAddress.AddTwoStrategyAddr;
+    const token0Address = Data.token0;
+    const token1Address = Data.token1;
+    const token0Amount = Amount0 ? Amount0.toString() : "0";
+    const token1Amount = Amount1 ? Amount1.toString() : "0";
     const posId = Data.posid._hex;
     Replenishment(
       strategyAddress,
@@ -183,88 +340,76 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, Data }) => {
       token1Address,
       token0Amount,
       token1Amount,
-      posId
+      posId,
+      token0IsBNB,
+      token1IsBNB
     ).then((res) => {
-      console.log(res);
+
       if (res == true) {
         setNotice(res);
-      }else{
-        setNotice2(res);
+        setNoticeText("Add Collateral succeed");
+      } else {
+        setNotice2(true);
+        setNoticeText("Add Collateral fail");
       }
     });
   };
-
   return (
     <>
-    {Notice ? <div style={{zIndex:3000}}><NoticeBox Shou={Notice}> 补仓成功 </NoticeBox></div> : null}
-    {Notice2 == false? <div style={{zIndex:3000}}><NoticeBox Shou={Notice}> 补仓失败 </NoticeBox></div> : null}
-
       <BG onClick={onClick} />
       <Box>
         <TitleBox>
-          <div>Add Collateral USDT/BNB</div>
+          <div>Add Collateral {LPAddress.LPtokenName}</div>
           <CloseBtn src={closeImg} onClick={onClick} />
         </TitleBox>
         <InpModular>
           <BalanceText>
             Balance:{" "}
-            {Token0Balance !== 0.0 ? Number(Token0Balance).toFixed(3) : 0.0}{" "}
-            {"USDT"}
+            {Token0Balance !== 0.0 ? Number(Token0Balance).toFixed(6) : 0.0}{" "}
+            {Token0Name}
           </BalanceText>
           <Inputs>
-            <TokenIcon IconName={"USDT"} />
+            <TokenIcon IconName={Token0Name} />
             <Input
               type="text"
               value={Amount0}
               placeholder="0.00"
               onChange={AmountChange0}
             ></Input>
-            <CurrencyBox>BUSD</CurrencyBox>
+            <CurrencyBox>{Token0Name}</CurrencyBox>
           </Inputs>
           <BtnBox>
-            <Button w={120} h={40} onClick={Token0percent25}>
-              25%
-            </Button>
-            <Button w={120} h={40} onClick={Token0percent50}>
-              50%
-            </Button>
-            <Button w={120} h={40} onClick={Token0percent75}>
-              75%
-            </Button>
-            <Button w={120} h={40} onClick={Token0percent100}>
-              100%
-            </Button>
+            {RatioArrs.map((item, key) => (
+              <Button key={key} w={120} h={40}
+                onClick={() => balance0Ratio(item)}>
+                {item * 100}%
+              </Button>
+            ))}
           </BtnBox>
         </InpModular>
         <InpModular>
           <BalanceText>
             Balance:{" "}
-            {Token1Balance !== 0.0 ? Number(Token1Balance).toFixed(3) : 0.0}{" "}
-            {"BNB"}
+            {Token1Balance !== 0.0 ? Number(Token1Balance).toFixed(6) : 0.0}{" "}
+            {Token1Name}
           </BalanceText>
           <Inputs>
-            <TokenIcon IconName={"BNB"} />
+            <TokenIcon IconName={Token1Name} />
             <Input
               type="text"
               value={Amount1}
               placeholder="0.00"
               onChange={AmountChange1}
             ></Input>
-            <CurrencyBox>BUSD</CurrencyBox>
+            <CurrencyBox>{Token1Name}</CurrencyBox>
           </Inputs>
           <BtnBox>
-            <Button w={120} h={40} onClick={Token1percent25}>
-              25%
-            </Button>
-            <Button w={120} h={40} onClick={Token1percent50}>
-              50%
-            </Button>
-            <Button w={120} h={40} onClick={Token1percent75}>
-              75%
-            </Button>
-            <Button w={120} h={40} onClick={Token1percent100}>
-              100%
-            </Button>
+            {RatioArrs.map((item, key) => (
+              <Button key={key} w={120} h={40}
+                onClick={() => balance1Ratio(item)}>
+                {item * 100}%
+              </Button>
+            ))}
           </BtnBox>
         </InpModular>
 
@@ -272,13 +417,13 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, Data }) => {
           <div>Assets to be Added to Position</div>
           <div>
             {AddedtoPosition0 ? (
-              <>{(AddedtoPosition0 / 1).toFixed(3)} USDT</>
+              <>{(AddedtoPosition0 / 1).toFixed(6)} {Token0Name}</>
             ) : (
               <>0.0 USDT</>
             )}{" "}
             +{" "}
             {AddedtoPosition1 ? (
-              <>{(AddedtoPosition1 / 1).toFixed(3)} BNB</>
+              <>{(AddedtoPosition1 / 1).toFixed(6)} {Token1Name}</>
             ) : (
               <>0.0 BNB</>
             )}{" "}
@@ -288,42 +433,73 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, Data }) => {
           <TexBox3>
             <div>Updated Assets in Position Value</div>
             <div>
-              {AssetsPositionValue0 ? (
-                <>{(AssetsPositionValue0 / 1).toFixed(3)} USDT</>
-              ) : (
-                <>0.0 USDT</>
-              )}{" "}
-              +{" "}
-              {AssetsPositionValue1 ? (
-                <>{(AssetsPositionValue1 / 1).toFixed(3)} BNB</>
-              ) : (
-                <>0.0 BNB</>
-              )}{" "}
-            </div>
-          </TexBox3>
-          <TexBox3>
-            <div>Risk ratio before margin call</div>
-            <div>{(RiskRatioBefore * 100).toFixed(2)}%</div>
-          </TexBox3>
-          <TexBox3>
-            <div>Risk ratio after margin call</div>
-            <div>
-              {AssetsPositionValue1 ? (
-                <>{(TotalValueAfter * 100).toFixed(2)}%</>
-              ) : (
+              {AssetsPositionValue0 != undefined || AssetsPositionValue1 != undefined ?
                 <>
-                  <LoadingBox width={50} height={14} />
+                  {AssetsPositionValue0 ?
+                    <>{(AssetsPositionValue0 / 1).toFixed(6)} {Token0Name}</>
+                    :
+                    <>0.0 {Token0Name}</>
+                  }
+                  {" "}+{" "}
+                  {AssetsPositionValue1 ?
+                    <>{(AssetsPositionValue1 / 1).toFixed(6)} {Token1Name}</>
+                    :
+                    <>0.0 {Token1Name}</>
+                  }
                 </>
-              )}
+                : <LoadingBox height={12} />}
             </div>
           </TexBox3>
+          {Ellipsis ?
+            <TexBox3>
+              <div>Risk ratio before margin call</div>
+              <div>{(RiskRatioBefore * 100).toFixed(2)}%</div>
+            </TexBox3>
+            : null}
+          {Ellipsis ?
+            <TexBox3>
+              <div>Risk ratio after margin call</div>
+              <div>
+                {AssetsPositionValue1 ? (
+                  <>{(TotalValueAfter * 100).toFixed(2)}%</>
+                ) : (
+                  <>
+                    <LoadingBox width={50} height={14} />
+                  </>
+                )}
+              </div>
+            </TexBox3>
+            : null}
         </TexBox2>
-        <Button w={0} h={40} onClick={ConfirmClick}>
-          Confirm
-        </Button>
-        
+        {ApproveBtn0 ? (
+          <Button
+            w={0}
+            h={40}
+            mt={40}
+            disabled={ApprovdDisabled}
+            onClick={ApprovedClick0}
+          >
+            Approved {Token0Name}
+          </Button>
+        ) : null}
+        {ApproveBtn1 ? (
+          <Button
+            w={0}
+            h={40}
+            mt={40}
+            disabled={ApprovdDisabled}
+            onClick={ApprovedClick1}
+          >
+            Approved {Token1Name}
+          </Button>
+        ) : null}
+        {FarmBtn ? (
+          <Button w={0} h={40} disabled={FarmDisabled} onClick={ConfirmClick}>
+            Confirm
+          </Button>
+        ) : null}
       </Box>
-      
+
     </>
   );
 };

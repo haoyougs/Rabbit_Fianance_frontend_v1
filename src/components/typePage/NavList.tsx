@@ -22,7 +22,7 @@ import { useLocation } from "react-router-dom";
 
 /**
  * 页面左侧的导航栏
- * @returns 
+ * @returns
  */
 export const Navlist: React.FC = () => {
   /**
@@ -56,7 +56,7 @@ export const Navlist: React.FC = () => {
         {Bgcolor ? (
           <>
             <LIs2
-              Bgcolor={Bgcolor}
+              // Bgcolor={Bgcolor}
               to="/allFarms"
               className={
                 location.pathname === "/allFarms" ? "LinkBg list-l1" : "list-l1"
@@ -65,7 +65,7 @@ export const Navlist: React.FC = () => {
               <SizeBox>All Farms</SizeBox>
             </LIs2>
             <LIs2
-              Bgcolor={Bgcolor}
+              // Bgcolor={Bgcolor}
               to="/myPositions"
               className={
                 location.pathname === "/myPositions"
@@ -76,7 +76,7 @@ export const Navlist: React.FC = () => {
               <SizeBox>My Positions</SizeBox>
             </LIs2>
             <LIs2
-              Bgcolor={Bgcolor}
+              // Bgcolor={Bgcolor}
               to="/liquidation"
               className={
                 location.pathname === "/liquidation"
@@ -157,7 +157,7 @@ const LIs = styled(Link)`
     opacity: 1;
   }
 `;
-const LIs2 = styled(Link)<{ Bgcolor: boolean }>`
+const LIs2 = styled(Link)`
   background-color: #ffffff10;
   width: 270px;
   padding: 25px 0;

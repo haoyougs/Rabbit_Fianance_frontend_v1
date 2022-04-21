@@ -7,10 +7,10 @@ import { Token } from "utils/token";
  * @param account 钱包地址
  * @returns 查看是否授权，已授权返回 true，没有授权返回false
  */
-export const Approveds = async (tokenName: any, address: any, ABI: any, account: any) => {
+export const Approveds = async (tokenName: any, account: any, ABI: any, address: any, library?: any, AddTwoStrategyAddr?: any) => {
     try {
         const TokneIsApprovd = new Token({ name: tokenName, icon: '', address: address, chainId: 56, ABI: ABI, symbol: '' })
-        const IsApproved = await TokneIsApprovd.allowance({ address: account!, spender: address });
+        const IsApproved = await TokneIsApprovd.allowance({ address: account, spender: AddTwoStrategyAddr, signer: library!.getSigner() });
         console.log('查询授权', IsApproved);
         return IsApproved
     } catch (e) {
@@ -21,16 +21,17 @@ export const Approveds = async (tokenName: any, address: any, ABI: any, account:
 }
 /**
  * 授权代币的方法
- * @param tokenName 代币名称 
+ * @param tokenName 代币名称
  * @param address 代币合约
  * @param ABI 代币abi
  * @param account 钱包地址
- * @param library 
+ * @param library
  */
-export const ApproveWay = async (tokenName: any, address: any, ABI: any, account: any, library: any) => {
+export const ApproveWay = async (tokenName: any, address: any, ABI: any, account: any, library: any, AddTwoStrategyAddr?: any) => {
     try {
+        console.log(tokenName)
         const TokneIsApprovd = new Token({ name: tokenName, icon: '', address: address, chainId: 56, ABI: ABI, symbol: '' })
-        const Result = await TokneIsApprovd.approve({ address: account!, spender: address, signer: library!.getSigner() });
+        const Result = await TokneIsApprovd.approve({ address: account!, spender: AddTwoStrategyAddr, signer: library!.getSigner() });
         console.log('授权成功', Result);
         return Result
     } catch (e) {

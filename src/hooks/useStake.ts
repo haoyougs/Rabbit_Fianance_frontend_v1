@@ -1,7 +1,10 @@
 import { FairLaunchABI } from 'config/ABI'
 import { Contract, ethers } from 'ethers'
 import { getDefaultProvider, getSigner } from 'utils/provider'
-import { BNBADDRES, ibBNB_ADDRESS, BUSD_ADDRESS, ibBUSD_ADDRESS, USDT_ADDRESS, ibUSDT_ADDRESS, BTC_ADDRESS, ibBTC_ADDRESS, ETH_ADDRESS, ibETH_ADDRESS, RABBIT_ADDRESS, ibRabbit_ADDRESSS, BANK_ADDRESS } from 'config/address'
+import {
+    BNBADDRES, ibBNB_ADDRESS, BUSD_ADDRESS, ibBUSD_ADDRESS, USDT_ADDRESS, ibUSDT_ADDRESS, BTC_ADDRESS, ibBTC_ADDRESS, ETH_ADDRESS, ibETH_ADDRESS, RABBIT_ADDRESS, ibRabbit_ADDRESSS, BANK_ADDRESS,
+    ibBNB_FAIRLAUNCH_PID, ibBUSD_FairLaunch_Pid, ibUSDT_FairLaunch_Pid, ibBTC_FairLaunch_Pid, ibETH_FairLaunch_Pid, ibRabbit_FairLaunch_Pid
+} from 'config/address'
 
 //ibtoken数据
 export const ibTokneData = [
@@ -9,37 +12,43 @@ export const ibTokneData = [
         tokenName: 'ibBNB',
         APR: 0,
         TVL: 0,
-        ibTokneAddress: ibBNB_ADDRESS
+        ibTokneAddress: ibBNB_ADDRESS,
+        pid: ibBNB_FAIRLAUNCH_PID
     },
     {
         tokenName: 'ibBUSD',
         APR: 1,
         TVL: 0,
-        ibTokneAddress: ibBUSD_ADDRESS
+        ibTokneAddress: ibBUSD_ADDRESS,
+        pid: ibBUSD_FairLaunch_Pid
     },
     {
         tokenName: 'ibUSDT',
         APR: 2,
         TVL: 0,
-        ibTokneAddress: ibUSDT_ADDRESS
+        ibTokneAddress: ibUSDT_ADDRESS,
+        pid: ibUSDT_FairLaunch_Pid
     },
     {
         tokenName: 'ibBTCB',
         APR: 3,
         TVL: 0,
-        ibTokneAddress: ibBTC_ADDRESS
+        ibTokneAddress: ibBTC_ADDRESS,
+        pid: ibBTC_FairLaunch_Pid
     },
     {
         tokenName: 'ibETH',
         APR: 4,
         TVL: 0,
-        ibTokneAddress: ibETH_ADDRESS
+        ibTokneAddress: ibETH_ADDRESS,
+        pid: ibETH_FairLaunch_Pid
     },
     {
         tokenName: 'ibRABBIT',
         APR: 5,
         TVL: 0,
-        ibTokneAddress: ibRabbit_ADDRESSS
+        ibTokneAddress: ibRabbit_ADDRESSS,
+        pid: ibRabbit_FairLaunch_Pid
     },
 ]
 
@@ -54,7 +63,7 @@ export const ibTokneData = [
 export const GETRewardSummary = async (pid: any, account: any, FairLaunch: any) => {
     const RewardAddress = new Contract(FairLaunch, FairLaunchABI, getDefaultProvider());
     const Result = await RewardAddress.pendingRabbit(pid, account);
-    let Value = ethers.utils.formatUnits(Result, 18);
+    let Value = ethers.utils.formatUnits(Result._hex, 18);
     return Value
 }
 /**
@@ -66,7 +75,9 @@ export const GETRewardSummary = async (pid: any, account: any, FairLaunch: any) 
  */
 export const DepositAmount = async (pid: any, account: any, FairLaunch: any) => {
     const RewardAddress = new Contract(FairLaunch, FairLaunchABI, getDefaultProvider());
-    const Result = await RewardAddress.userInfo(pid, account);
+    const Result = await RewardAddress.userInfo(Number(pid)
+        , account);
+    // console.log(444, Result)
     let Value = ethers.utils.formatUnits(Result.amount, 18);
     return Value
 }
@@ -99,6 +110,7 @@ export const Claim = async (pid: any, FairLaunch: any) => {
  */
 export const Pledge = async (account: any, pid: any, amount: any, FairLaunch: any) => {
     try {
+        console.log(333, pid, amount)
         const ContractAddress = new Contract(FairLaunch, FairLaunchABI, getSigner());
         const Result = await ContractAddress.deposit(account, pid, ethers.utils.parseEther(amount))
         await Result.wait()

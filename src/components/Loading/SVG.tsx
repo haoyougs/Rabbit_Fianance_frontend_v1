@@ -2,7 +2,7 @@ import React from "react";
 
 /**
  * SVG 动画 转圈
- * @returns 
+ * @returns
  */
 export const SVGloading1: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ export const SVGloading1: React.FC = () => {
         width="30px"
         height="30px"
         viewBox="0 0 40 40"
-        enable-background="new 0 0 40 40"
+        enableBackground="new 0 0 40 40"
         xmlSpace="preserve"
       >
         <path

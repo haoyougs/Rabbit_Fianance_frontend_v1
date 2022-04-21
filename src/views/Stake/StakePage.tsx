@@ -11,12 +11,15 @@ import { RewardSummaryBox } from "./RewardSummary";
 import { Pool } from "./Pool";
 import { ibTokneData } from "hooks/useStake";
 import { Link } from "react-router-dom";
-
+import { useWeb3React } from "@web3-react/core";
+import { GETRewardSummary } from "hooks/useStake";
+import { FAIR_LAUNCH_ADDRESS, ibBNB_FAIRLAUNCH_PID } from "config/address";
 /**
  * Stake 页面
  * @returns
  */
 export const StakePage: React.FC = () => {
+  const { account } = useWeb3React();
   /**
    * 路由跳转
    */
@@ -27,6 +30,11 @@ export const StakePage: React.FC = () => {
   const WithdrawClick = () => {
     navigate("/stake/Unstake");
   };
+  // useEffect(() => {
+  //   GETRewardSummary(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then((res) => {
+  //     console.log(444, res)
+  //   });
+  // }, [account])
 
   return (
     <>
@@ -51,14 +59,15 @@ export const StakePage: React.FC = () => {
         </TheadBox>
         <TbodyBox>
           {ibTokneData.map((item: any, key: any) => (
-            <TrBox>
+            <TrBox key={key} >
               <TdBox>
                 <TokenIcon IconName={item.tokenName} />
-                <div style={{ marginLeft: 10 }}>ibBNB</div>
+                <div style={{ marginLeft: 10 }}>{item.tokenName}</div>
               </TdBox>
               <TdBox>{item.APR}</TdBox>
               <TdBox>{item.TVL}</TdBox>
               <TdBox className="TdWdith">
+                {/* //去除掉ib 后面根据id来查找数据 */}
                 <Link to={`/stake/stake/${item.tokenName}`}>
                   <Button w={100} h={35}>
                     Stake

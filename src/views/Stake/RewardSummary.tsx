@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { BgBox } from "components/backgroundBox/background";
 import { RewardSummaryIcon } from "components/icon";
@@ -6,74 +6,90 @@ import { TokenIcon } from "components/icon/tokenIcon";
 import { Button } from "components/button/button";
 import { useWeb3React } from "@web3-react/core";
 import { GETRewardSummary, DepositAmount, Claim } from "hooks/useStake";
-import { FAIR_LAUNCH_ADDRESS, ibBNB_FAIRLAUNCH_PID } from 'config/address'
-
-
-
-
+import { FAIR_LAUNCH_ADDRESS, ibBNB_FAIRLAUNCH_PID, ibBUSD_FairLaunch_Pid } from 'config/address'
+import { ibTokneData } from "hooks/useStake";
+import { NoticeBox } from "components/notice";
 /**
  * Your Reward Summary 组件
  * @returns
  */
 export const RewardSummaryBox: React.FC = () => {
   const { account } = useWeb3React();
-  const [Earned, setEarned] = useState<any>();
-  const [Deposits, setDeposits] = useState<any>();
-
+  const [Notice2, setNotice2] = useState(false);
+  const [NoticeText, setNoticeText] = useState("");
+  const [SunmayData, setSunmayData] = useState<[]>([])
+  const SunmayTokneData = JSON.parse(JSON.stringify(ibTokneData));
   useEffect(() => {
-    GETRewardSummary(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then((res) => {
-      console.log(111, res)
-      setEarned(res);
-    });
-    DepositAmount(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then((res) => {
-      console.log(222, res)
-      setDeposits(res);
-    });
-  }, [GETRewardSummary, DepositAmount, account]);
+    if (!account) {
+      return;
+    }
+    SunmayTokneData.forEach(async (item: any) => {
+      // 质押数量
+      const res = await DepositAmount(item.pid, account, FAIR_LAUNCH_ADDRESS);
+      item.deposits = res;
+      // 获得兔子币
+      const res_earned = await GETRewardSummary(item.pid, account, FAIR_LAUNCH_ADDRESS)
+      item.earned = parseFloat(res_earned).toFixed(6);
+      setSunmayData([])
+      const filter_SunmayTokneData = SunmayTokneData.filter((f_item: any) => parseFloat(f_item.deposits) > 0)
+      setSunmayData(filter_SunmayTokneData)
+    })
+  }, [account]);
 
-  const ClaimClick = () => {
-    Claim(ibBNB_FAIRLAUNCH_PID, FAIR_LAUNCH_ADDRESS).then((res) => {
+  const ClaimClick = (pid: string) => {
+    Claim(pid, FAIR_LAUNCH_ADDRESS).then((res) => {
       if (res === true) {
-        alert('领取成功')
+        console.log('Claim succeed')
       } else {
-        alert('领取失败')
+        setNotice2(true);
+        setNoticeText("Claim fail");
       }
     });
 
   };
 
   return (
-    <RewardSummary>
-      <RewardSummaryIcon>Your Reward Summary</RewardSummaryIcon>
-      <RewardSummaryList>
-        <RewardSummaryListBox>
-          <RewardSummaryListBoxVal>
-            <TokenIcon IconName={"ibBNB"} />
-            <TokenName>ibBNB</TokenName>
-          </RewardSummaryListBoxVal>
-          <RewardSummaryListBoxVal>
-            <RewardSummaryListBoxValBox1>Deposits:</RewardSummaryListBoxValBox1>
-            <TokenName>{(Deposits / 1).toFixed(6)}</TokenName>
-          </RewardSummaryListBoxVal>
-          <RewardSummaryListBoxVal>
-            <RewardSummaryListBoxValBox1>Earned:</RewardSummaryListBoxValBox1>
-            <RewardSummaryListBoxValBox2>
-              {(Earned / 1).toFixed(6)} RABBIT
-            </RewardSummaryListBoxValBox2>
-          </RewardSummaryListBoxVal>
-          <RewardSummaryListBoxVal2>
-            <Button w={100} h={36} onClick={ClaimClick}>
-              Claim
-            </Button>
-          </RewardSummaryListBoxVal2>
-        </RewardSummaryListBox>
-      </RewardSummaryList>
-    </RewardSummary>
+    <>
+      {Notice2 ? (
+        <div onClick={() => setNotice2(false)}>
+          <NoticeBox Shou={!Notice2}>{NoticeText}</NoticeBox>
+        </div>
+      ) : null}
+
+      <RewardSummary>
+        <RewardSummaryIcon>Your Reward Summary</RewardSummaryIcon>
+        <RewardSummaryList>
+          {SunmayData.map((item: any, key: any) => (
+            <RewardSummaryListBox key={key} >
+              <RewardSummaryListBoxVal>
+                <TokenIcon IconName={item.tokenName} />
+                <TokenName>{item.tokenName}</TokenName>
+              </RewardSummaryListBoxVal>
+              <RewardSummaryListBoxVal>
+                <RewardSummaryListBoxValBox1>Deposits:</RewardSummaryListBoxValBox1>
+                <TokenName>{item.deposits}</TokenName>
+              </RewardSummaryListBoxVal>
+              <RewardSummaryListBoxVal>
+                <RewardSummaryListBoxValBox1>Earned:</RewardSummaryListBoxValBox1>
+                <RewardSummaryListBoxValBox2>
+                  {item.earned} RABBIT
+                </RewardSummaryListBoxValBox2>
+              </RewardSummaryListBoxVal>
+              <RewardSummaryListBoxVal2>
+                <Button w={100} h={36} onClick={() => ClaimClick(item.pid)}>
+                  Claim
+                </Button>
+              </RewardSummaryListBoxVal2>
+            </RewardSummaryListBox>
+          ))}
+        </RewardSummaryList>
+      </RewardSummary>
+    </>
   );
 };
 
 const RewardSummary = styled(BgBox)`
-  height: 218px;
+  height: auto;
   padding: 20px;
   margin-bottom: 20px;
 `;

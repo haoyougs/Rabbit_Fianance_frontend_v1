@@ -40,7 +40,7 @@ export const TotalDepositData = createAsyncThunk<any>(
     }
 )
 /**
- * 获取银行BNB借存款
+ * 获取银行BNB借款
  */
 export const TotalBorrowedData = createAsyncThunk<any>(
     'TotalBorroweds',
@@ -56,13 +56,13 @@ export const TotalBorrowedData = createAsyncThunk<any>(
     }
 )
 /**
- * 获取用户BNB余额
+ * 获取用户余额
  */
-export const BNBTokneBalance = createAsyncThunk<any, { library: any, TokenAddress: any }>(
+export const BNBTokneBalance = createAsyncThunk<any, { library: any, account: any }>(
     'tokenBalances',
-    async ({ library, TokenAddress }) => {
+    async ({ library, account }) => {
         try {
-            const Balances = await library?.getBalance(TokenAddress);
+            const Balances = await library?.getBalance(account);
             let Value = ethers.utils.formatUnits(Balances, 18)
             return Value
         } catch (e) {

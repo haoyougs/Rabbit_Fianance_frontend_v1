@@ -38,7 +38,7 @@ function App() {
                   <Route path="/stake/unstake/:id" element={<Unstake />} />
 
                   <Route path="/allFarms" element={<AllFarmsPage />} />
-                  <Route path="/positions/:id" element={<SupplyPage />} />
+                  <Route path="/positions/:name/:index/:leverage/:MaxLeverage" element={<SupplyPage />} />
                   <Route path="/myPositions" element={<MyPositionsPage />} />
                   <Route path="/liquidation" element={<LiquidationPage />} />
                 </Routes>

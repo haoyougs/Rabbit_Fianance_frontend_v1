@@ -120,33 +120,33 @@ export const ibRabbit_FairLaunch_Pid = 5;
 
 export const VAultListAddress = [
     {
-        bankAddress:BANK_ADDRESS,
-        tikenAddress:BUSD_ADDRESS,
-        ibtokenAddress:ibBUSD_ADDRESS,
-        fairLaunch:ibBUSD_FairLaunch_Pid
+        bankAddress: BANK_ADDRESS,
+        tikenAddress: BUSD_ADDRESS,
+        ibtokenAddress: ibBUSD_ADDRESS,
+        fairLaunch: ibBUSD_FairLaunch_Pid
     },
     {
-        bankAddress:BANK_ADDRESS,
-        tikenAddress:USDT_ADDRESS,
-        ibtokenAddress:ibUSDT_ADDRESS,
-        fairLaunch:ibUSDT_FairLaunch_Pid
+        bankAddress: BANK_ADDRESS,
+        tikenAddress: USDT_ADDRESS,
+        ibtokenAddress: ibUSDT_ADDRESS,
+        fairLaunch: ibUSDT_FairLaunch_Pid
     },
     {
-        bankAddress:BANK_ADDRESS,
-        tikenAddress:BTC_ADDRESS,
-        ibtokenAddress:ibBTC_ADDRESS,
-        fairLaunch:ibBTC_FairLaunch_Pid
+        bankAddress: BANK_ADDRESS,
+        tikenAddress: BTC_ADDRESS,
+        ibtokenAddress: ibBTC_ADDRESS,
+        fairLaunch: ibBTC_FairLaunch_Pid
     },
     {
-        bankAddress:BANK_ADDRESS,
-        tikenAddress:ETH_ADDRESS,
-        ibtokenAddress:ibETH_ADDRESS,
-        fairLaunch:ibETH_FairLaunch_Pid
+        bankAddress: BANK_ADDRESS,
+        tikenAddress: ETH_ADDRESS,
+        ibtokenAddress: ibETH_ADDRESS,
+        fairLaunch: ibETH_FairLaunch_Pid
     },
     {
-        bankAddress:BANK_ADDRESS,
-        tikenAddress:RABBIT_ADDRESS,
-        ibtokenAddress:ibRabbit_ADDRESSS,
-        fairLaunch:ibRabbit_FairLaunch_Pid
+        bankAddress: BANK_ADDRESS,
+        tikenAddress: RABBIT_ADDRESS,
+        ibtokenAddress: ibRabbit_ADDRESSS,
+        fairLaunch: ibRabbit_FairLaunch_Pid
     }
 ]

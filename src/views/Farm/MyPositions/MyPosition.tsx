@@ -14,148 +14,220 @@ import { SVGloading4 } from "components/Loading/SVG";
 import { ethers } from "ethers";
 import { AddCollateralPage } from "./AddCollateral";
 import { ClosePositionPage } from "./ClosePosition";
-
+import { FAIR_LAUNCH_ADDRESS } from "config/address";
+import { GETRewardSummary, Claim } from "hooks/useStake";
+import { NoticeBox } from "components/notice";
 /**
  * MyPositionsPage 我的仓位页面
  * @returns
  */
 export const MyPositionsPage: React.FC = () => {
   const { account } = useWeb3React();
+  const [BaseData, setBaseData] = useState<any>([]);
   const [PositionData, setPositionData] = useState<any>([]);
   const [PositionImg, setPositionImg] = useState<boolean>(false);
   const [Loading, setLoading] = useState(false);
+  const [SwitchPancake, setSwitchPancake] = useState<string>("Pancake");
+  const [ClaimbtnArrs, setClaimbtnArrs] = useState<any>([]);
+  const [Notice1, setNotice1] = useState(false);
+  const [Notice2, setNotice2] = useState(false);
+  const [NoticeText, setNoticeText] = useState("");
   useEffect(() => {
     if (account) {
       QueryBin(account).then((res) => {
-        setPositionData(res);
-        // res.map((item: any, key: any) => {
-        //   let Data = [];
-        //   Data.push(res)
-        //   setPositionData(Data)
-        //   //如果positionsValue的值等于0的话就不展示仓位,吧表示没有仓位的图片设置为true
-        //   if(ethers.utils.formatUnits(item.positionsValue) == '0'){
-        //     setPositionImg(true);
-        //   }
-        // });
+        // console.log("res", res);
+        setBaseData(res);
       });
     }
   }, [QueryBin, account]);
-
+  const GETReward = async (Pids: any, arr: any) => {
+    const ClaimArrs: any = [];
+    for (let i = 0; i < (Pids.length); i++) {
+      const res = await GETRewardSummary(Pids[i], account, FAIR_LAUNCH_ADDRESS);
+      arr[i]['earned'] = res;
+      ClaimArrs.push(false);
+    }
+    console.log(arr);
+    setClaimbtnArrs(ClaimArrs)
+    setPositionData(arr)
+  }
+  useEffect(() => {
+    if (!BaseData.length) {
+      return;
+    }
+    const SelectData = BaseData.filter((item: any) => item.LPAddress.Type == SwitchPancake);
+    // console.log(SelectData);
+    let goblinArrs: any = [];
+    let Result: any = [];
+    let Pids: any = [];
+    SelectData.forEach(async (S_item: any) => {
+      if (goblinArrs.indexOf(S_item.item.goblin) == -1) {
+        Result.push({
+          "item": [S_item],
+          "goblin": S_item.item.goblin,
+          "LPtokenName": S_item.LPAddress.LPtokenName,
+          "Pid": S_item.LPAddress.FairLaunch_Pid
+        })
+        goblinArrs.push(S_item.item.goblin);
+        Pids.push(S_item.LPAddress.FairLaunch_Pid);
+      } else {
+        const a_index = goblinArrs.indexOf(S_item.item.goblin);
+        Result[a_index].item.push(S_item)
+      }
+    });
+    GETReward(Pids, Result)
+  }, [SwitchPancake, BaseData]);
   const [AddShou, setAddShou] = useState(false);
   const [CloseShou, setCloseShou] = useState(false);
-  const [AddCollateralData,setAddCollateralData] = useState<any>()
-  const AddCollateralClick =(item:any)=>{
+  const [AddCollateralData, setAddCollateralData] = useState<any>()
+  const AddCollateralClick = (item: any) => {
     setAddCollateralData(item)
     setAddShou(!AddShou)
   }
-  const ClosePosition =(item:any)=>{
+  const ClosePosition = (item: any) => {
     setAddCollateralData(item)
     setCloseShou(!AddShou)
   }
+  const ClaimClick = (pid: string, index: any) => {
+    let new_ClaimbtnArrs = JSON.parse(JSON.stringify(ClaimbtnArrs));
+    new_ClaimbtnArrs[index] = true;
+    setClaimbtnArrs(new_ClaimbtnArrs);
+    Claim(pid, FAIR_LAUNCH_ADDRESS).then((res) => {
+      let new_ClaimbtnArrs = JSON.parse(JSON.stringify(ClaimbtnArrs));
+      new_ClaimbtnArrs[index] = false;
+      setClaimbtnArrs(new_ClaimbtnArrs);
+
+      if (res === true) {
+        console.log('领取成功');
+        setNotice1(true);
+        setNoticeText("领取成功");
+      } else {
+        setNotice2(true);
+        setNoticeText("领取失败");
+      }
+    });
+
+  };
   return (
     <>
+      {Notice1 ? (
+        <div onClick={() => setNotice1(false)}>
+          <NoticeBox Shou={!Notice2}>{NoticeText}</NoticeBox>
+        </div>
+      ) : null}
+      {Notice2 ? (
+        <div onClick={() => setNotice2(false)}>
+          <NoticeBox Shou={!Notice2}>{NoticeText}</NoticeBox>
+        </div>
+      ) : null}
       <RewardSummary>
         <RewardSummaryIcon>
           My Positions{" "}
-          <Button w={120} h={37} ml={20}>
+          <Button w={120} h={37} ml={20} Select={SwitchPancake == "Pancake"} onClick={() => setSwitchPancake("Pancake")}>
             PancakeSwap
           </Button>
-          <Button w={120} h={37} ml={20}>
+          <Button w={120} h={37} ml={20} Select={SwitchPancake == "Mdex"} onClick={() => setSwitchPancake("Mdex")}>
             MDEX
           </Button>
         </RewardSummaryIcon>
         <RewardSummaryList>
-          {PositionData == [] || PositionImg == true ? (
+          {!PositionData.length || PositionImg == true ? (
             <>
               <PositionsImg src={MyPositionsImg} alt="" />
               <TipsBox>There is no order at present</TipsBox>
             </>
           ) : (
             <>
-              {PositionData.map((item: any, key: any) => (
+              {PositionData.map((ob: any, key: any) => (
                 <div key={key} style={{ width: "100%" }}>
-                  {ethers.utils.formatUnits(item.positionsValue) !== "0.0" ? (
-                    <Position>
-                      <TitleBox>
-                        <TitleContent>
-                          <TokenIcon IconName={"USDT-BNB"} />
-                          <TokenNmae>USDT-BNB</TokenNmae>
-                        </TitleContent>
-                        <TitleContent>
-                          <Earned>Earned：</Earned>
-                          <EarnedVal></EarnedVal>
-                          <Button w={100} h={35} ml={10}>
-                            Claim
-                          </Button>
-                        </TitleContent>
-                      </TitleBox>
-                      <Content>
-                        <ContBox>
-                          <MinTitle>Position Value</MinTitle>
-                          <PositionValues>
-                  
-                                {Number(
-                                  ethers.utils.formatUnits(item.positionsValue)
-                                ).toFixed(6)}
-                             
-                          </PositionValues>
-                        </ContBox>
-                        <ContBox>
-                          <MinTitle>Total debts</MinTitle>
-                          <PositionValues>
-                            {Number(
-                              ethers.utils.formatUnits(item.totalValue)
-                            ).toFixed(6)}
-                            {/* {<LoadingBox height={14} />} */}
-                          </PositionValues>
-                        </ContBox>
-                        <ContBox>
-                          <MinTitle>Equity Value</MinTitle>
-                          <PositionValues>
-                            {Number(
-                              ethers.utils.formatUnits(item.positionsValue)
-                            ) -
-                              Number(ethers.utils.formatUnits(item.totalValue))}
-                            {/* {<LoadingBox height={14} />} */}
-                          </PositionValues>
-                        </ContBox>
-                        <ContBox>
-                          <MinTitle>Yield (APY)</MinTitle>
-                          <PositionValues2>
-                            {/* {<LoadingBox height={14} />}  */}
-                            <Icon1 src={Duihao} />
-                          </PositionValues2>
-                        </ContBox>
-                        <ContBox>
-                          <MinTitle>Risk ratio</MinTitle>
-                          <PositionValues>
-                            {(Number(item.totalValue) /
-                              Number(item.positionsValue)) *
-                              100}
-                            %
-                            {/* {<LoadingBox height={14} />} */}
-                          </PositionValues>
-                        </ContBox>
-                        <ContBox2>
-                          <Button
-                            w={150}
-                            h={35}
-                            onClick={() => AddCollateralClick(item)}
-                          >
-                            Add Collateral
-                          </Button>
-                          <Button
-                            w={150}
-                            h={35}
-                            mt={10}
-                            onClick={() => ClosePosition(item)}
-                          >
-                            Close Position
-                          </Button>
-                        </ContBox2>
-                      </Content>
-                    </Position>
-                  ) : null}
+                  {/* {ethers.utils.formatUnits(ob.item.positionsValue) !== "0.0" ? ( */}
+                  <Position>
+                    <TitleBox>
+                      <TitleContent>
+                        <TokenIcon IconName={ob.LPtokenName} />
+                        <TokenNmae>{ob.LPtokenName}</TokenNmae>
+                      </TitleContent>
+                      <TitleContent>
+                        <Earned>Earned：{parseFloat(ob.earned).toFixed(6)}</Earned>
+                        <EarnedVal></EarnedVal>
+                        <Button w={100} h={35} ml={10}
+                          disabled={!ClaimbtnArrs[key]}
+                          loading={ClaimbtnArrs[key]}
+                          onClick={() => { ClaimClick(ob.Pid, key) }}>
+                          Claim
+                        </Button>
+                      </TitleContent>
+                    </TitleBox>
+                    {!!ob.item.length ?
+                      ob.item.map((o_item: any, o_index: any) => (
+                        <Content key={o_index}>
+                          <ContBox>
+                            <MinTitle>Position Value</MinTitle>
+                            <PositionValues>
+                              {Number(
+                                ethers.utils.formatUnits(o_item.item.positionsValue)
+                              ).toFixed(6)}
+                            </PositionValues>
+                          </ContBox>
+                          <ContBox>
+                            <MinTitle>Total debts</MinTitle>
+                            <PositionValues>
+                              {Number(
+                                ethers.utils.formatUnits(o_item.item.totalValue)
+                              ).toFixed(6)}
+                              {/* {<LoadingBox height={14} />} */}
+                            </PositionValues>
+                          </ContBox>
+                          <ContBox>
+                            <MinTitle>Equity Value</MinTitle>
+                            <PositionValues>
+                              {(Number(
+                                ethers.utils.formatUnits(o_item.item.positionsValue)
+                              ) -
+                                Number(ethers.utils.formatUnits(o_item.item.totalValue))).toFixed(6)
+
+                              }
+                              {/* {<LoadingBox height={14} />} */}
+                            </PositionValues>
+                          </ContBox>
+                          <ContBox>
+                            <MinTitle>Yield (APY)</MinTitle>
+                            <PositionValues2>
+                              {<LoadingBox height={14} />}
+                              <Icon1 src={Duihao} />
+                            </PositionValues2>
+                          </ContBox>
+                          <ContBox>
+                            <MinTitle>Risk ratio</MinTitle>
+                            <PositionValues>
+                              {(Number(o_item.item.totalValue) /
+                                Number(o_item.item.positionsValue)) *
+                                100}
+                              %
+                              {/* {<LoadingBox height={14} />} */}
+                            </PositionValues>
+                          </ContBox>
+                          <ContBox2>
+                            <Button
+                              w={150}
+                              h={35}
+                              onClick={() => AddCollateralClick(o_item)}
+                            >
+                              Add Collateral
+                            </Button>
+                            <Button
+                              w={150}
+                              h={35}
+                              mt={10}
+                              onClick={() => ClosePosition(o_item)}
+                            >
+                              Close Position
+                            </Button>
+                          </ContBox2>
+                        </Content>
+                      )) : null}
+                  </Position>
+                  {/* ) : null} */}
                 </div>
               ))}
             </>
@@ -165,10 +237,10 @@ export const MyPositionsPage: React.FC = () => {
       <AuditBox />
       {/* 弹窗 */}
       {AddShou ? (
-        <AddCollateralPage onClick={() => setAddShou(!AddShou)} Data={AddCollateralData} />
+        <AddCollateralPage key={Math.random()} onClick={() => setAddShou(!AddShou)} info={AddCollateralData} />
       ) : null}
       {CloseShou ? (
-        <ClosePositionPage onClick={() => setCloseShou(!CloseShou)} Data={AddCollateralData} />
+        <ClosePositionPage onClick={() => setCloseShou(!CloseShou)} info={AddCollateralData} />
       ) : null}
     </>
   );
@@ -226,6 +298,7 @@ const Content = styled.div`
   padding: 20px;
   border-radius: 5px;
   display: flex;
+  margin-top: 10px;
 `;
 const ContBox = styled.div`
   flex: 1;

@@ -45,8 +45,10 @@ export const TokenList: React.FC = () => {
       });
       //获取用户币种余额
       if (library) {
-        console.log(item)
+        // console.log(item)
         OnTokneBalance({
+          Address: account,
+          Abi: ERC20,
           library: library,
           TokenAddress: item.tikenAddress,
           key: key,
@@ -146,13 +148,13 @@ export const TokenList: React.FC = () => {
             </div>
           </TdBox>
           <TdBox className="TdWdith">
-            <Link to={`/Deposit/${item.tokenName}`}>
+            <Link to={`/Deposit/${item.tokenName}?${key}`}>
               <Button w={100} h={35}>
                 Deposit
               </Button>
             </Link>
 
-            <Link to={`/Withdraw/${item.tokenName}`}>
+            <Link to={`/Withdraw/${item.tokenName}?${key}`}>
               <Button w={100} h={35} ml={10}>
                 Withdraw
               </Button>

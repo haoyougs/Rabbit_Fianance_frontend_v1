@@ -7,5 +7,6 @@ import BankABI from './abi/BankABI.json'
 import ERC20 from './abi/ERC20ABI.json'
 import PancakeAbi from './abi/pancakeABI.json'
 import KaicangABI from './abi/kaicangABI.json'
+import GoblinABI from "./abi/goblinABI.json"
 
-export {TVLABI,FairLaunchABI,BankABI,ERC20,PancakeAbi,KaicangABI}
+export { TVLABI, FairLaunchABI, BankABI, ERC20, PancakeAbi, KaicangABI, GoblinABI }

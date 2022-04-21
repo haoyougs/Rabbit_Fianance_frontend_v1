@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback, useLayoutEffect } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { BgBox } from "components/backgroundBox/background";
 import { TokenIcon } from "components/icon/tokenIcon";
@@ -7,10 +7,18 @@ import { Button } from "components/button/button";
 import "../index.css";
 import store from "state";
 import { useSelector } from "react-redux";
-import { FAIR_LAUNCH_ADDRESS, ibBNB_FAIRLAUNCH_PID } from "config/address";
+import { ERC20 } from "config/ABI";
+import {
+  FAIR_LAUNCH_ADDRESS, ibBNB_FAIRLAUNCH_PID,
+  ibBNB_ADDRESS
+} from "config/address";
 import { DepositAmount } from "hooks/useStake";
 import { useWeb3React } from "@web3-react/core";
 import { Withdrawal } from "hooks/useStake";
+import { ibTokneData } from "hooks/useStake";
+import { Approveds, ApproveWay } from "utils/tokenApproved";
+import { NoticeBox } from "components/notice";
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
 /**
  *  Unstake 解质押 提现
  * @returns
@@ -18,23 +26,60 @@ import { Withdrawal } from "hooks/useStake";
 export const Unstake: React.FC = () => {
   let location = useLocation();
   const navigate = useNavigate();
+  let Routes = useParams();
+  const TokenNames = Routes.id;
+  const { account, library } = useWeb3React();
+  const [UnBalance, setUnBalance] = useState<any>();
+  //按钮状态
+  const [ApproveBtn, setApproveBtn] = useState(false);
+  const [BtnDisabled, setBtnDisabled] = useState(false);
+  const [UnStakeBtn, setUnStakeBtn] = useState(false);
+  const [Amount, setAmount] = useState<any>(0);
+  const setNotice = UpdateNotice();
+  const setNotice2 = UpdateNotice2();
+  const setNoticeText = UpdateNoticeText();
+  const [Pid, setPid] = useState<number | string>();
+
+  const current_pid = ibTokneData.filter((item) => item.tokenName === TokenNames)[0].pid;
+  const current_ibtokenAddress = ibTokneData.filter((item) => item.tokenName === TokenNames)[0].ibTokneAddress;
+  const ibTokenAddress = TokenNames === "ibBNB" ? ibBNB_ADDRESS :
+    current_ibtokenAddress;
+  useEffect(() => {
+    window.addEventListener("beforeunload", () => {
+      // console.log
+    })
+  }, [])
   /**
    * 返回上一级
    */
   const BackClick = () => {
     navigate("/stake");
   };
-  const [UnBalance, setUnBalance] = useState<any>();
-  const { account } = useWeb3React();
   useEffect(() => {
-    DepositAmount(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then(
+    if (TokenNames === "ibBNB") {
+      setPid(ibBNB_FAIRLAUNCH_PID);
+    } else {
+      setPid(current_pid);
+    }
+  }, [Pid, account]);
+  //获取Amounts
+  const getAmount = useCallback(() => {
+    if (Pid == undefined) {
+      return
+    }
+    if (!account) {
+      return;
+    }
+    DepositAmount(Pid, account, FAIR_LAUNCH_ADDRESS).then(
       (res) => {
+        console.log(res)
         setUnBalance(res);
       }
     );
-  });
-  const [Amount, setAmount] = useState<any>();
-  const [ReceiveVal, setReceiveVal] = useState<any>();
+  }, [Pid, account])
+  //获取Amounts
+  useEffect(getAmount, [getAmount]);
+  //输入Amounts
   const AmountChange = (e: any) => {
     let { value } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
@@ -48,52 +93,115 @@ export const Unstake: React.FC = () => {
   const MaxClick = () => {
     setAmount(UnBalance);
   };
+  useEffect(() => {
+    if (Amount) {
+      setUnStakeBtn(true);
+    } else {
+      setUnStakeBtn(false)
+    }
+  }, [Amount])
+  // 授权
+  useEffect(() => {
+    if (!account) {
+      return;
+    }
+    setBtnDisabled(true);
+    //TokenNames 当前币name ibTokenAddress 当前币的ib地址 ERC20 合约规范
+    //account钱包地址
+    // console.log(333, ibTokenAddress)
+    const ApprovedAddress = ibTokenAddress;
+    Approveds(TokenNames, account, ERC20, ibTokenAddress, library, ApprovedAddress).then((res) => {
+      setBtnDisabled(false);
+      console.log("是否授权", res);
+      if (res) {
+        setApproveBtn(res as boolean);
+
+      }
+    });
+  }, [ibTokenAddress, account]);
+  //授权操作
+  const OnApproveClick = () => {
+    setBtnDisabled(true);
+    //TokenNames 当前币name ibTokenAddress 当前币的ib地址 ERC20 合约规范
+    //account钱包地址 library当前账户
+    const ApprovedAddress = ibTokenAddress;
+    ApproveWay(TokenNames, ibTokenAddress, ERC20, account, library, ApprovedAddress).then(
+      (res) => {
+        setBtnDisabled(false);
+        if (res) {
+          setNoticeText("Approve succeed");
+          setNotice(true);
+          setApproveBtn(res as boolean);
+        } else {
+          setNotice2(true);
+          setNoticeText("Approve fail");
+        }
+      }
+    );
+  };
+  //解除质押
   const UnStakeClick = () => {
-    Withdrawal(account, ibBNB_FAIRLAUNCH_PID, Amount, FAIR_LAUNCH_ADDRESS).then((res)=>{
-      if(res == true) {
-        alert('提现成功')
+    Withdrawal(account, ibBNB_FAIRLAUNCH_PID, Amount, FAIR_LAUNCH_ADDRESS).then((res) => {
+      if (res == true) {
+        setNoticeText("UnStake succeed");
+        setNotice(true);
+      } else {
+        setNotice2(true);
+        setNoticeText("UnStake fail");
       }
     });
   };
-
   return (
-    <Box className="textAnimation2">
-      <LBox>
-        <IconBox>
-          <TokenIcon IconName={"ibBNB"} />
-          <NameSize>ibBNB</NameSize>
-        </IconBox>
-        <IconBox>
-          <Tips1>1</Tips1>
-          Unstake Tokens
-        </IconBox>
-        <BtnBox>
-          <Button w={100} h={40} onClick={BackClick}>
-            BACK
-          </Button>
-        </BtnBox>
-      </LBox>
-      <RBox>
-        <Title>I’d like to unstake</Title>
-        <BalanceBox>Balance ：{UnBalance} ibBNB</BalanceBox>
-        <InpBox>
-          <TokenIcon IconName={"ibBNB"} />
-          <Input
-            type="text"
-            value={Amount}
-            placeholder="0.00"
-            onChange={AmountChange}
-          ></Input>
-          <Button w={60} h={26} onClick={MaxClick}>
-            MAX
-          </Button>
-        </InpBox>
+    <>
+      <Box className="textAnimation2">
+        <LBox>
+          <IconBox>
+            <TokenIcon IconName={`${TokenNames}`} />
+            <NameSize>{TokenNames}</NameSize>
+          </IconBox>
+          <IconBox>
+            <Tips1>1</Tips1>
+            Unstake Tokens
+          </IconBox>
+          <BtnBox>
+            <Button w={100} h={40} onClick={BackClick}>
+              BACK
+            </Button>
+          </BtnBox>
+        </LBox>
+        <RBox>
+          <Title>I’d like to unstake</Title>
+          <BalanceBox>Balance ：{UnBalance} {TokenNames}</BalanceBox>
+          <InpBox>
+            <TokenIcon IconName={`${TokenNames}`} />
+            <Input
+              type="text"
+              value={Amount}
+              placeholder="0.00"
+              onChange={AmountChange}
+            ></Input>
+            <Button w={60} h={26} onClick={MaxClick}>
+              MAX
+            </Button>
+          </InpBox>
+          {ApproveBtn ? (
+            <Button w={0} h={40} mt={145} disabled={UnStakeBtn}
+              onClick={UnStakeClick}>
+              UnStake
+            </Button>
+          ) : (
+            // 授权
+            <Button w={0} h={40} mt={60}
+              disabled={!BtnDisabled}
+              onClick={OnApproveClick}
+            >
+              Approve {TokenNames}
+            </Button>
+          )}
+        </RBox>
+      </Box>
+    </>
 
-        <Button w={0} h={40} mt={145} onClick={UnStakeClick}>
-          UnStake
-        </Button>
-      </RBox>
-    </Box>
   );
 };
 

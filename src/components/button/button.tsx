@@ -19,6 +19,7 @@ interface btn {
   mb?: number;
   disabled?: boolean;
   Select?: boolean;
+  loading?: boolean;
 }
 /**
  * 自定义按钮
@@ -44,6 +45,7 @@ export const Button: React.FC<btn> = ({
   mb,
   disabled = true,
   Select = false,
+  loading = false,
 }) => {
   const ClickEvent = () => {
     if (onClick && disabled == true) {
@@ -62,7 +64,8 @@ export const Button: React.FC<btn> = ({
       disabled={disabled}
       Select={Select}
     >
-      {disabled ? "" : <SVGloading1 />} {children}
+      {loading ? <SVGloading1 /> : ""}
+      {children}
     </Box>
   );
 };
@@ -83,7 +86,7 @@ const Box = styled.div<{
   margin-bottom: ${(props) => props.mb}px;
   margin-top: ${(props) => props.mt}px;
   border-radius: ${(props) => props.h}px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid ${(props) => (props.Select ? "rgba(248, 182, 41)" : "rgba(255, 255, 255,0.2)")} ;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -94,8 +97,8 @@ const Box = styled.div<{
   font-style: normal;
   line-height: 1;
   letter-spacing: normal;
-  color: rgba(255, 255, 255,0.5);
-  background: ${(props) => (props.Select ? "rgba(255, 255, 255,0.1)" : "")};
+  color: ${(props) => (props.Select ? "rgba(248, 182, 41)" : "rgba(255, 255, 255,0.5)")} ;
+  /* background: ${(props) => (props.Select ? "rgba(255, 255, 255,0.1)" : "")}; */
   opacity: ${(props) => (props.disabled ? "1" : "0.2")};
   cursor: ${(props) => (props.disabled ? "pointer" : "not-allowed")};
   position: relative;
@@ -161,7 +164,11 @@ export const Btn = styled.div`
 export const OldBtn: React.FC = () => {
   return (
     <OldBox>
-      <Oldbg>Old</Oldbg>
+      <Oldbg>
+        <a href="https://farmv2.rabbitfinance.io" target="_blank">
+          Old
+        </a>
+      </Oldbg>
       <OldbgV3>V3</OldbgV3>
     </OldBox>
   );
@@ -182,6 +189,9 @@ const Oldbg = styled.div`
   color: rgb(255, 255, 255);
   text-align: center;
   line-height: 26px;
+  a{
+    color:#fff;
+  }
 `;
 const OldbgV3 = styled.div`
   width: 50px;

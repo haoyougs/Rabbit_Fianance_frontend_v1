@@ -40,7 +40,7 @@ export const ListBox: React.FC = () => {
     onTotalBorrowedData();
     onTotalDepositData();
     //library当前账户 account钱包地址
-    onBNBTokneBalanc({ library: library, TokenAddress: account });
+    onBNBTokneBalanc({ library, account });
     //Address当前钱包地址 Abi: ERC20 合约规范 library当前账户
     //TokenAddress: ibBNB_ADDRESS, ibbnb地址
     onIbTokneBalance({
@@ -113,7 +113,7 @@ export const ListBox: React.FC = () => {
             <div>
               <div>
                 {BNBData?.TotalDeposit ?
-                  `${(BNBData.TotalDeposit / 1).toFixed(2)}k`
+                  `${(BNBData.TotalDeposit / 1000).toFixed(6)}k`
                   :
                   <ValueSkeleton width={50}></ValueSkeleton>
                 }
@@ -127,7 +127,7 @@ export const ListBox: React.FC = () => {
             <div>
               <div>
                 {BNBData?.TotalBorrowed ?
-                  `${(BNBData.TotalBorrowed / 1).toFixed(2)}k`
+                  `${(BNBData.TotalBorrowed / 1000).toFixed(6)}k`
                   :
                   <ValueSkeleton width={50}></ValueSkeleton>
                 }
@@ -150,14 +150,14 @@ export const ListBox: React.FC = () => {
             <div>
               <div>
                 {BNBData?.Balance ?
-                  `${(BNBData.Balance / 1).toFixed(2)} ${BNBData.tokenName}`
+                  `${(BNBData.Balance / 1).toFixed(6)} ${BNBData.tokenName}`
                   :
                   <ValueSkeleton width={50}></ValueSkeleton>
                 }
               </div>
               <div style={{ marginTop: 10 }}>
                 {BNBData?.ibBalance ?
-                  `${(BNBData.ibBalance / 1).toFixed(2)} ibBNB`
+                  `${(BNBData.ibBalance / 1).toFixed(6)} ibBNB`
                   :
                   <ValueSkeleton width={50}></ValueSkeleton>
                 }

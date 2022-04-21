@@ -81,42 +81,52 @@ const BGColorBox = styled.div`
   background-color: rgba(255, 182, 13);
   border-radius: 5px;
 `;
-
-export const SliderInp: React.FC<{
+interface SliderInpInnerface {
   max: any;
   min: any;
   value: any;
-  onChange: any;
-}> = ({ max, min, value, onChange }) => {
-  // {((value+100)*100)/200}%
+  marks: Array<number>;
+  onChange: (e: any) => any;
+  onClick: (e: any) => any;
+}
+export const SliderInp: React.FC<SliderInpInnerface> = ({ max, min, value, onChange, marks, onClick }) => {
+  // console.log("marks", marks)
+  // console.log("max", max, "min", min, "value", value)
   return (
     <SliderBox>
       <SliderBbox>
         <Input
+          step="0.1"
           type="range"
           max={max}
           min={min}
           value={value}
           onChange={onChange}
         />
+        <MarksBox>
+          {marks.map(item => (
+            item <= max ?
+              <MarkLi onClick={() => onClick(item)} style={{ left: `${(item - 1) * (100 / (max - 1) - 0.5)}%` }} key={item}>{item}X</MarkLi>
+              : null
+          ))}
+        </MarksBox>
       </SliderBbox>
-      <ValueBox>{value/10} X</ValueBox>
+      <ValueBox>{value} X</ValueBox>
     </SliderBox>
   );
 };
 
-const Input = styled.input<{ value: number }>`
+const Input = styled.input<{ value: number, max: number }>`
   -webkit-appearance: none;
   width: 100%;
   height: 5px;
   border-radius: 5px;
   background-image: linear-gradient(
     to right,
-    rgb(255, 182, 13) ${(props) =>props.value}%,
+    rgb(255, 182, 13) ${(props) => ((props.value - 1) / (props.max - 1)) * 100}%,
     #fff 0%
   );
-
-  background-repeat: no-repeat;
+  /* background-repeat: no-repeat; */
   ::-webkit-slider-thumb {
     -webkit-appearance: none;
     height: 15px;
@@ -126,6 +136,8 @@ const Input = styled.input<{ value: number }>`
     background: #fff;
     box-shadow: 0 0 4px 4px #00000040;
     cursor: pointer;
+    position: relative;
+    left:${(props) => (props.value) * 10}%,
   }
   ::-webkit-slider-runnable-track {
     -webkit-appearance: none;
@@ -134,7 +146,16 @@ const Input = styled.input<{ value: number }>`
     background: transparent;
   }
 `;
-
+const MarksBox = styled.div`
+  width:100%;
+  padding: 10px 10px 10px 0;
+  position: relative;
+`
+const MarkLi = styled.span`
+  color:#fff;
+  cursor:pointer;
+  position: absolute;
+`
 const SliderBbox = styled.div`
   flex: 1;
 `;
