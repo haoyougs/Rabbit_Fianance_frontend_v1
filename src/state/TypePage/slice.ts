@@ -17,7 +17,6 @@ const Slice = createSlice({
         }
     },
     extraReducers: (builder) => {
-
     }
 });
 export const { setNotice, setNotice2, setNoticeText } = Slice.actions;

@@ -130,14 +130,7 @@ export const TokenList: React.FC = () => {
           </TdBox>
           <TdBox>
             {/* 余额 */}
-            <div>
-              <div>
-                {item?.Balance ?
-                  `${(item.Balance / 1).toFixed(6)} ${item.tokenName}`
-                  :
-                  <ValueSkeleton width={50}></ValueSkeleton>
-                }
-              </div>
+            <div style={{ width: "100px" }}>
               <div style={{ marginTop: 10 }}>
                 {item?.ibBalance ?
                   `${(item.ibBalance / 1).toFixed(6)} ib${item.tokenName}`
@@ -145,17 +138,25 @@ export const TokenList: React.FC = () => {
                   <ValueSkeleton width={50}></ValueSkeleton>
                 }
               </div>
+              <div>
+                {item?.Balance ?
+                  `${(item.Balance / 1).toFixed(6)} ${item.tokenName}`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+              </div>
+
             </div>
           </TdBox>
           <TdBox className="TdWdith">
             <Link to={`/Deposit/${item.tokenName}?${key}`}>
-              <Button w={100} h={35}>
+              <Button w={80} h={35}>
                 Deposit
               </Button>
             </Link>
 
             <Link to={`/Withdraw/${item.tokenName}?${key}`}>
-              <Button w={100} h={35} ml={10}>
+              <Button w={80} h={35} ml={10}>
                 Withdraw
               </Button>
             </Link>

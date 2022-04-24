@@ -148,13 +148,6 @@ export const ListBox: React.FC = () => {
           <TdBox>
             {/* 余额 */}
             <div>
-              <div>
-                {BNBData?.Balance ?
-                  `${(BNBData.Balance / 1).toFixed(6)} ${BNBData.tokenName}`
-                  :
-                  <ValueSkeleton width={50}></ValueSkeleton>
-                }
-              </div>
               <div style={{ marginTop: 10 }}>
                 {BNBData?.ibBalance ?
                   `${(BNBData.ibBalance / 1).toFixed(6)} ibBNB`
@@ -162,16 +155,24 @@ export const ListBox: React.FC = () => {
                   <ValueSkeleton width={50}></ValueSkeleton>
                 }
               </div>
+              <div>
+                {BNBData?.Balance ?
+                  `${(BNBData.Balance / 1).toFixed(6)} ${BNBData.tokenName}`
+                  :
+                  <ValueSkeleton width={50}></ValueSkeleton>
+                }
+              </div>
+
             </div>
           </TdBox>
           <TdBox className="TdWdith">
             <Link to={`/Deposit/${BNBData.tokenName}`}>
-              <Button w={100} h={35}>
+              <Button w={80} h={35}>
                 Deposit
               </Button>
             </Link>
             <Link to={`/Withdraw/${BNBData.tokenName}`}>
-              <Button w={100} h={35} ml={10}>
+              <Button w={80} h={35} ml={10}>
                 Withdraw
               </Button>
             </Link>
