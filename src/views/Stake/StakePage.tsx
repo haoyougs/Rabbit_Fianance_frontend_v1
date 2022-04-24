@@ -24,17 +24,6 @@ export const StakePage: React.FC = () => {
    * 路由跳转
    */
   const navigate = useNavigate();
-  const DepositClick = () => {
-    navigate("/stake/stake");
-  };
-  const WithdrawClick = () => {
-    navigate("/stake/Unstake");
-  };
-  // useEffect(() => {
-  //   GETRewardSummary(ibBNB_FAIRLAUNCH_PID, account, FAIR_LAUNCH_ADDRESS).then((res) => {
-  //     console.log(444, res)
-  //   });
-  // }, [account])
 
   return (
     <>

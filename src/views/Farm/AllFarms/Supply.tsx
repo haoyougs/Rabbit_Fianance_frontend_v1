@@ -38,15 +38,16 @@ import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/ho
  * SupplyBox 开仓页面
  * @returns
  */
+type RoutesType = string | undefined;
 export const SupplyPage: React.FC = () => {
   let Routes = useParams();
-  const TokenNames = Routes.name;
-  const TokenIndex = Routes.index;
-  const Leverages = Routes.leverage;
-  const MaxLeverage = Routes.MaxLeverage;
+  const TokenNames: RoutesType = Routes.name;
+  const TokenIndex: RoutesType = Routes.index;
+  const Leverages: RoutesType = Routes.leverage;
+  const MaxLeverage: RoutesType = Routes.MaxLeverage;
   const { account, library } = useWeb3React();
   //杠杆比例
-  const RatioArrs = [0.25, 0.5, 0.75, 1]
+  const RatioArrs: number[] = [0.25, 0.5, 0.75, 1]
   //通知框
   const setNotice = UpdateNotice();
   const setNotice2 = UpdateNotice2();
@@ -79,8 +80,12 @@ export const SupplyPage: React.FC = () => {
   const [ApproveBtn0, setApproveBtn0] = useState(true);
   const [ApproveBtn1, setApproveBtn1] = useState(true);
   const [FarmBtn, setFarmBtn] = useState(false);
+  //token0 选择比例
+  const [Ratio0Select, setRatio0Select] = useState<string>("");
+  //token1 选择比例
+  const [Ratio1Select, setRatio1Select] = useState<string>("");
   //获取当前的CurrentTokens 和Token0Pid，Token1Pid
-  useEffect(() => {
+  const CurrentToken = () => {
     const CurrentToken = FarmAddressArrs[Number(TokenIndex)];
     setToken0Pid(CurrentToken?.BorrowToken0?._Pid)
     setToken1Pid(CurrentToken?.BorrowToken1?._Pid)
@@ -92,12 +97,16 @@ export const SupplyPage: React.FC = () => {
       setLoanSwitch0(true);
       setLoanSwitch1(false);
       setCurrenName(TokenNames?.split("-")[0])
-    }
+    };
+    console.log("CurrentToken", CurrentToken);
     setCurrentTokens(CurrentToken);
+  }
+  useEffect(() => {
+    CurrentToken();
   }, [TokenIndex]);
   //获取 可借款数量
   const getTotalBorrowed = async () => {
-    console.log(444, CurrentTokenInfo)
+    // console.log(444, CurrentTokenInfo)
     //根据切换当前币，切换address
     const TokenAddress = LoanSwitch0 ? CurrentTokenInfo.LPtokenAddress0 : CurrentTokenInfo.LPtokenAddress1;
     if (!TokenAddress) {
@@ -255,7 +264,7 @@ export const SupplyPage: React.FC = () => {
         library,
         CurrentTokenInfo.AddTwoStrategyAddr
       ).then((res) => {
-        // console.log("是否授权1", res);
+        console.log("是否授权1", res);
         // setTokenApproved1(res as boolean);
         if (res) {
           // console.log("是否授权11", res);
@@ -344,9 +353,11 @@ export const SupplyPage: React.FC = () => {
     }
   }, [Amount0, Amount1]);
   const balance0Ratio = (ratio: number) => {
+    setRatio0Select(ratio.toString() + "0");
     setAmount0((Balance0 * ratio).toFixed(6));
   }
   const balance1Ratio = (ratio: number) => {
+    setRatio1Select(ratio.toString() + "1");
     setAmount1((Balance1 * ratio).toFixed(6));
   };
   const LoanSwitch0Click = () => {
@@ -378,6 +389,7 @@ export const SupplyPage: React.FC = () => {
   let token1IsBNB: any = TokenNames?.split("-")[1] == "BNB" ? true : false;
   //开仓按钮事件
   const FarmClick = () => {
+    setFarmDisabled(false)
     const strategyAddress = CurrentTokenInfo.AddTwoStrategyAddr;
     //如果token0，或者token1是bnb，BNB_ADDRESS。
     const token0Address = TokenNames?.split("-")[0] != "BNB" ? CurrentTokenInfo.LPtokenAddress0 : BNB_ADDRESS;
@@ -403,6 +415,10 @@ export const SupplyPage: React.FC = () => {
       token0IsBNB,
       token1IsBNB
     ).then((res) => {
+      //刷新页面数据
+      setCurrentTokens({})
+      CurrentToken();
+      setFarmDisabled(true)
       if (res) {
         setNoticeText("Farm succeed");
         setNotice(true);
@@ -460,7 +476,8 @@ export const SupplyPage: React.FC = () => {
           <BtnBox>
             {RatioArrs.map((item, key) => (
               <Button key={key} w={125} h={40} mt={15} mr={10}
-                onClick={() => balance0Ratio(item)}>
+                onClick={() => balance0Ratio(item)}
+                Select={Ratio0Select == (item.toString() + "0")}>
                 {item * 100}%
               </Button>
             ))}
@@ -482,7 +499,8 @@ export const SupplyPage: React.FC = () => {
           <BtnBox>
             {RatioArrs.map((item, key) => (
               <Button key={key} w={125} h={40} mt={15} mr={10}
-                onClick={() => balance1Ratio(item)}>
+                onClick={() => balance1Ratio(item)}
+                Select={Ratio1Select == (item.toString() + "1")}>
                 {item * 100}%
               </Button>
             ))}

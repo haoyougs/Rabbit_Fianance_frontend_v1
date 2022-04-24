@@ -19,14 +19,14 @@ interface parameter {
 export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
   //获取钱包地址
   let { account, library } = useWeb3React();
-  const LPAddress = info.LPAddress;
-  const Ellipsis = LPAddress.Ellipsis;
-  const Data = info.item;
-  const Names = info.LPAddress.LPtokenName;
+  const LPAddress: any = info.LPAddress;
+  const Ellipsis: string = LPAddress.Ellipsis;
+  const Data: any = info.item;
+  const Names: string = info.LPAddress.LPtokenName;
   //借款币是不是token0
-  const borrowToken0 = Data.borrowToken == LPAddress.LPtokenAddress0 ? true : false;
-  const Token0Name = LPAddress.BorrowToken0.name;
-  const Token1Name = LPAddress.BorrowToken1.name;
+  const borrowToken0: boolean = Data.borrowToken == LPAddress.LPtokenAddress0 ? true : false;
+  const Token0Name: string = LPAddress.BorrowToken0.name;
+  const Token1Name: string = LPAddress.BorrowToken1.name;
   const posId = Data.posid._hex;
   // console.log(info);
   //token0和token1的数量；

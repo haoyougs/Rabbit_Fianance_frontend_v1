@@ -199,17 +199,6 @@ export const DepositBox: React.FC = () => {
   };
   return (
     <>
-      {/* {Notice ? (
-        <div onClick={() => setNotice(false)}>
-          <NoticeBox>{NoticeText} </NoticeBox>
-        </div>
-      ) : null}
-      {Notice2 ? (
-        <div onClick={() => setNotice2(false)}>
-          <NoticeBox Shou={!Notice2}>{NoticeText}</NoticeBox>
-        </div>
-      ) : null} */}
-
       <Box className="textAnimation2">
         <LBox>
           <IconBox>

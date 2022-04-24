@@ -25,13 +25,13 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   //获取钱包地址
   let { account, library } = useWeb3React();
   //杠杆比例
-  const RatioArrs = [0.25, 0.5, 0.75, 1]
-  const LPAddress = info.LPAddress;
-  const Ellipsis = LPAddress.Ellipsis;
-  const Data = info.item;
-  const Names = info.LPAddress.LPtokenName
-  const Token0Name = Names?.split("-")[0];
-  const Token1Name = Names?.split("-")[1];
+  const RatioArrs: number[] = [0.25, 0.5, 0.75, 1]
+  const LPAddress: any = info.LPAddress;
+  const Ellipsis: string = (LPAddress as { Ellipsis: string }).Ellipsis;
+  const Data: any = info.item;
+  const Names: string = info.LPAddress.LPtokenName
+  const Token0Name: string = Names?.split("-")[0];
+  const Token1Name: string = Names?.split("-")[1];
   // console.log(info, Ellipsis);
   //获取账户余额的变量
   let [Token0Balance, setToken0Balance] = useState<any>();
@@ -46,6 +46,10 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   const [ApproveBtn1, setApproveBtn1] = useState(true);
   const [FarmBtn, setFarmBtn] = useState(false);
   const [FarmDisabled, setFarmDisabled] = useState<boolean>(false);
+  //token0 选择比例
+  const [Ratio0Select, setRatio0Select] = useState<string>("");
+  //token1 选择比例
+  const [Ratio1Select, setRatio1Select] = useState<string>("");
   //提示
   const setNotice = UpdateNotice();
   const setNotice2 = UpdateNotice2();
@@ -97,10 +101,12 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
       setAmount1(value);
     }
   };
-  const balance0Ratio = (ratio: number) => {
+  const balance0Ratio = <T extends number>(ratio: T) => {
+    setRatio0Select(ratio.toString() + "0");
     setAmount0((Token0Balance * ratio).toFixed(6));
   }
-  const balance1Ratio = (ratio: number) => {
+  const balance1Ratio = <T extends number>(ratio: T) => {
+    setRatio1Select(ratio.toString() + "1");
     setAmount1((Token1Balance * ratio).toFixed(6));
   };
   //页面授权
@@ -255,14 +261,11 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         console.log(res);
         //非稳定币价格
         console.log(222, new_Amount0, new_Amount1);
-        // 获取平均后的币种各个币种的数量
-        let AddToken = token0Price * parseFloat(new_Amount0) + token1Price * parseFloat(new_Amount1);
+        // 获取平均后的币种各个币种的数量得合计
+        let TotalToken = token0Price * parseFloat(new_Amount0) + token1Price * parseFloat(new_Amount1);
         //单币的价格
-        const singleToken = AddToken / 2
-        console.log(111, AddToken, singleToken);
-        // if (AddToken == 0) {
-        //   return;
-        // }
+        const singleToken = TotalToken / 2
+        console.log(111, TotalToken, singleToken);
         let token0Totalvalue = singleToken / token0Price;
         let token1Totalvalue = singleToken / token1Price;
         setAddedtoPosition0(token0Totalvalue);
@@ -277,7 +280,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         let PositionValue1;
         //假如是稳定币
         if (Ellipsis) {
-          console.log(333, positionsValue)
+          // console.log(333, positionsValue)
           if (borrowToken0) {
             PositionValue0 = positionsValue * 1 + token0Totalvalue;
             PositionValue1 = positionsValue / token1Price + token1Totalvalue;
@@ -381,7 +384,8 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
           <BtnBox>
             {RatioArrs.map((item, key) => (
               <Button key={key} w={120} h={40}
-                onClick={() => balance0Ratio(item)}>
+                onClick={() => balance0Ratio(item)}
+                Select={Ratio0Select == (item.toString() + "0")}>
                 {item * 100}%
               </Button>
             ))}
@@ -406,7 +410,8 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
           <BtnBox>
             {RatioArrs.map((item, key) => (
               <Button key={key} w={120} h={40}
-                onClick={() => balance1Ratio(item)}>
+                onClick={() => balance1Ratio(item)}
+                Select={Ratio1Select == (item.toString() + "1")}>
                 {item * 100}%
               </Button>
             ))}

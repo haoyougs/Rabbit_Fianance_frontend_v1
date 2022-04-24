@@ -23,11 +23,13 @@ import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/ho
  *  Unstake 解质押 提现
  * @returns
  */
+type RoutesType = string | undefined;
+
 export const Unstake: React.FC = () => {
   let location = useLocation();
   const navigate = useNavigate();
   let Routes = useParams();
-  const TokenNames = Routes.id;
+  const TokenNames: RoutesType = Routes.id;
   const { account, library } = useWeb3React();
   const [UnBalance, setUnBalance] = useState<any>();
   //按钮状态

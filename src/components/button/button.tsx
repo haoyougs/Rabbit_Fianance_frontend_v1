@@ -7,8 +7,7 @@ import {
   SVGloading3,
   SVGloading4,
 } from "components/Loading/SVG";
-
-interface btn {
+type btn = {
   w: number;
   h: number;
   children?: any;

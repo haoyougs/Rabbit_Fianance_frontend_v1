@@ -160,18 +160,18 @@ export const AllFarmsPage: React.FC = () => {
         </TheadBox2>
         {/* 表格的顶部分类标题 */}
         <TheadBox>
-          <TdBox>Pool</TdBox>
-          <TdBox>Yield (APY)</TdBox>
-          <TdBox>TVL</TdBox>
-          <TdBox>Leverage</TdBox>
+          <TdBox style={{ maxWidth: "29%", minWidth: "200px" }}>Pool</TdBox>
+          <TdBox style={{ maxWidth: "20%" }}>Yield (APY)</TdBox>
+          <TdBox style={{ maxWidth: "20%" }}>TVL</TdBox>
+          <TdBox style={{ maxWidth: "20%" }}>Leverage</TdBox>
           <TdBox className="TdWdith"> </TdBox>
         </TheadBox>
         <TbodyBox>
           {Data.map((item, key) => (
             <TrBox key={key}>
-              <TdBox>
+              <TdBox style={{ maxWidth: "29%", minWidth: "200px" }}>
                 <TokenIcon IconName={item.LPtokenName} />
-                <div style={{ width: "170px" }}>
+                <div>
                   <div style={{ marginLeft: 10, color: "#fff" }}>
                     {item.LPtokenName ? item.LPtokenName : <LoadingBox />}
                   </div>
@@ -192,9 +192,9 @@ export const AllFarmsPage: React.FC = () => {
                     : null}
                 </div>
               </TdBox>
-              <TdBox>{item.APY === 0 ? <LoadingBox /> : item.APY}</TdBox>
-              <TdBox>{item.TVL == undefined ? <LoadingBox /> : "$" + item.TVL}</TdBox>
-              <TdBox>
+              <TdBox style={{ maxWidth: "20%" }}>{item.APY === 0 ? <LoadingBox /> : item.APY}</TdBox>
+              <TdBox style={{ color: "#fff", maxWidth: "20%" }}>{item.TVL == undefined ? <LoadingBox /> : "$" + item.TVL}</TdBox>
+              <TdBox style={{ maxWidth: "20%" }}>
                 <DoubleBtnBox>
                   <NumberBox>{item.Leverage}</NumberBox>
                   <BtnDiv>
@@ -233,9 +233,8 @@ const TopBox = styled.div`
 `;
 const Box = styled(BgBox)`
   padding: 20px;
-
   .TdWdith {
-    min-width: 220px;
+    max-width: 100px;
   }
 `;
 const TitleBox = styled.div`

@@ -217,7 +217,7 @@ export const WithdrawBox: React.FC = () => {
       <Box className="textAnimation2">
         <LBox>
           <IconBox>
-            <TokenIcon IconName={'ib' + TokenNames as string} />
+            <TokenIcon IconName={'ib' + TokenNames} />
             <NameSize>ib{TokenNames}</NameSize>
           </IconBox>
           <IconBox>
@@ -234,7 +234,7 @@ export const WithdrawBox: React.FC = () => {
           <Title>I’d like to withdraw</Title>
           <BalanceBox>Balance ：{parseFloat(IbBalances).toFixed(6)} {'ib' + TokenNames}</BalanceBox>
           <InpBox>
-            <TokenIcon IconName={'ib' + TokenNames as string} />
+            <TokenIcon IconName={'ib' + TokenNames} />
             <Input
               type="text"
               value={Pamount}

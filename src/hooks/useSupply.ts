@@ -12,14 +12,14 @@ import { BANK_ADDRESS, BNB_ADDRESS } from "config/address";
  * @returns
  */
 export const TokenBalanceOf = async (account: any, library: any, address: any, name: any) => {
-    console.log("TokenAddress", address);
+    // console.log("TokenAddress", address);
     let Balances;
     if (name == "BNB") {
         //bnb
         Balances = await library?.getBalance(account);
     } else {
         //非bnb
-        console.log("address", address)
+        // console.log("address", address)
         const Tokenaddress = new Contract(address, ERC20, library);
         Balances = await Tokenaddress.balanceOf(account)
     }
@@ -45,7 +45,7 @@ export const TokenBalanceOf = async (account: any, library: any, address: any, n
  * @returns 返回一个对象，{Max是最大值，Min是最小值}
  */
 export const MaxMinLoan = async (addres: string, pid: any) => {
-    console.log(222, pid)
+    // console.log(222, pid)
     if (!pid) {
         return;
     }
@@ -75,14 +75,14 @@ export const MaxMinLoan = async (addres: string, pid: any) => {
  */
 export const GoblinEvent = async (strategyAddress: string, token0Address: string, token1Address: string, token0Amount: any, token1Amount: any, pid: any, borrow: any, token0IsBNB: any, token1IsBNB: any) => {
 
-    console.log('开仓策略地址', strategyAddress);
-    console.log('币种0地址', token0Address);
-    console.log('币种1地址', token1Address);
-    console.log('支付的币种数量0', token0Amount);
-    console.log('支付的币种数量1', token1Amount);
-    console.log('借款策略id', pid);
-    console.log('借款token的数量', ethers.utils.parseEther(borrow));
-    console.log('token0IsBNB', token0IsBNB, token1IsBNB);
+    // console.log('开仓策略地址', strategyAddress);
+    // console.log('币种0地址', token0Address);
+    // console.log('币种1地址', token1Address);
+    // console.log('支付的币种数量0', token0Amount);
+    // console.log('支付的币种数量1', token1Amount);
+    // console.log('借款策略id', pid);
+    // console.log('借款token的数量', ethers.utils.parseEther(borrow));
+    // console.log('token0IsBNB', token0IsBNB, token1IsBNB);
 
     try {
         const ContractObj = new Contract(KAICANG, KaicangABI, getSigner());
@@ -205,20 +205,20 @@ export const DataInfo = async (token0: string, token1: string,
     let token0Price = 1;
     //非稳定币价格
     let token1Price = 1 / (Math.floor(res * 100000) / 100000);
-    console.log("token0Price", token0Price)
-    console.log("token1Price", token1Price)
+    // console.log("token0Price", token0Price)
+    // console.log("token1Price", token1Price)
     const new_Amount0 = Amount0 ? Amount0 : 0;
     const new_Amount1 = Amount1 ? Amount1 : 0;
     // userTvl⽤户出的价值
     let userTvl = token0Price * parseFloat(new_Amount0) + token1Price * parseFloat(new_Amount1);
-    console.log("TotalPrice", userTvl);
+    // console.log("TotalPrice", userTvl);
     // 头寸总tvl 总价格*杠杆倍数
     let tvl = userTvl * parseInt(Leverages);
-    console.log("tvl", tvl);
+    // console.log("tvl", tvl);
     //计算总头寸中两个币的数量
     //总头⼨tvl / 2 = ⼀个币的tvl。
     let tokentvl = tvl / 2;
-    console.log("tokentvl", tokentvl)
+    // console.log("tokentvl", tokentvl)
     //⼀个币的tvl / 币价 = 这个币的数量
     let token0Amount = tokentvl / token0Price;
     // console.log("token0Amount", token0Amount)

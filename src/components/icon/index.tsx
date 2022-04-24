@@ -54,7 +54,7 @@ export const MinTipsBar: React.FC<{ children: any }> = ({ children }) => {
   );
 };
 const MinTipsBarBox = styled.div`
-  height: 36px;
+  min-height: 36px;
   border-radius: 5px;
   border: 1px solid rgba(255, 213, 65, 0.4);
   padding-right: 10px;

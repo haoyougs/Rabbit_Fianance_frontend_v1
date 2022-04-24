@@ -36,11 +36,11 @@ export const TypePageBox: React.FC<{ children: any }> = ({ children }) => {
     }
   }, [Location])
   useEffect(() => {
-    console.log(Notice, Notice2)
     if (Notice || Notice2) {
       setTimeout(() => {
         setNotice(false)
-        setNotice2(false)
+        setNotice2(false);
+        clearTimeout()
       }, 3000)
     }
   }, [Notice, Notice2])

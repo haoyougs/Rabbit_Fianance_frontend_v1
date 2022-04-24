@@ -110,7 +110,7 @@ export const ListBox: React.FC = () => {
           </TdBox>
           <TdBox>
             {/* 总存款 */}
-            <div>
+            <div style={{ width: "100px" }}>
               <div>
                 {BNBData?.TotalDeposit ?
                   `${(BNBData.TotalDeposit / 1000).toFixed(6)}k`
@@ -124,7 +124,7 @@ export const ListBox: React.FC = () => {
           </TdBox>
           <TdBox>
             {/* 总借款 */}
-            <div>
+            <div style={{ width: "100px" }}>
               <div>
                 {BNBData?.TotalBorrowed ?
                   `${(BNBData.TotalBorrowed / 1000).toFixed(6)}k`
@@ -147,7 +147,7 @@ export const ListBox: React.FC = () => {
           </TdBox>
           <TdBox>
             {/* 余额 */}
-            <div>
+            <div style={{ width: "100px" }}>
               <div style={{ marginTop: 10 }}>
                 {BNBData?.ibBalance ?
                   `${(BNBData.ibBalance / 1).toFixed(6)} ibBNB`
@@ -189,7 +189,7 @@ const Box = styled(BgBox)`
   padding: 20px;
 
   .TdWdith {
-    min-width: 220px;
+    min-width: 150px;
   }
 `;
 const TitleBox = styled.div`

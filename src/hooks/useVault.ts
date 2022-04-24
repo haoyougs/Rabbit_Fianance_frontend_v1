@@ -85,7 +85,7 @@ export const Deposit = async (address: string, abi: any, token: string, amount: 
  */
 export const Receive = async (BANK_ADDRESS: string, abi: any, IB_TOKEN_ADDRESS: any, amount: string) => {
     try {
-        console.log(333, IB_TOKEN_ADDRESS, amount);
+        // console.log(333, IB_TOKEN_ADDRESS, amount);
         const Banks = new Contract(BANK_ADDRESS, abi, getSigner());
         const Result = await Banks.ibTokenCalculation(IB_TOKEN_ADDRESS,
             ethers.utils.parseEther(amount));

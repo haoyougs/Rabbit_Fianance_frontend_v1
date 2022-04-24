@@ -25,9 +25,10 @@ import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/ho
  * withdraw 存款页面
  * @returns
  */
+type RoutesType = string | undefined;
 export const Stake: React.FC = () => {
   let Routes = useParams();
-  const TokenNames = Routes.id;
+  const TokenNames: RoutesType = Routes.id;
   const urlIndex = useLocation()?.search.replace("?", "");
   const { account, library } = useWeb3React();
   const navigate = useNavigate();

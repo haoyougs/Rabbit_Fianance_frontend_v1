@@ -8,15 +8,16 @@ import { useWeb3React } from "@web3-react/core";
 import { GETRewardSummary, DepositAmount, Claim } from "hooks/useStake";
 import { FAIR_LAUNCH_ADDRESS, ibBNB_FAIRLAUNCH_PID, ibBUSD_FairLaunch_Pid } from 'config/address'
 import { ibTokneData } from "hooks/useStake";
-import { NoticeBox } from "components/notice";
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
 /**
  * Your Reward Summary 组件
  * @returns
  */
 export const RewardSummaryBox: React.FC = () => {
   const { account } = useWeb3React();
-  const [Notice2, setNotice2] = useState(false);
-  const [NoticeText, setNoticeText] = useState("");
+  const setNotice = UpdateNotice();
+  const setNotice2 = UpdateNotice2();
+  const setNoticeText = UpdateNoticeText();
   const [SunmayData, setSunmayData] = useState<[]>([])
   const SunmayTokneData = JSON.parse(JSON.stringify(ibTokneData));
   useEffect(() => {
@@ -39,7 +40,9 @@ export const RewardSummaryBox: React.FC = () => {
   const ClaimClick = (pid: string) => {
     Claim(pid, FAIR_LAUNCH_ADDRESS).then((res) => {
       if (res === true) {
-        console.log('Claim succeed')
+        console.log('Claim succeed');
+        setNotice(true);
+        setNoticeText("Claim succeed");
       } else {
         setNotice2(true);
         setNoticeText("Claim fail");
@@ -50,12 +53,6 @@ export const RewardSummaryBox: React.FC = () => {
 
   return (
     <>
-      {Notice2 ? (
-        <div onClick={() => setNotice2(false)}>
-          <NoticeBox Shou={!Notice2}>{NoticeText}</NoticeBox>
-        </div>
-      ) : null}
-
       <RewardSummary>
         <RewardSummaryIcon>Your Reward Summary</RewardSummaryIcon>
         <RewardSummaryList>
