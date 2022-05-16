@@ -19,6 +19,8 @@ type btn = {
   disabled?: boolean;
   Select?: boolean;
   loading?: boolean;
+  SelectBG?: any;
+  SelectColor?: any;
 }
 /**
  * 自定义按钮
@@ -32,6 +34,8 @@ type btn = {
  * @param mb 下边距
  * @param disabled 禁用状态 禁用时loading出现
  * @param Select 选中状态
+ * @param SelectBG 选中背景色
+ * @param SelectColor 选中color
  */
 export const Button: React.FC<btn> = ({
   w,
@@ -45,6 +49,8 @@ export const Button: React.FC<btn> = ({
   disabled = true,
   Select = false,
   loading = false,
+  SelectBG,
+  SelectColor,
 }) => {
   const ClickEvent = () => {
     if (onClick && disabled == true) {
@@ -62,6 +68,8 @@ export const Button: React.FC<btn> = ({
       mb={mb}
       disabled={disabled}
       Select={Select}
+      SelectBG={SelectBG}
+      SelectColor={SelectColor}
     >
       {loading ? <SVGloading1 /> : ""}
       {children}
@@ -77,6 +85,8 @@ const Box = styled.div<{
   mb?: number;
   disabled?: boolean;
   Select: boolean;
+  SelectBG: string;
+  SelectColor: string;
 }>`
   width: ${(props) => (props.w === 0 ? "100%" : props.w + "px")};
   height: ${(props) => props.h}px;
@@ -96,16 +106,19 @@ const Box = styled.div<{
   font-style: normal;
   line-height: 1;
   letter-spacing: normal;
-  color: ${(props) => (props.Select ? "rgba(248, 182, 41)" : "rgba(255, 255, 255,0.5)")} ;
-  /* background: ${(props) => (props.Select ? "rgba(255, 255, 255,0.1)" : "")}; */
+  color: ${(props) => (props.Select ? props.SelectColor ? props.SelectColor : "rgba(248, 182, 41)" : "rgba(255, 255, 255,0.5)")} ;
+  background: ${(props) => (props.Select ? props.SelectBG ? props.SelectBG : "" : "")};
   opacity: ${(props) => (props.disabled ? "1" : "0.2")};
   cursor: ${(props) => (props.disabled ? "pointer" : "not-allowed")};
   position: relative;
+  text-align: center;
   :hover {
-    transition: all 0.5s;
-    // background: rgba(248, 182, 41, 0.1);
-    color: rgba(248, 182, 41);
-    border: 1px solid rgba(248, 182, 41);
+    @media (min-width: 1000px) {
+      transition: all 0.5s;
+      // background: rgba(248, 182, 41, 0.1);
+      color: ${(props) => (props.SelectColor ? props.SelectColor : "rgba(248, 182, 41)")};
+      border: 1px solid rgba(248, 182, 41);
+    }
   }
   :focus {
     outline: none;

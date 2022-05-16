@@ -112,6 +112,15 @@ const SwitchNet: React.FC<{ onHide?: any }> = ({ onHide }) => {
                                 </AccountWalletLine>
                             </AccountBox>
                     }
+                    {
+                        account && change == false ?
+                            <MChangeBox>
+                                <Button w={100} h={36} onClick={() => setChange(true)}>
+                                    Change
+                                </Button>
+                            </MChangeBox> :
+                            ""
+                    }
                 </Box>
 
             </Modalbox>
@@ -119,3 +128,8 @@ const SwitchNet: React.FC<{ onHide?: any }> = ({ onHide }) => {
     )
 }
 export default SwitchNet;
+const MChangeBox = styled.div`
+    @media (min-width: 1000px) {
+    display: none;
+  }
+`

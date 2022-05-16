@@ -22,6 +22,8 @@ export const KAICANG = '0x94c89FBa4B3E988656e4c0bbbB083Ff5d06B809C'
 // --------------------------------------- ------------------------------------------
 export const FarmMdexRABBIT_BUSD = {
     Goblin: '0x0Ff774721005b0cbd53d4719903D35468D47956F',
+    Tid: 91,
+    LiquidationFactor: 1,
     LPtokenName: 'RABBIT-BUSD',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -40,6 +42,8 @@ export const FarmMdexRABBIT_BUSD = {
 }
 export const FarmPancakeRABBIT_BNB = {
     Goblin: '0x912977ff20b641B37C2E0185fA4b02803601a3a3',
+    Tid: "-1",
+    LiquidationFactor: 1,
     LPtokenName: 'RABBIT-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -60,6 +64,8 @@ export const FarmPancakeRABBIT_BNB = {
 }
 export const FarmPancakeUSDC_BUSD = {
     Goblin: '0xac988E0Cf82E28595C5973835f3429fd72515E42',
+    Tid: 20,
+    LiquidationFactor: 0.94,
     LPtokenName: 'USDC-BUSD',
     LiqStrat: '0xE0D7877EEC30Db9a1D1aD4CC0A3c413774d7c781',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -79,6 +85,8 @@ export const FarmPancakeUSDC_BUSD = {
 }
 export const FarmPancakeUSDT_USDC = {
     Goblin: '0x028C44b049aD2A46B743FA65Ff51BCF427BcF780',
+    Tid: 48,
+    LiquidationFactor: 0.94,
     LPtokenName: 'USDT-USDC',
     LiqStrat: '0xE0D7877EEC30Db9a1D1aD4CC0A3c413774d7c781',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -97,11 +105,13 @@ export const FarmPancakeUSDT_USDC = {
 }
 export const FarmPancakeUSDT_BUSD = {
     Goblin: '0x92aE1b543D59aE30F999eb6490A895e11E9882b5', //开仓合约
+    Tid: 7,
+    LiquidationFactor: 0.94,
     LPtokenName: 'USDT-BUSD',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0xE0D7877EEC30Db9a1D1aD4CC0A3c413774d7c781',
     WithdrawStrategyAddr: '0x3F365b0C749B41359B27FDE462772219d999C5b2',//平仓地址
-    FairLaunchPid: 6, //债务token存在挖矿合约的id
+    FairLaunch_Pid: 6, //债务token存在挖矿合约的id
     LP: '0x7EFaEf62fDdCCa950418312c6C91Aef321375A00',
     debtToken: "0x5C1cAb77E95a9F18Ebf2DC2581366123f2cfd549",
     LPtokenAddress0: '0x55d398326f99059ff775485246999027b3197955',
@@ -115,6 +125,8 @@ export const FarmPancakeUSDT_BUSD = {
 }
 export const FarmPancakeDAI_BUSD = {
     Goblin: '0x3378b8c59a7b6328ade3F7b6bFcE8cCbf198086A',
+    Tid: 19,
+    LiquidationFactor: 0.94,
     LPtokenName: 'DAI-BUSD',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -133,6 +145,8 @@ export const FarmPancakeDAI_BUSD = {
 }
 export const FarmPancakeBNB_BUSD = {
     Goblin: '0xA7CA19be60e2422BF60a385612e752E132333581',
+    Tid: 3,
+    LiquidationFactor: 0.84,
     LPtokenName: 'BNB-BUSD',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -150,6 +164,8 @@ export const FarmPancakeBNB_BUSD = {
 }
 export const FarmMdexBNB_BUSD = {
     Goblin: '0x4e07250388ED8156911Db11Dea00e2Ebbb0eC48C',
+    Tid: 53,
+    LiquidationFactor: 0.84,
     LPtokenName: 'BNB-BUSD',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -165,10 +181,9 @@ export const FarmMdexBNB_BUSD = {
     AddTwoStrategyAddr: '0x3980E0FBe69Cb9331b1659f0A34806796FcbDEb3',
 }
 export const FarmPancakeUSDT_BNB = {
-    // BNB_ADDRESS: '0x0000000000000000000000000000000000000000',
-    // BNBADDRES: '0x4ace4032a18Cb8a194470eDf00fAeaf0A25C41cB',
-    // PancakeUSDT_BNBdebtToken: '0x0a7040471deB4fAb1aBB29ceaa6AB120FF9FBD90',
     Goblin: '0x6c4Eb13d0A6A88e4D18C02992C4bA047b6a13bD0',
+    Tid: 13,
+    LiquidationFactor: 0.84,
     LPtokenName: 'USDT-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -187,6 +202,8 @@ export const FarmPancakeUSDT_BNB = {
 
 export const FarmMdexUSDT_BNB = {
     Goblin: '0x1A49705aBFF34BCDFED5bF56f89b416EA768d856',
+    Tid: 31,
+    LiquidationFactor: 0.84,
     LPtokenName: 'USDT-BNB',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -203,6 +220,8 @@ export const FarmMdexUSDT_BNB = {
 }
 export const FarmMdexETH_BNB = {
     Goblin: '0x48f6AFA01Ed9C41Be8ad985eE177f3277E14B1cf',
+    Tid: 54,
+    LiquidationFactor: 0.84,
     LPtokenName: 'ETH-BNB',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -220,6 +239,8 @@ export const FarmMdexETH_BNB = {
 
 export const FarmPancakeETH_BNB = {
     Goblin: '0x00E7295Cc0e68AdFeec7C69039656201b77aC9D4',
+    Tid: 10,
+    LiquidationFactor: 0.84,
     LPtokenName: 'ETH-BNB',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -237,6 +258,8 @@ export const FarmPancakeETH_BNB = {
 }
 export const FarmMdexETH_USDT = {
     Goblin: '0xB35148aB8d675C45B86F20EBFB151b9Fc4eF63ae',
+    Tid: 29,
+    LiquidationFactor: 0.84,
     LPtokenName: 'ETH-USDT',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -253,6 +276,8 @@ export const FarmMdexETH_USDT = {
 }
 export const FarmMdexETH_BTCB = {
     Goblin: '0xbb0b4f98E20DB9c202fA412Ab84c904bF4F07e1C',
+    Tid: 30,
+    LiquidationFactor: 0.84,
     LPtokenName: 'ETH-BTCB',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -269,6 +294,8 @@ export const FarmMdexETH_BTCB = {
 }
 export const FarmMdexBTCB_BNB = {
     Goblin: '0xf6ADB924213C78Cfab7B8f9ca21489e15E9410C2',
+    Tid: 55,
+    LiquidationFactor: 0.84,
     LPtokenName: 'BTCB-BNB',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -285,6 +312,8 @@ export const FarmMdexBTCB_BNB = {
 }
 export const FarmPancakeBTCB_BNB = {
     Goblin: '0xA67D61a1e12161a56ba9aF6054300C3296b3C6Ef',
+    Tid: 11,
+    LiquidationFactor: 0.84,
     LPtokenName: 'BTCB-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -302,6 +331,8 @@ export const FarmPancakeBTCB_BNB = {
 }
 export const FarmMdexBTCB_USDT = {
     Goblin: '0xCf2ac9f8CF72F4908357376158b21Dfe00B0ace5',
+    Tid: 28,
+    LiquidationFactor: 0.84,
     LPtokenName: 'BTCB-USDT',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -318,6 +349,8 @@ export const FarmMdexBTCB_USDT = {
 }
 export const FarmPancakeBTCB_BUSD = {
     Goblin: '0x0404cF4294e6Bd4289DFA24974402C3f1166ca56',
+    Tid: 36,
+    LiquidationFactor: 0.84,
     LPtokenName: 'BTCB-BUSD',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -335,6 +368,8 @@ export const FarmPancakeBTCB_BUSD = {
 }
 export const FarmPancakeCAKE_BNB = {
     Goblin: '0x37ce37088B1D84786864c3856f9660B0Ddc835B0',
+    Tid: 2,
+    LiquidationFactor: 0.84,
     LPtokenName: 'CAKE-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -345,13 +380,15 @@ export const FarmPancakeCAKE_BNB = {
     debtToken: "0xF902feFAeaeF32596E3895078bfc834Fb4210bcE",
     LPtokenAddress0: '0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82',
     LPtokenAddress1: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
-    BorrowToken0: { name: 'BTCB', _Pid: null },
+    BorrowToken0: { name: 'CAKE', _Pid: null },
     BorrowToken1: { name: 'BNB', _Pid: 140 },
     Type: 'Pancake',
     AddTwoStrategyAddr: '0x70c18D9990942D8cE01c1054e33DC65e3f6928a7',
 }
 export const FarmPancakeCAKE_BUSD = {
     Goblin: '0xCa00524c55703C057632c7fCb914a7C64E139505',
+    Tid: 39,
+    LiquidationFactor: 0.84,
     LPtokenName: 'CAKE-BUSD',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
     WithdrawStrategyAddr: '0x8079339bC13C5ACCEc508df422dE9D3836C8fBE8',
@@ -369,6 +406,8 @@ export const FarmPancakeCAKE_BUSD = {
 }
 export const FarmMdexMDX_BUSD = {
     Goblin: '0xE026B019d8CFc57eB8eF0cf5778bdB5a5f290505',
+    Tid: 40,
+    LiquidationFactor: 0.84,
     LPtokenName: 'MDX-BUSD',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -385,6 +424,8 @@ export const FarmMdexMDX_BUSD = {
 }
 export const FarmPancakeVAI_BUSD = {
     Goblin: '0x55786573875F1Dd45FEfB741762B9D163fAd3516',
+    Tid: 18,
+    LiquidationFactor: 0.94,
     LPtokenName: 'VAI-BUSD',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -402,6 +443,8 @@ export const FarmPancakeVAI_BUSD = {
 }
 export const FarmPancakeUST_BUSD = {
     Goblin: '0x6ff7daa1a40146E9132CE2DbCE5a35EF3A840A06',
+    Tid: 23,
+    LiquidationFactor: 0.94,
     LPtokenName: 'UST-BUSD',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -419,6 +462,8 @@ export const FarmPancakeUST_BUSD = {
 }
 export const FarmPancakeTUSD_BUSD = {
     Goblin: '0x99a8578dB15F86c4087C7375268342f71cD3a2DA',
+    Tid: 41,
+    LiquidationFactor: 0.94,
     LPtokenName: 'TUSD-BUSD',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -436,6 +481,8 @@ export const FarmPancakeTUSD_BUSD = {
 }
 export const FarmPancakeADA_BNB = {
     Goblin: '0xc991242e925c94B56C0F483Bd9Aaa62A97b84cfA',
+    Tid: 4,
+    LiquidationFactor: 0.84,
     LPtokenName: 'ADA-BNB',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -453,6 +500,8 @@ export const FarmPancakeADA_BNB = {
 }
 export const FarmMdexFIL_USDT = {
     Goblin: '0x31Fa58e5007BA827de0dc0C3c839C96a5a413414',
+    Tid: 34,
+    LiquidationFactor: 0.84,
     LPtokenName: 'FIL-USDT',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -469,6 +518,8 @@ export const FarmMdexFIL_USDT = {
 }
 export const FarmMdexDOT_USDT = {
     Goblin: '0xeAbA73300b04fB2e40cA7c78ab5920068B6f1D5C',
+    Tid: 39,
+    LiquidationFactor: 0.7,
     LPtokenName: 'DOT-USDT',
     LiqStrat: '0xBf71c53F6be53B846f44B14Ef54bcC60a397af76',
     WithdrawStrategyAddr: '0xEe5687397C00fBDAb702C0609b4FC4ff211193D5',
@@ -485,6 +536,8 @@ export const FarmMdexDOT_USDT = {
 }
 export const FarmPancakeDOT_BNB = {
     Goblin: '0xa7De761a606101F55DF7241991ECCE867869B4A4',
+    Tid: 5,
+    LiquidationFactor: 0.84,
     LPtokenName: 'DOT-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -502,6 +555,8 @@ export const FarmPancakeDOT_BNB = {
 }
 export const FarmPancakeLINK_BNB = {
     Goblin: '0x592081857B7bC5E0E8c533A93755b26A21b0e00a',
+    Tid: 6,
+    LiquidationFactor: 0.84,
     LPtokenName: 'LINK-BNB',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
@@ -519,6 +574,8 @@ export const FarmPancakeLINK_BNB = {
 }
 export const FarmPancakeXVS_BNB = {
     Goblin: '0x288D67a11c38fEee3B4A30c07936C19346bde428',
+    Tid: 9,
+    LiquidationFactor: 0.84,
     LPtokenName: 'XVS-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',
@@ -536,6 +593,8 @@ export const FarmPancakeXVS_BNB = {
 }
 export const FarmPancakeUNI_BNB = {
     Goblin: '0x3a58406bdBc32b3EAAfFC971AFC485185cC78D9F',
+    Tid: 15,
+    LiquidationFactor: 0.84,
     LPtokenName: 'UNI-BNB',
     ReinvestStrat: '0x2b7Ee480ffad7D9079A12640F60421d4bea035e3',
     LiqStrat: '0x20960Abb669c780a697253B55A7Fe8478e48A489',

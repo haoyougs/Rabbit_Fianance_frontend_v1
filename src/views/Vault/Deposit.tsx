@@ -19,6 +19,7 @@ import {
   getIbTokenBalance,
   TokneBalanceS
 } from "state/Vault/hooks";
+import { subStringNum } from "utils/subStringNum";
 /**
  * Deposit存款页面
  * @returns
@@ -26,7 +27,7 @@ import {
 export const DepositBox: React.FC = () => {
   let Routes = useParams();
   const navigate = useNavigate();
-  const TokenNames = Routes.id;
+  const TokenNames: string | undefined = Routes.id;
   const urlIndex = useLocation()?.search.replace("?", "");
   const setNotice = UpdateNotice();
   const setNotice2 = UpdateNotice2();
@@ -45,7 +46,7 @@ export const DepositBox: React.FC = () => {
   useEffect(() => {
     setVAultListAddressInfo(VAultListAddress[Number(urlIndex)])
   }, [urlIndex])
-  // console.log("VAultListAddressInfo", VAultListAddressInfo)
+
   //获取币的数量
   useEffect(() => {
     if (TokenNames === "BNB") {
@@ -54,8 +55,9 @@ export const DepositBox: React.FC = () => {
       }
       //library当前账户 account钱包地址
       getBNBTokneBalance(library, account).then(res => {
-        console.log("aaa", res);
-        setAmounts(res);
+        //////console.log("aaa", res);
+        const value = subStringNum(res, 6)
+        setAmounts(value);
       });
     } else {
       if (library && VAultListAddressInfo?.tikenAddress) {
@@ -65,7 +67,8 @@ export const DepositBox: React.FC = () => {
           library,
           VAultListAddressInfo?.tikenAddress,
         ).then(res => {
-          setAmounts(res);
+          const value = subStringNum(res, 6)
+          setAmounts(value);
         })
       }
     }
@@ -79,7 +82,7 @@ export const DepositBox: React.FC = () => {
   // 当前的tokenAddress
   const TOKEN_ADDRESS = TokenNames === "BNB" ? BNB_ADDRESS : VAultListAddressInfo?.tikenAddress;
   // 当前的tokenAddress
-  const IB_TOKEN_ADDRESS = TokenNames === "BNB" ? BNB_ADDRESS : VAultListAddressInfo?.ibtokenAddress;
+  const IB_TOKEN_ADDRESS = TokenNames === "BNB" ? ibBNB_ADDRESS : VAultListAddressInfo?.ibtokenAddress;
   // 授权
   useEffect(() => {
     //BNB不需要授权
@@ -94,14 +97,20 @@ export const DepositBox: React.FC = () => {
       return;
     }
     const ApprovedAddress = IB_TOKEN_ADDRESS;
-    Approveds(TokenNames, account, ERC20, TOKEN_ADDRESS, library, ApprovedAddress).then((res) => {
-      setBtnDisabled(false);
-      console.log("是否授权", res);
-      if (res) {
-        // setBtnDisabled(res as boolean)
-        setApproveBtn(res as boolean);
-      }
-    });
+    Approveds(
+      TokenNames,
+      account,
+      ERC20,
+      TOKEN_ADDRESS,
+      library,
+      BANK_ADDRESS).then((res) => {
+        setBtnDisabled(false);
+        //////console.log("是否授权", res);
+        if (res) {
+          // setBtnDisabled(res as boolean)
+          setApproveBtn(res as boolean);
+        }
+      });
   }, [TOKEN_ADDRESS, account]);
   // const [ApproveBtn2, setApproveBtn2] = useState(false);
   //授权操作
@@ -110,14 +119,21 @@ export const DepositBox: React.FC = () => {
     //TokenNames 当前币name TOKEN_ADDRESS 当前币的地址 ERC20 合约规范
     //account钱包地址 library当前账户
     const ApprovedAddress = IB_TOKEN_ADDRESS;
-    ApproveWay(TokenNames, TOKEN_ADDRESS, ERC20, account, library, ApprovedAddress).then(
+    //////console.log("授权地址", TOKEN_ADDRESS)
+    ApproveWay(
+      TokenNames,
+      TOKEN_ADDRESS,
+      ERC20,
+      account,
+      library,
+      BANK_ADDRESS
+    ).then(
       (res) => {
         setBtnDisabled(false);
         if (res) {
           setNoticeText("Approve succeed");
           setNotice(true);
           setApproveBtn(res as boolean);
-          // setApproveBtn2(res as boolean);
         } else {
           setNotice2(true);
           setNoticeText("Approve fail");
@@ -125,13 +141,14 @@ export const DepositBox: React.FC = () => {
       }
     );
   };
+
   //输入框事件
   const AmountChange = (e: any) => {
     let { value } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
     if ((!isNaN(value) && reg.test(value)) || value === "") {
       if (value > Number(Amounts)) {
-        value = parseFloat(Amounts).toFixed(6);
+        value = subStringNum(Amounts, 6);
       }
       setAmount(value);
       if (value) {
@@ -156,18 +173,18 @@ export const DepositBox: React.FC = () => {
    * 最多可存入的币
    */
   const MaxClick = () => {
-
+    //////console.log(123)
     if (0 >= Number(Amounts)) {
       return;
     }
-    setAmount(parseFloat(Amounts).toFixed(6));
+    setAmount(subStringNum(Amounts, 6));
     if (!TOKEN_ADDRESS) {
       return;
     }
     // 计息币ibBNB
     Receive(BANK_ADDRESS, BankABI, TOKEN_ADDRESS, Amounts.toString()).then(
       (res) => {
-        console.log(res)
+        //////console.log("计息币", res)
         setReceiveVal(res);
       }
     );
@@ -176,13 +193,15 @@ export const DepositBox: React.FC = () => {
   // 存款
   const DepositClick = () => {
     if (Amount) {
+      //////console.log("Amount", Amount)
       setBtnDisabled(true);
       Deposit(BANK_ADDRESS, BankABI, TOKEN_ADDRESS, Amount.toString(), TokenNames).then(
         (res) => {
-          console.log(res);
+          //////console.log(res);
           if (res === true) {
+            BackClick()
             setAmount(Number);
-            setNoticeText("Deposit Approve");
+            setNoticeText("Deposit succeed");
             setNotice(true);
             setBtnDisabled(false);
           } else {
@@ -205,10 +224,10 @@ export const DepositBox: React.FC = () => {
             <TokenIcon IconName={TokenNames as string} />
             <NameSize>{TokenNames}</NameSize>
           </IconBox>
-          <IconBox>
+          <LBoxTtxt>
             <Tips1>1</Tips1>
             deposit Tokens
-          </IconBox>
+          </LBoxTtxt>
           <BtnBox>
             <Button w={100} h={40} onClick={BackClick}>
               BACK
@@ -218,7 +237,7 @@ export const DepositBox: React.FC = () => {
         <RBox>
           <Title>I’d like to deposit</Title>
           <BalanceBox>
-            Balance ： {parseFloat(Amounts).toFixed(6)} {TokenNames as string}
+            Balance ： {Amounts} {TokenNames as string}
           </BalanceBox>
           <InpBox>
             <TokenIcon IconName={TokenNames as string} />
@@ -228,7 +247,7 @@ export const DepositBox: React.FC = () => {
               placeholder="0.00"
               onChange={AmountChange}
             ></Input>
-            <Button w={60} h={26} onClick={MaxClick}>
+            <Button w={70} h={26} onClick={MaxClick}>
               MAX
             </Button>
           </InpBox>
@@ -278,15 +297,27 @@ const Box = styled(BgBox)`
   height: 380px;
   display: flex;
   overflow: hidden;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    height: auto;
+  }
 `;
 const LBox = styled.div`
   flex: 1;
   background: rgba(25, 25, 31, 0.6);
   padding: 25px;
+  @media (max-width: 1000px) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 const RBox = styled.div`
   flex: 2;
   padding: 25px;
+  @media (max-width: 1000px) {
+    padding: 10px;
+  }
 `;
 const NameSize = styled.div`
   font-size: 18px;
@@ -298,6 +329,18 @@ const IconBox = styled.div`
   align-items: center;
   margin-bottom: 40px;
   color: #fff;
+  @media (max-width: 1000px) {
+    margin-bottom: 0px;
+  }
+`;
+const LBoxTtxt = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    color: #fff;
+    @media (max-width: 1000px) {
+        display: none;
+      }
 `;
 const BtnBox = styled.div`
   display: flex;

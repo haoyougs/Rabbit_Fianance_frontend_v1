@@ -20,7 +20,7 @@ export const TipsIcon: React.FC<{ children: any }> = ({ children }) => {
 export const RewardSummaryIcon: React.FC<{ children: any }> = ({ children }) => {
   return (
     <IconBox>
-      <Icon src={Icon2}></Icon>
+
       <TextSize>{children}</TextSize>
     </IconBox>
   );
@@ -29,6 +29,9 @@ const IconBox = styled.div`
   padding: 20px;
   display: flex;
   align-items: center;
+  @media (max-width: 1000px) {
+    padding: 10px 10px 20px;
+  }
 `;
 const Icon = styled.img`
   height: 30px;
@@ -40,7 +43,9 @@ const TextSize = styled.div`
   margin-right: 20px;
   display: flex;
   align-items: center;
-
+  @media (max-width: 1000px) {
+    font-size: 16px;
+  }
 `;
 /**
  * 表单顶部通知框，通知内容需要传递children来展示。
@@ -48,9 +53,9 @@ const TextSize = styled.div`
 export const MinTipsBar: React.FC<{ children: any }> = ({ children }) => {
   return (
     <MinTipsBarBox>
-      <IconBox2 src={laba}></IconBox2>
-      {children}
-    </MinTipsBarBox>
+      < IconBox2 src={laba} />
+      <Tips>{children}</Tips>
+    </MinTipsBarBox >
   );
 };
 const MinTipsBarBox = styled.div`
@@ -65,6 +70,14 @@ const MinTipsBarBox = styled.div`
 const IconBox2 = styled.img`
   height: 30px;
 `;
+const Tips = styled.span`
+font-size: 12px;
+  line-height: 36px;
+  @media (max-width: 1000px) {
+    line-height: 18px;
+    padding: 5px;
+  }
+`
 
 
 

@@ -7,9 +7,9 @@ import { Contract, ethers } from "ethers";
  */
 export const useTotalDepositData = () => {
     const dispatch = useDispatch() //store.dispatch
-    return () => {
+    return (params: any) => {
         // dispatch 出发action
-        dispatch(TotalDepositData())
+        dispatch(TotalDepositData(params))
     }
 }
 /**

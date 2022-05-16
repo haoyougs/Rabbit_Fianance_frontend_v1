@@ -1,4 +1,5 @@
 @import 'react-loading-skeleton/dist/skeleton.css';
+
 .App {
   text-align: center;
 }
@@ -33,7 +34,29 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+.vaultApy {
+  width: 300px;
+  padding: 20px;
+}
+
+.farmsApy {
+  width: 320px;
+}
+
+.vaultApy .ant-popover-inner {
+  background: rgb(36, 32, 47);
+}
+
+.vaultApy .ant-popover-inner-content {
+  color: #fff
+}
+
+.vaultApy .ant-popover-content .ant-popover-arrow {
+  border-color: rgb(36, 32, 47) !important;
 }

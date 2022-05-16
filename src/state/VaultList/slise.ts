@@ -3,13 +3,12 @@ import { getDefaultProvider, getSigner } from 'utils/provider'
 import { ERC20, BankABI } from "config/ABI";
 import { Contract, ethers } from "ethers";
 import { BUSD_ADDRESS, ibBUSD_ADDRESS, USDT_ADDRESS, ibUSDT_ADDRESS, BTC_ADDRESS, ibBTC_ADDRESS, ETH_ADDRESS, ibETH_ADDRESS, RABBIT_ADDRESS, ibRabbit_ADDRESSS, BANK_ADDRESS } from 'config/address'
-
 const initialState = [
     {
         tokenName: 'BUSD',
-        APY: 1,
-        TotalDeposit: 0,
-        TotalBorrowed: 0,
+        APY: "",
+        TotalDeposit: "",
+        TotalBorrowed: "",
         Balance: 0,
         ibBalance: 0,
         approve: false,
@@ -19,9 +18,9 @@ const initialState = [
     },
     {
         tokenName: 'USDT',
-        APY: 2,
-        TotalDeposit: 0,
-        TotalBorrowed: 0,
+        APY: "",
+        TotalDeposit: "",
+        TotalBorrowed: "",
         Balance: 0,
         ibBalance: 0,
         approve: false,
@@ -31,9 +30,9 @@ const initialState = [
     },
     {
         tokenName: 'BTCB',
-        APY: 3,
-        TotalDeposit: 0,
-        TotalBorrowed: 0,
+        APY: "",
+        TotalDeposit: "",
+        TotalBorrowed: "",
         Balance: 0,
         ibBalance: 0,
         approve: false,
@@ -43,9 +42,9 @@ const initialState = [
     },
     {
         tokenName: 'ETH',
-        APY: 4,
-        TotalDeposit: 0,
-        TotalBorrowed: 0,
+        APY: "",
+        TotalDeposit: "",
+        TotalBorrowed: "",
         Balance: 0,
         ibBalance: 0,
         approve: false,
@@ -55,9 +54,9 @@ const initialState = [
     },
     {
         tokenName: 'RABBIT',
-        APY: 5,
-        TotalDeposit: 0,
-        TotalBorrowed: 0,
+        APY: "",
+        TotalDeposit: "",
+        TotalBorrowed: "",
         Balance: 0,
         ibBalance: 0,
         approve: false,
@@ -70,18 +69,28 @@ const a: any[] = []
 /**
  * 获取银行总存款
  */
-export const TotalDeposit2 = createAsyncThunk<any, { bankAddress: any, tikenAddress: any, key: any }>(
+export const TotalDeposit2 = createAsyncThunk<any, { bankAddress: any, tikenAddress: any, key: any, library: any, account: any }>(
     'TotalDeposit',
-    async ({ bankAddress, tikenAddress, key }) => {
-
+    async ({ bankAddress, tikenAddress, key, library, account }) => {
+        //console.log(tikenAddress, key)
         try {
             const ContractObj = new Contract(
                 BANK_ADDRESS,
                 BankABI,
                 getDefaultProvider()
             );
-            const ResVal = await ContractObj.totalToken(tikenAddress);
-            let Value = ethers.utils.formatUnits(ResVal, 18);
+            const Tokenaddress = new Contract(tikenAddress, ERC20, library);
+            const Balances = await Tokenaddress.balanceOf(BANK_ADDRESS);
+            let Balance = ethers.utils.formatUnits(Balances, 18)
+
+
+            const banks = await ContractObj.banks(tikenAddress);
+            // const totalVal = ethers.utils.formatUnits(banks.totalVal, 18);
+            const totalDebt = ethers.utils.formatUnits(banks.totalDebt, 18);
+            let Value = parseFloat(Balance) + parseFloat(totalDebt);
+            // console.log("Balance", Balance)
+            // console.log("totalDebt", totalDebt)
+            // console.log("Value", Value)
             return { value: Value, key: key };
         } catch (e) {
         }
@@ -97,7 +106,7 @@ export const TotalBorrowedData2 = createAsyncThunk<any, { TokenAddress: string, 
         try {
             const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider())
             const ResVal = await ContractObj.banks(TokenAddress)
-            let Value = ethers.utils.formatUnits(ResVal.totalDebt, 18)
+            let Value = ethers.utils.formatUnits(ResVal.totalDebt, 18);
             return { value: Value, key: key }
         } catch (e) {
             return e
@@ -110,11 +119,11 @@ export const TotalBorrowedData2 = createAsyncThunk<any, { TokenAddress: string, 
 export const TokneBalanceS = createAsyncThunk<any, { Address: any, Abi: any, library: any, TokenAddress: any, key: any }>(
     'tokenBalanceS',
     async ({ Address, Abi, library, TokenAddress, key }) => {
-        // console.log("Address", Address)
+        // ////console.log("Address", Address)
         try {
             const Tokenaddress = new Contract(TokenAddress, Abi, library);
             const Balances = await Tokenaddress.balanceOf(Address)
-            let Value = ethers.utils.formatUnits(Balances, 18)
+            let Value = ethers.utils.formatUnits(Balances, 18);
             return { value: Value, key: key }
         } catch (e) {
             console.error('BNBTokneBalance获取时错误');

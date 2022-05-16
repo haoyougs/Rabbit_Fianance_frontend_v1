@@ -90,8 +90,8 @@ interface SliderInpInnerface {
   onClick: (e: any) => any;
 }
 export const SliderInp: React.FC<SliderInpInnerface> = ({ max, min, value, onChange, marks, onClick }) => {
-  // console.log("marks", marks)
-  // console.log("max", max, "min", min, "value", value)
+  // //////console.log("marks", marks)
+  // //////console.log("max", max, "min", min, "value", value)
   return (
     <SliderBox>
       <SliderBbox>

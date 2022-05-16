@@ -10,25 +10,30 @@ import { useWeb3React } from "@web3-react/core";
 import { NoticeBox } from "components/notice/index";
 import { TokenBalance1, TokneBalanceS, getShares, getshareToBalance, getTotalSupply, ClosePosition } from "hooks/useMyPosition";
 import { LoadingBox } from "components/Loading";
-import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks";
+import { subStringNum } from "utils/subStringNum";
+
 interface parameter {
   onClick: () => void;
   info: any;
+  freshParent: any
 }
 
-export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
+export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshParent }) => {
   //获取钱包地址
   let { account, library } = useWeb3React();
+  //////console.log("info", info)
   const LPAddress: any = info.LPAddress;
   const Ellipsis: string = LPAddress.Ellipsis;
   const Data: any = info.item;
   const Names: string = info.LPAddress.LPtokenName;
   //借款币是不是token0
-  const borrowToken0: boolean = Data.borrowToken == LPAddress.LPtokenAddress0 ? true : false;
+  const borrowToken0: boolean = Data.borrowToken.toUpperCase() == LPAddress.LPtokenAddress0.toUpperCase() ? true : false;
   const Token0Name: string = LPAddress.BorrowToken0.name;
   const Token1Name: string = LPAddress.BorrowToken1.name;
+  //////console.log(borrowToken0)
   const posId = Data.posid._hex;
-  // console.log(info);
+  // //////console.log(info);
   //token0和token1的数量；
   const [Token0Amount, setToken0Amount] = useState<any>();
   const [Token1Amount, setToken1Amount] = useState<any>();
@@ -46,6 +51,7 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
   const [DebtValue, setDebtValue] = useState<any>(0)
   //债务手续费
   const [TradeFees, setTradeFees] = useState<any>(0);
+  const [Brow, setBrow] = useState<any>(0)
   //提示
   const setNotice = UpdateNotice();
   const setNotice2 = UpdateNotice2();
@@ -61,9 +67,9 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
       info.LPAddress.LPtokenAddress0,
       info.LPAddress.LPtokenAddress1
     ).then((res) => {
+      //////console.log("币种价格", res)
       //赋值单币价格
-      let token1Price = 1 / (Math.floor(res * 100000) / 100000);
-      setCurrencyPrice(token1Price);
+      setCurrencyPrice(res);
     });
   }, [Data]);
   const getTokenAssets = async () => {
@@ -71,7 +77,7 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
     setDebtValue(debtValue)
     //对应的份额
     const shares = await getShares(posId, LPAddress.Goblin);
-    // console.log("shares", shares)
+    // //////console.log("shares", shares)
     //lp数量
     const shareToBalance = await getshareToBalance(shares, LPAddress.Goblin);
     //总lp 数量
@@ -81,7 +87,7 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
       LPAddress.LPtokenAddress0);
     const token1 = await TokneBalanceS(info.LPAddress.LP, library,
       LPAddress.LPtokenAddress1);
-    // console.log(shareToBalance, TotalLP, token0, token1, CurrencyPrice);
+    // //////console.log(shareToBalance, TotalLP, token0, token1, CurrencyPrice);
     //我lp数量 / 总lp 数量 * lp合约中有的token0（或者token1）
     const token0Amount = ethers.BigNumber.from(shareToBalance).mul(ethers.BigNumber.from(token0)).div(ethers.BigNumber.from(TotalLP))
     const token1Amount = ethers.BigNumber.from(shareToBalance).mul(ethers.BigNumber.from(token1)).div(ethers.BigNumber.from(TotalLP))
@@ -90,6 +96,9 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
     const token1AmountData = ethers.utils.formatUnits(token1Amount, 18)
     setToken0Amount(parseFloat(token0AmountData));
     setToken1Amount(parseFloat(token1AmountData));
+    const positionsValue = ethers.utils.formatUnits(info.item.positionsValue);
+    //////console.log(123, positionsValue)
+    setBrow(positionsValue)
   }
   useEffect(() => {
     if (account) {
@@ -121,24 +130,41 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
       if (CurrentToken == 0) {
         //交易数量是0
         if (AmountToTrade == 0) {
-          //交易token0
+          //交易token0 // 非稳定币
           if (!Ellipsis) {
             if (borrowToken0) {
               //哪个是债务token减去对应的债务 token
-              setReceiveToken0(Token0Amount - DebtValue);
-              setReceiveToken1(Token1Amount);
+              if (Token0Amount >= DebtValue) {
+                setReceiveToken0(Token0Amount - DebtValue);
+                setReceiveToken1(Token1Amount);
+              } else {
+                setReceiveToken0(0);
+                const Token1 = Token1Amount - (DebtValue - Token0Amount) * CurrencyPrice
+                setReceiveToken1(Token1);
+              }
             } else {
-              setReceiveToken0(Token0Amount);
-              setReceiveToken1(Token1Amount - DebtValue);
+              if (Token0Amount >= DebtValue) {
+                setReceiveToken0(Token0Amount);
+                setReceiveToken1(Token1Amount - DebtValue);
+              } else {
+                const Token0 = Token1Amount - (DebtValue - Token0Amount) / CurrencyPrice
+                setReceiveToken0(Token0);
+                setReceiveToken1(0);
+              }
             }
           } else {
+            // console.log(111)
+            //稳定币
             if (borrowToken0) {
+              // console.log(222)
+
               //哪个是债务token减去对应的债务 token
-              setReceiveToken0(Token0Amount + Token1Amount * CurrencyPrice - DebtValue);
+              setReceiveToken0(Token0Amount + Token1Amount * 0.9996 - DebtValue);
               setReceiveToken1(0);
             } else {
+              // console.log(333)
               setReceiveToken0(0);
-              setReceiveToken1(Token1Amount + Token0Amount / CurrencyPrice - DebtValue);
+              setReceiveToken1(Token1Amount + Token0Amount * 0.9996 - DebtValue);
             }
           }
 
@@ -161,7 +187,7 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
   }, [Token0Amount, Token1Amount])
   //点击切换事件
   const CurrentTokenHandle = (val: any) => {
-    console.log(borrowToken0)
+    //////console.log(borrowToken0, AmountToTrade, CurrencyPrice)
     setCurrentToken(val);
     //交易数量是0
     if (AmountToTrade == 0) {
@@ -170,37 +196,49 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
         setReceiveToken1(Token1Amount);
       }
       if (val == 1) {
-        const Token0Receive = Token0Amount + Token1Amount * CurrencyPrice;
+        const Token0Receive = Token0Amount + Token1Amount / CurrencyPrice;
         setReceiveToken0(Token0Receive);
         setReceiveToken1(0);
       }
       if (val == 2) {
-        const Token1Receive = Token0Amount / CurrencyPrice + Token1Amount * 1;
+        const Token1Receive = Token0Amount * CurrencyPrice + Token1Amount * 1;
         setReceiveToken0(0);
         setReceiveToken1(Token1Receive);
       }
     } else {
-      //交易token0;//token1的数量减去交易数量的AmountToTrade价值多少token1
-      const AmountToTrade1 = Token1Amount - AmountToTrade / CurrencyPrice;
-      //交易token1;//token0的数量减去交易数量的AmountToTrade价值多少token0
+      //交易数量不是0
       const AmountToTrade0 = Token0Amount - AmountToTrade * CurrencyPrice;
       if (val == 0) {
         if (borrowToken0) {
-          setReceiveToken0(0);
-          setReceiveToken1(AmountToTrade1);
-        } else {
-          setReceiveToken0(AmountToTrade0);
+          setReceiveToken0(Brow - DebtValue);
           setReceiveToken1(0);
+        } else {
+          setReceiveToken0(0);
+          setReceiveToken1(Brow - DebtValue);
         }
       }
       if (val == 1) {
-        // const Token0Receive = Token0Amount + Token1Amount * CurrencyPrice;
-        setReceiveToken0(AmountToTrade0);
-        setReceiveToken1(0);
+        //点击token0
+        //token0是借币
+        if (borrowToken0) {
+          setReceiveToken0(Brow - DebtValue);
+          setReceiveToken1(0);
+        } else {
+          setReceiveToken0((Brow - DebtValue) / CurrencyPrice);
+          setReceiveToken1(0);
+        }
       }
       if (val == 2) {
-        setReceiveToken0(0);
-        setReceiveToken1(AmountToTrade1);
+        //点击token1
+        //token0是借币
+        if (borrowToken0) {
+          setReceiveToken0(0);
+          setReceiveToken1((Brow - DebtValue) * CurrencyPrice);
+        } else {
+          setReceiveToken0(0);
+          setReceiveToken1(Brow - DebtValue);
+
+        }
       }
     }
   };
@@ -210,16 +248,17 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
     const token0Address = Data.token0;
     const token1Address = Data.token1;
     const posId = Data.posid._hex;
+    const whichWantBack = Ellipsis ? '2' : CurrentToken.toString();
     ClosePosition(
       strategyAddress,
       token0Address,
       token1Address,
-      CurrentToken.toString(),
+      whichWantBack,
       posId,
-
     ).then((res) => {
-      console.log(res);
       if (res == true) {
+        onClick();
+        freshParent();
         setNotice(res);
         setNoticeText("Close Collateral succeed");
       } else {
@@ -231,131 +270,131 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info }) => {
   return (
     <>
       <BG onClick={onClick} />
-      <Box>
-        <TitleBox>
-          <div>Close Position And Quit</div>
-          <CloseBtn src={closeImg} onClick={onClick} />
-        </TitleBox>
-        <TipsBox>
-          <div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="sc-ksdxAp fdYigH"
-            >
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-          </div>
-          <div style={{ marginLeft: 15 }}>
-            {CurrentToken == 0
-              ? `We will convert the minimum required amount of tokens into BNB to
+      <OutContainer>
+        <Box>
+          <TitleBox>
+            <div>Close Position And Quit</div>
+            <CloseBtn src={closeImg} onClick={onClick} />
+          </TitleBox>
+          <TipsBox>
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="sc-ksdxAp fdYigH"
+              >
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+            </div>
+            <div style={{ marginLeft: 15 }}>
+              {CurrentToken == 0
+                ? `We will convert the minimum required amount of tokens into BNB to
             pay back the debt and return the remaining assets to you. This can
             potentially save on slippage and trading fees.`
-              : null}
-            {CurrentToken == 1
-              ? `Your position value will all be converted to USDT and returned to you after paying back the debt.`
-              : null}
-            {CurrentToken == 2
-              ? `Your position value will all be converted to BNB and returned to you after paying back the debt.`
-              : null}
-          </div>
-        </TipsBox>
-        <BtnBox>
-          <Button
-            w={150}
-            h={36}
-            onClick={() => CurrentTokenHandle(0)}
-            Select={CurrentToken == 0}
-          >
-            Minimize Trading
-          </Button>
-          {Ellipsis ? null :
-            <Button w={150} h={36} onClick={() => CurrentTokenHandle(1)} Select={CurrentToken == 1}>
-              {Token0Name}
-            </Button>
-          }
-          {Ellipsis ? null :
-            <Button w={150} h={36} onClick={() => CurrentTokenHandle(2)} Select={CurrentToken == 2}>
-              {Token1Name}
-            </Button>
-          }
-
-        </BtnBox>
-        <TexBox2>
-          <TexBox3>
-            <div>Redemption of liquid assets</div>
-            <div style={{ display: "flex" }}>
-              {Token0Amount ? Token0Amount?.toFixed(6) : <LoadingBox height={12} />}
-              {Token0Name}/
-              {Token1Amount ? Token1Amount?.toFixed(6) : <LoadingBox height={12} />} {Token1Name}
+                : null}
+              {CurrentToken == 1
+                ? `Your position value will all be converted to USDT and returned to you after paying back the debt.`
+                : null}
+              {CurrentToken == 2
+                ? `Your position value will all be converted to BNB and returned to you after paying back the debt.`
+                : null}
             </div>
-          </TexBox3>
-          {Ellipsis ? null :
-            <TexBox3>
-              <div>Amount to Trade</div>
-              <div>{AmountToTrade == 0 ? "0.00" : AmountToTrade?.toFixed(6)} {borrowToken0 ? Token0Name : Token1Name}</div>
-            </TexBox3>
-          }
-          <TexBox3>
-            <div>Debt Value</div>
-            <div>
-              {DebtValue == 0 ? "0.00" : DebtValue?.toFixed(6)}{" "}
-              {borrowToken0 ? Token0Name : Token1Name}
-            </div>
-          </TexBox3>
-        </TexBox2>
-        <TexBox1>
+          </TipsBox>
+          <BtnBox>
+            <Button
+              w={150}
+              h={36}
+              onClick={() => CurrentTokenHandle(0)}
+              Select={CurrentToken == 0}
+            >
+              Minimize Trading
+            </Button>
+            {Ellipsis ? null :
+              <Button w={150} h={36} onClick={() => CurrentTokenHandle(1)} Select={CurrentToken == 1}>
+                {Token0Name}
+              </Button>
+            }
+            {Ellipsis ? null :
+              <Button w={150} h={36} onClick={() => CurrentTokenHandle(2)} Select={CurrentToken == 2}>
+                {Token1Name}
+              </Button>
+            }
 
-          {!Ellipsis ? null :
+          </BtnBox>
+          <TexBox2>
             <TexBox3>
-              <div>Price Impact and Trading Fees</div>
-              <div style={{ color: "#f04848" }}>
-                {TradeFees}{borrowToken0 ? Token0Name : Token1Name}
-                (0.04%)
+              <div>Redemption of liquid assets</div>
+              <div style={{ display: "flex", textAlign: "end" }}>
+                {Token0Amount ? subStringNum(Token0Amount, 6) : <LoadingBox height={12} />}
+                {Token0Name}/
+                {Token1Amount ? subStringNum(Token1Amount, 6) : <LoadingBox height={12} />} {Token1Name}
               </div>
             </TexBox3>
-          }
-          <TexBox3>
-            <div>You will receive approximately</div>
-            <div>
-              {ReceiveToken0 != undefined || ReceiveToken1 != undefined ?
-                <>
-                  {ReceiveToken0 ? Number(ReceiveToken0)?.toFixed(6)
-                    : "0.0"}{Token0Name}+{" "}
-                  {ReceiveToken1 ? Number(ReceiveToken1)?.toFixed(6) : "0.0"} {Token1Name}
-                </> : <LoadingBox height={12} />}
-            </div>
-          </TexBox3>
-        </TexBox1>
-        <Button w={0} h={40} onClick={ConfirmClick}>
-          Confirm
-        </Button>
-      </Box>
+            {Ellipsis ? null :
+              <TexBox3>
+                <div>Amount to Trade</div>
+                <div>{AmountToTrade == 0 ? "0.00" : AmountToTrade?.toFixed(6)} {borrowToken0 ? Token0Name : Token1Name}</div>
+              </TexBox3>
+            }
+            <TexBox3>
+              <div>Debt Value</div>
+              <div>
+                {DebtValue == 0 ? "0.00" : DebtValue?.toFixed(6)}{" "}
+                {borrowToken0 ? Token0Name : Token1Name}
+              </div>
+            </TexBox3>
+          </TexBox2>
+          <TexBox1>
+
+            {!Ellipsis ? null :
+              <TexBox3>
+                <div>Price Impact and Trading Fees</div>
+                <div style={{ color: "#f04848" }}>
+                  {TradeFees}{borrowToken0 ? Token0Name : Token1Name}
+                  (0.04%)
+                </div>
+              </TexBox3>
+            }
+            <TexBox3>
+              <div>You will receive approximately</div>
+              <div style={{ textAlign: "end" }}>
+                {ReceiveToken0 != undefined || ReceiveToken1 != undefined ?
+                  <>
+                    {ReceiveToken0 ? subStringNum(ReceiveToken0, 6)
+                      : "0.0"}{Token0Name}+{" "}
+                    {ReceiveToken1 ? subStringNum(ReceiveToken1, 6) : "0.0"} {Token1Name}
+                  </> : <LoadingBox height={12} />}
+              </div>
+            </TexBox3>
+          </TexBox1>
+          <Button w={0} h={40} onClick={ConfirmClick}>
+            Confirm
+          </Button>
+        </Box>
+      </OutContainer>
     </>
   );
 };
 
-const Box = styled.div`
-  width: 552px;
-  /* height: 620px; */
-  background-color: rgb(25, 25, 31);
-  padding: 30px;
-  border-radius: 10px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin-top: -310px;
-  margin-left: -276px;
-  z-index: 1001;
-  animation: fade-in-top 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+const OutContainer = styled.div`
+    /* box-sizing: border-box; */
+    margin: 0px auto;
+    max-width: 600px;
+    padding: 0px 24px;
+    width: 100%;
+    position: fixed;
+    top: 50%;
+    margin-top: -260px;
+    z-index: 1001;
+    animation: fade-in-top 0.6s;
   @keyframes fade-in-top {
     0% {
       transform: translateY(-50px);
@@ -365,6 +404,20 @@ const Box = styled.div`
       transform: translateY(0);
       opacity: 1;
     }
+  }
+  @media (max-width: 1000px) {
+    padding: 0 20px;
+    margin-left: -1rem;
+  }
+`
+const Box = styled.div`
+  width: 552px;
+  background-color: rgb(25, 25, 31);
+  padding: 30px;
+  border-radius: 10px;
+  @media (max-width: 1000px) {
+    width: 100%;
+    padding: 10px 10px 20px;
   }
 `;
 const BG = styled.div`

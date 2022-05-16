@@ -9,6 +9,9 @@ export const Modalbox = styled.div`
     background-color: rgb(25, 25, 31);
     border-radius: 10px;
     z-index: 10;
+    @media (max-width: 1000px) {
+      width: 90%;
+  }
 `
 export const Box = styled.div`
   display: flex;
@@ -52,7 +55,11 @@ export const UnAccountBox = styled.div`
     display: flex;
     border-radius: 5px;
 `
-export const ButtonBox = styled.div``
+export const ButtonBox = styled.div`
+@media (max-width: 1000px) {
+    display: none;
+  }
+`
 export const AccountInfo = styled.div`
     width: 100%;
     display: flex;

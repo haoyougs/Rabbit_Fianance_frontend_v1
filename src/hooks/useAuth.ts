@@ -15,7 +15,7 @@ const connectKey = "CONNECtOR"
 export const useAuth = () => {
     const { activate } = useWeb3React()
     const Login = () => {
-        // console.log(333, InjectConnector)
+        // //////console.log(333, InjectConnector)
         if (InjectConnector) {
             activate(InjectConnector, async (error: Error) => {
                 if (error instanceof UnsupportedChainIdError) {
@@ -40,13 +40,13 @@ export const useAuth2 = (currentChainId: number = InitalChainId) => {
     const Login: LoginFn = (connectId: ConnectorNames) => {
         // 根据选择的钱包获取钱包连接器
         const connector = WalletConnectorByName[connectId]
-        console.log(444, connector)
+        //////console.log(444, connector)
         localStorage.setItem(connectKey, connectId)
         if (connector) {
             // 连接钱包
             activate(connector, async (error: Error) => {
                 // UnsupportedChainIdError 表示链不在钱包中
-                console.log(666, error)
+                //////console.log(666, error)
                 if (error instanceof UnsupportedChainIdError) {
                     // 添加链到钱包，然后再重新连接
                     addChainToBlock(currentChainId).then(res => {
@@ -101,7 +101,7 @@ export const ListenNetworkChanged = () => {
         if (window.ethereum.isMetaMask) {
             (ethereum as any).on(("networkChanged"), (res: any) => {
                 const InjectConnector = new InjectedConnector({ supportedChainIds: [56] })
-                // console.log(222,InjectConnector.supportedChainIds)
+                // //////console.log(222,InjectConnector.supportedChainIds)
                 if (InjectConnector) {
                     activate(InjectConnector)
                 }

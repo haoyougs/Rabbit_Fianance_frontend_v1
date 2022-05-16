@@ -20,27 +20,44 @@ export const RewardSummaryBox: React.FC = () => {
   const setNoticeText = UpdateNoticeText();
   const [SunmayData, setSunmayData] = useState<[]>([])
   const SunmayTokneData = JSON.parse(JSON.stringify(ibTokneData));
-  useEffect(() => {
-    if (!account) {
-      return;
-    }
-    SunmayTokneData.forEach(async (item: any) => {
-      // 质押数量
+  const getSunmayData = async () => {
+    for (let i = 0; i < SunmayTokneData.length; i++) {
+      const item = SunmayTokneData[i]
       const res = await DepositAmount(item.pid, account, FAIR_LAUNCH_ADDRESS);
       item.deposits = res;
+      // console.log(i, "res", res)
       // 获得兔子币
       const res_earned = await GETRewardSummary(item.pid, account, FAIR_LAUNCH_ADDRESS)
       item.earned = parseFloat(res_earned).toFixed(6);
       setSunmayData([])
-      const filter_SunmayTokneData = SunmayTokneData.filter((f_item: any) => parseFloat(f_item.deposits) > 0)
-      setSunmayData(filter_SunmayTokneData)
-    })
+    }
+    const filter_SunmayTokneData = SunmayTokneData.filter((f_item: any) => parseFloat(f_item.deposits) > 0);
+    setSunmayData(filter_SunmayTokneData)
+    // SunmayTokneData.forEach(async (item: any) => {
+    //   // 质押数量
+    //   const res = await DepositAmount(item.pid, account, FAIR_LAUNCH_ADDRESS);
+    //   item.deposits = res;
+    //   console.log("res", res)
+    //   // 获得兔子币
+    //   const res_earned = await GETRewardSummary(item.pid, account, FAIR_LAUNCH_ADDRESS)
+    //   item.earned = parseFloat(res_earned).toFixed(6);
+    //   setSunmayData([])
+    //   const filter_SunmayTokneData = SunmayTokneData.filter((f_item: any) => parseFloat(f_item.deposits) > 0)
+    //   console.log(1)
+    //   setSunmayData(filter_SunmayTokneData)
+    // })
+  }
+  useEffect(() => {
+    if (!account) {
+      return;
+    }
+    getSunmayData();
   }, [account]);
 
   const ClaimClick = (pid: string) => {
     Claim(pid, FAIR_LAUNCH_ADDRESS).then((res) => {
       if (res === true) {
-        console.log('Claim succeed');
+        getSunmayData();
         setNotice(true);
         setNoticeText("Claim succeed");
       } else {
@@ -58,22 +75,24 @@ export const RewardSummaryBox: React.FC = () => {
         <RewardSummaryList>
           {SunmayData.map((item: any, key: any) => (
             <RewardSummaryListBox key={key} >
-              <RewardSummaryListBoxVal>
+              <NameBox>
                 <TokenIcon IconName={item.tokenName} />
                 <TokenName>{item.tokenName}</TokenName>
-              </RewardSummaryListBoxVal>
+              </NameBox>
               <RewardSummaryListBoxVal>
                 <RewardSummaryListBoxValBox1>Deposits:</RewardSummaryListBoxValBox1>
                 <TokenName>{item.deposits}</TokenName>
               </RewardSummaryListBoxVal>
               <RewardSummaryListBoxVal>
-                <RewardSummaryListBoxValBox1>Earned:</RewardSummaryListBoxValBox1>
+                <RewardSummaryListBoxValBox1>
+                  Earned:
+                </RewardSummaryListBoxValBox1>
                 <RewardSummaryListBoxValBox2>
                   {item.earned} RABBIT
                 </RewardSummaryListBoxValBox2>
               </RewardSummaryListBoxVal>
               <RewardSummaryListBoxVal2>
-                <Button w={100} h={36} onClick={() => ClaimClick(item.pid)}>
+                <Button w={0} h={36} onClick={() => ClaimClick(item.pid)}>
                   Claim
                 </Button>
               </RewardSummaryListBoxVal2>
@@ -89,31 +108,56 @@ const RewardSummary = styled(BgBox)`
   height: auto;
   padding: 20px;
   margin-bottom: 20px;
+  @media (max-width: 1000px) {
+    padding: 10px;
+  }
 `;
 const RewardSummaryList = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 20px;
+  /* padding: 20px; */
 `;
 const RewardSummaryListBox = styled.div`
-  width: 100%;
   height: 70px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 5px;
-  padding: 0 20px;
+  padding: 0 10px 0 20px;
+  margin: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  @media (max-width: 1000px) {
+    height: auto;
+    padding: 10px;
+    margin: 10px 0;
+    flex-direction: column;
+    align-items: baseline;
+  }
 `;
 const RewardSummaryListBoxVal = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
+  @media (max-width: 1000px) {
+    width: 100%;
+    justify-content: space-between;
+    line-height: 1.6rem;
+  }
+`;
+const NameBox = styled.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
 `;
 const RewardSummaryListBoxVal2 = styled.div`
-  flex: 1;
+  width:120px;
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
+  @media (max-width: 1000px) {
+    width: 100%;
+    margin-top: 10px;
+    justify-content: center;
+  }
 `;
 const TokenName = styled.div`
   margin-left: 10px;

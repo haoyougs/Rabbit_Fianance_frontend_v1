@@ -19,6 +19,8 @@ import { ibTokneData } from "hooks/useStake";
 import { Approveds, ApproveWay } from "utils/tokenApproved";
 import { NoticeBox } from "components/notice";
 import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import { subStringNum } from "utils/subStringNum"
+
 /**
  *  Unstake 解质押 提现
  * @returns
@@ -48,7 +50,7 @@ export const Unstake: React.FC = () => {
     current_ibtokenAddress;
   useEffect(() => {
     window.addEventListener("beforeunload", () => {
-      // console.log
+      // //////console.log
     })
   }, [])
   /**
@@ -74,8 +76,9 @@ export const Unstake: React.FC = () => {
     }
     DepositAmount(Pid, account, FAIR_LAUNCH_ADDRESS).then(
       (res) => {
-        console.log(res)
-        setUnBalance(res);
+        //////console.log(res);
+        const value = subStringNum(res, 6)
+        setUnBalance(value);
       }
     );
   }, [Pid, account])
@@ -87,13 +90,18 @@ export const Unstake: React.FC = () => {
     const reg = /^-?\d*(\.\d*)?$/;
     if ((!isNaN(value) && reg.test(value)) || value === "") {
       if (value > UnBalance) {
-        value = UnBalance;
+        // value = UnBalance;
+        value = subStringNum(UnBalance, 6);
       }
       setAmount(value);
     }
   };
   const MaxClick = () => {
-    setAmount(UnBalance);
+    if (0 >= Number(UnBalance)) {
+      return;
+    }
+    // setAmount(UnBalance);
+    setAmount(subStringNum(UnBalance, 6));
   };
   useEffect(() => {
     if (Amount) {
@@ -104,20 +112,29 @@ export const Unstake: React.FC = () => {
   }, [Amount])
   // 授权
   useEffect(() => {
+    setApproveBtn(true)
+    return;
     if (!account) {
       return;
     }
     setBtnDisabled(true);
     //TokenNames 当前币name ibTokenAddress 当前币的ib地址 ERC20 合约规范
     //account钱包地址
-    // console.log(333, ibTokenAddress)
+    // //////console.log(333, ibTokenAddress)
     const ApprovedAddress = ibTokenAddress;
-    Approveds(TokenNames, account, ERC20, ibTokenAddress, library, ApprovedAddress).then((res) => {
+    Approveds(
+      TokenNames,
+      account,
+      ERC20,
+      ibTokenAddress,
+      library,
+      "0x5ABd28694EDBD546247C2547738076a128cA1157"
+      // ApprovedAddress
+    ).then((res) => {
       setBtnDisabled(false);
       console.log("是否授权", res);
       if (res) {
         setApproveBtn(res as boolean);
-
       }
     });
   }, [ibTokenAddress, account]);
@@ -127,7 +144,15 @@ export const Unstake: React.FC = () => {
     //TokenNames 当前币name ibTokenAddress 当前币的ib地址 ERC20 合约规范
     //account钱包地址 library当前账户
     const ApprovedAddress = ibTokenAddress;
-    ApproveWay(TokenNames, ibTokenAddress, ERC20, account, library, ApprovedAddress).then(
+    ApproveWay(
+      TokenNames,
+      ibTokenAddress,
+      ERC20,
+      account,
+      library,
+      "0x5ABd28694EDBD546247C2547738076a128cA1157"
+      // ApprovedAddress
+    ).then(
       (res) => {
         setBtnDisabled(false);
         if (res) {
@@ -143,7 +168,7 @@ export const Unstake: React.FC = () => {
   };
   //解除质押
   const UnStakeClick = () => {
-    Withdrawal(account, ibBNB_FAIRLAUNCH_PID, Amount, FAIR_LAUNCH_ADDRESS).then((res) => {
+    Withdrawal(account, Pid, Amount, FAIR_LAUNCH_ADDRESS).then((res) => {
       if (res == true) {
         setNoticeText("UnStake succeed");
         setNotice(true);
@@ -161,10 +186,10 @@ export const Unstake: React.FC = () => {
             <TokenIcon IconName={`${TokenNames}`} />
             <NameSize>{TokenNames}</NameSize>
           </IconBox>
-          <IconBox>
+          <LBoxTtxt>
             <Tips1>1</Tips1>
             Unstake Tokens
-          </IconBox>
+          </LBoxTtxt>
           <BtnBox>
             <Button w={100} h={40} onClick={BackClick}>
               BACK
@@ -182,7 +207,7 @@ export const Unstake: React.FC = () => {
               placeholder="0.00"
               onChange={AmountChange}
             ></Input>
-            <Button w={60} h={26} onClick={MaxClick}>
+            <Button w={70} h={26} onClick={MaxClick}>
               MAX
             </Button>
           </InpBox>
@@ -214,15 +239,27 @@ const Box = styled(BgBox)`
   height: 380px;
   display: flex;
   overflow: hidden;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    height: auto;
+  }
 `;
 const LBox = styled.div`
   flex: 1;
   background: rgba(25, 25, 31, 0.6);
   padding: 25px;
+  @media (max-width: 1000px) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 const RBox = styled.div`
   flex: 2;
   padding: 25px;
+  @media (max-width: 1000px) {
+    padding: 10px;
+  }
 `;
 const NameSize = styled.div`
   font-size: 18px;
@@ -234,6 +271,18 @@ const IconBox = styled.div`
   align-items: center;
   margin-bottom: 40px;
   color: #fff;
+  @media (max-width: 1000px) {
+    margin-bottom: 0px;
+  }
+`;
+const LBoxTtxt = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    color: #fff;
+    @media (max-width: 1000px) {
+        display: none;
+      }
 `;
 const BtnBox = styled.div`
   display: flex;

@@ -21,6 +21,7 @@ import {
   getIbTokenBalance,
 } from "state/Vault/hooks";
 import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import { subStringNum } from "utils/subStringNum"
 /**
  * withdraw 存款页面
  * @returns
@@ -60,8 +61,9 @@ export const Stake: React.FC = () => {
         library,
         ibBNB_ADDRESS,
       ).then(res => {
-        console.log("aaa", res);
-        setIbBalances(res);
+        ////console.log("aaa", res);
+        const value = subStringNum(res, 6)
+        setIbBalances(value);
       });
       setPid(ibBNB_FAIRLAUNCH_PID);
     } else {
@@ -71,8 +73,9 @@ export const Stake: React.FC = () => {
         library,
         current_ibtokenAddress,
       ).then(res => {
-        console.log("bbb", res);
-        setIbBalances(res);
+        ////console.log("bbb", res);
+        const value = subStringNum(res, 6)
+        setIbBalances(value);
       });
       setPid(current_pid);
     }
@@ -92,11 +95,18 @@ export const Stake: React.FC = () => {
     setBtnDisabled(true);
     //TokenNames 当前币name ibTokenAddress 当前币的ib地址 ERC20 合约规范
     //account钱包地址
-    // console.log(333, ibTokenAddress);
+    // //////console.log(333, ibTokenAddress);
     const ApprovedAddress = ibTokenAddress;
-    Approveds(TokenNames, account, ERC20, ibTokenAddress, library, ApprovedAddress).then((res) => {
+    Approveds(
+      TokenNames,
+      account, ERC20,
+      ibTokenAddress,
+      library,
+      "0x5ABd28694EDBD546247C2547738076a128cA1157"
+      // ApprovedAddress
+    ).then((res) => {
       setBtnDisabled(false);
-      console.log("是否授权", res);
+      // console.log("是否授权", res);
       if (res) {
         setApproveBtn(res as boolean);
       }
@@ -108,9 +118,17 @@ export const Stake: React.FC = () => {
     //TokenNames 当前币name ibTokenAddress 当前币的ib地址 ERC20 合约规范
     //account钱包地址 library当前账户
     const ApprovedAddress = ibTokenAddress;
-    ApproveWay(TokenNames, ibTokenAddress, ERC20, account, library, ApprovedAddress).then(
+    ApproveWay(
+      TokenNames,
+      ibTokenAddress,
+      ERC20,
+      account,
+      library,
+      "0x5ABd28694EDBD546247C2547738076a128cA1157"
+      // ApprovedAddress
+    ).then(
       (res) => {
-        setBtnDisabled(false); setNotice2(true);
+        setBtnDisabled(false);
         // setNoticeText("授权失败");
         if (res) {
           setNoticeText("Approve succeed");
@@ -123,12 +141,14 @@ export const Stake: React.FC = () => {
       }
     );
   };
+  //输入框事件
   const AmountChange = (e: any) => {
     let { value } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
     if ((!isNaN(value) && reg.test(value)) || value === "") {
       if (value > IbBalances) {
-        value = parseFloat(IbBalances).toFixed(6);
+        // value = parseFloat(IbBalances).toFixed(6);
+        value = subStringNum(IbBalances, 6);
       }
       setAmount(value);
     }
@@ -137,7 +157,8 @@ export const Stake: React.FC = () => {
     if (0 >= Number(IbBalances)) {
       return;
     }
-    setAmount(parseFloat(IbBalances).toFixed(6));
+    setAmount(subStringNum(IbBalances, 6));
+    // setAmount(parseFloat(IbBalances).toFixed(6));
   };
   useEffect(() => {
     if (Amount) {
@@ -152,6 +173,7 @@ export const Stake: React.FC = () => {
     // PID 质押池子的id
     // Amount 质押数量
     // LAUNCH_ADDRESS 计息币挖矿地址
+    ////console.log("Amount", Amount)
     if (Amount) {
       Pledge(account, Pid.toString(), Amount.toString(), FAIR_LAUNCH_ADDRESS).then((res) => {
         setBtnDisabled(false);
@@ -176,10 +198,10 @@ export const Stake: React.FC = () => {
             <TokenIcon IconName={`${TokenNames}`} />
             <NameSize>{TokenNames}</NameSize>
           </IconBox>
-          <IconBox>
+          <LBoxTtxt>
             <Tips1>1</Tips1>
             Stake Tokens
-          </IconBox>
+          </LBoxTtxt>
           <BtnBox>
             <Button w={100} h={40} onClick={BackClick}>
               BACK
@@ -199,7 +221,7 @@ export const Stake: React.FC = () => {
               placeholder="0.00"
               onChange={AmountChange}
             ></Input>
-            <Button w={60} h={26} onClick={MaxClick}>
+            <Button w={70} h={26} onClick={MaxClick}>
               MAX
             </Button>
           </InpBox>
@@ -231,15 +253,27 @@ const Box = styled(BgBox)`
   height: 380px;
   display: flex;
   overflow: hidden;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    height: auto;
+  }
 `;
 const LBox = styled.div`
   flex: 1;
   background: rgba(25, 25, 31, 0.6);
   padding: 25px;
+  @media (max-width: 1000px) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 const RBox = styled.div`
   flex: 2;
   padding: 25px;
+  @media (max-width: 1000px) {
+    padding: 10px;
+  }
 `;
 const NameSize = styled.div`
   font-size: 18px;
@@ -251,6 +285,18 @@ const IconBox = styled.div`
   align-items: center;
   margin-bottom: 40px;
   color: #fff;
+  @media (max-width: 1000px) {
+    margin-bottom: 0px;
+  }
+`;
+const LBoxTtxt = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    color: #fff;
+    @media (max-width: 1000px) {
+        display: none;
+      }
 `;
 const BtnBox = styled.div`
   display: flex;

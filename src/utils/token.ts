@@ -128,7 +128,7 @@ export class Token implements IToken {
             await tx.wait()
             return true
         } catch (ex) {
-            console.log("授权ex:", ex)
+            //////console.log("授权ex:", ex)
             return false
         }
     }
@@ -140,7 +140,7 @@ export class Token implements IToken {
             return num.gt(ZERO_VALUE)
 
         } catch (ex) {
-            console.log("授权ex:", ex)
+            //////console.log("授权ex:", ex)
             return false
         }
     }
@@ -152,7 +152,7 @@ export class Token implements IToken {
             return Number(ethers.utils.formatUnits(num, this.decimals))
 
         } catch (ex) {
-            console.log("balanceOf ex:", ex)
+            //////console.log("balanceOf ex:", ex)
             return 0
         }
     }

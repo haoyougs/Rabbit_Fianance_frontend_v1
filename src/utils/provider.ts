@@ -1,3 +1,4 @@
+import { TransactionResponse } from "@ethersproject/abstract-provider";
 import { ethers } from "ethers";
 //获取默认provider
 export function getDefaultProvider(): ethers.providers.Web3Provider {

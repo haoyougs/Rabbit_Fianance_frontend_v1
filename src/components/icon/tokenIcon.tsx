@@ -17,6 +17,7 @@ import DOT from "assets/currency/DOT@2x.png";
 import LINK from "assets/currency/LINK@2x.png";
 import XVS from "assets/currency/XVS@2x.png";
 import UNI from "assets/currency/UNI@2x.png";
+import LTC from "assets/currency/LTC@2x.png";
 
 import ibBNB from "assets/currency/ibBNB@2x.png";
 import ibBUSD from "assets/currency/ibBUSD@2x.png";
@@ -64,6 +65,7 @@ const logosByIconName: { [title: string]: string } = {
   LINK: LINK,
   XVS: XVS,
   UNI: UNI,
+  LTC: LTC,
 
   ibBUSD: ibBUSD,
   ibUSDT: ibUSDT,

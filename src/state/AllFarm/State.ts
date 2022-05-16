@@ -37,7 +37,7 @@ export const initialState = [
     {
         LPtokenName: 'RABBIT-BUSD',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 1,
         type2: 1,
@@ -47,7 +47,7 @@ export const initialState = [
     }, {
         LPtokenName: 'RABBIT-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 1,
         type2: 1,
@@ -56,7 +56,7 @@ export const initialState = [
     }, {
         LPtokenName: 'USDC-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 9,
         type2: 0,
@@ -64,7 +64,7 @@ export const initialState = [
     }, {
         LPtokenName: 'USDT-USDC',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 9,
         type2: 0,
@@ -72,7 +72,7 @@ export const initialState = [
     }, {
         LPtokenName: 'USDT-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 9,
         type2: 0,
@@ -80,28 +80,28 @@ export const initialState = [
     }, {
         LPtokenName: 'DAI-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 4,
         type2: 0
     }, {
         LPtokenName: 'BNB-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'BNB-BUSD',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'USDT-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1,
@@ -109,56 +109,56 @@ export const initialState = [
     }, {
         LPtokenName: 'USDT-BNB',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'ETH-BNB',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'ETH-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'ETH-USDT',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'ETH-BTCB',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'BTCB-BNB',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'BTCB-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'BTCB-USDT',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1,
@@ -166,70 +166,70 @@ export const initialState = [
     }, {
         LPtokenName: 'BTCB-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'CAKE-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'CAKE-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'MDX-BUSD',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'VAI-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 4,
         type2: 0
     }, {
         LPtokenName: 'UST-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 4,
         type2: 0
     }, {
         LPtokenName: 'TUSD-BUSD',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 4,
         type2: 0
     }, {
         LPtokenName: 'ADA-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'FIL-USDT',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'DOT-USDT',
         type: 'MDEX',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1,
@@ -237,14 +237,14 @@ export const initialState = [
     }, {
         LPtokenName: 'DOT-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1
     }, {
         LPtokenName: 'LINK-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1,
@@ -252,7 +252,7 @@ export const initialState = [
     }, {
         LPtokenName: 'XVS-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1,
@@ -260,7 +260,7 @@ export const initialState = [
     }, {
         LPtokenName: 'UNI-BNB',
         type: 'PancakeSwap',
-        APY: 0,
+        APY: null,
         TVL: undefined,
         Leverage: 3,
         type2: 1,

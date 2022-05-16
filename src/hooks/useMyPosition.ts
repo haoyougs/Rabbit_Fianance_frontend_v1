@@ -3,6 +3,10 @@ import { BANK_ADDRESS } from "config/address";
 import { KAICANG, FarmAddressArrs } from "config/LPAddress";
 import { ethers, Contract } from "ethers";
 import { getDefaultProvider, getSigner } from "utils/provider";
+import {
+    getFarmsAPR, getRabbitRewards,
+    getBorrowApr
+} from "hooks/useFarms";
 /**
  * 查询已有的仓位
  * @param account 钱包地址
@@ -11,19 +15,31 @@ import { getDefaultProvider, getSigner } from "utils/provider";
 export const QueryBin = async (account: string) => {
     const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider());
     const res = await ContractObj.getUserPosition(account);
-    // console.log(res)
     let Result = <any>[];
     res.map((item: any, index: any) => {
         const ob: any = {};
-        FarmAddressArrs.forEach((F_item: any) => {
-            if (item.goblin == F_item.Goblin) {
+        for (let i = 0; i < FarmAddressArrs.length; i++) {
+            if (item.goblin == FarmAddressArrs[i].Goblin) {
                 ob['item'] = item;
-                ob['LPAddress'] = F_item
+                ob['LPAddress'] = FarmAddressArrs[i];
             }
-        });
-        Result.push(ob)
+        }
+        if (!!ethers.utils.formatUnits(item.positionsValue._hex)) {
+            Result.push(ob)
+        }
     });
-    return Result
+    //item 存在 并且positionsValue部委0
+    const finalResult = Result.filter((el: any) => el.item && parseFloat(ethers.utils.formatUnits(el.item.positionsValue)));
+    finalResult.map((item: any, index: any) => {
+        item['index'] = index;
+        if (item.LPAddress.Ellipsis) {
+            item['Ellipsis'] = true;
+        } else {
+            item['Ellipsis'] = false;
+        }
+    });
+    // console.log(finalResult);
+    return finalResult;
 }
 
 /**
@@ -66,14 +82,14 @@ export const TokneBalanceS = async (account: any,
  * @param posId 仓位查询出来的posId
  */
 export const Replenishment = async (strategyAddress: string, token0Address: string, token1Address: string, token0Amount: any, token1Amount: any, posId: any, token0IsBNB: any, token1IsBNB: any) => {
-    // console.log('开仓策略地址', strategyAddress);
-    // console.log('币种0地址', token0Address);
-    // console.log('币种1地址', token1Address);
-    // console.log('支付的币种数量0', ethers.utils.parseEther(token0Amount).toString(), '没转之前', token0Amount);
-    // console.log('支付的币种数量1', ethers.utils.parseEther(token1Amount).toString(), '没转之前', token1Amount == 0);
-    // // console.log('借款策略id', 0);
-    // // console.log('借款token的数量', ethers.utils.parseEther('0').toString());
-    // console.log('posId', Number(posId), token0IsBNB, token1IsBNB);
+    // //////console.log('开仓策略地址', strategyAddress);
+    // //////console.log('币种0地址', token0Address);
+    // //////console.log('币种1地址', token1Address);
+    // //////console.log('支付的币种数量0', ethers.utils.parseEther(token0Amount).toString(), '没转之前', token0Amount);
+    // //////console.log('支付的币种数量1', ethers.utils.parseEther(token1Amount).toString(), '没转之前', token1Amount == 0);
+    // // //////console.log('借款策略id', 0);
+    // // //////console.log('借款token的数量', ethers.utils.parseEther('0').toString());
+    // //////console.log('posId', Number(posId), token0IsBNB, token1IsBNB);
     try {
         const codeData = new Contract(KAICANG, KaicangABI, getSigner());
         const codeResult = await codeData.add_encode(strategyAddress, token0Address, token1Address, ethers.utils.parseEther(token0Amount), ethers.utils.parseEther(token1Amount), 0);
@@ -81,17 +97,42 @@ export const Replenishment = async (strategyAddress: string, token0Address: stri
         if ((!token0IsBNB && !token1IsBNB) ||
             (token0IsBNB && token0Amount == 0) ||
             (token1IsBNB && token1Amount == 0)) {
-            const tx = await bankContract.work(Number(posId), 0, 0, codeResult);
+
+            // console.log(1);
+            const gas = await bankContract.estimateGas.work(Number(posId), 0, 0, codeResult);
+            // console.log(Number(gas))
+
+            const tx = await bankContract.work(Number(posId), 0, 0,
+                codeResult, { gasLimit: Math.floor(Number(gas) * 1.5) }
+            );
             await tx.wait()
-            console.log('补仓结果', tx);
+            //console.log('补仓结果', tx);
         } if (token0IsBNB && token0Amount != 0) {
-            const tx = await bankContract.work(Number(posId), 0, 0, codeResult, { value: ethers.utils.parseEther(token0Amount).toString() });
+            // console.log(2)
+
+            const gas = await bankContract.estimateGas.work(Number(posId), 0, 0, codeResult, { value: ethers.utils.parseEther(token0Amount).toString() });
+            // console.log(Number(gas))
+
+            const tx = await bankContract.work(Number(posId), 0, 0, codeResult, {
+                value: ethers.utils.parseEther(token0Amount).toString(),
+                gasLimit: Math.floor(Number(gas) * 1.5)
+            });
+
             await tx.wait()
-            console.log('补仓结果', tx);
+            //console.log('补仓结果', tx);
         } else if (token1IsBNB && token1Amount != 0) {
-            const tx = await bankContract.work(Number(posId), 0, 0, codeResult, { value: ethers.utils.parseEther(token1Amount).toString() });
+            // console.log(3)
+            const gas = await bankContract.estimateGas.work(Number(posId), 0, 0, codeResult, { value: ethers.utils.parseEther(token1Amount).toString() });
+            // console.log(Number(gas))
+
+            const tx = await bankContract.work(Number(posId), 0, 0, codeResult, {
+                value: ethers.utils.parseEther(token1Amount).toString(),
+                gasLimit: Math.floor(Number(gas) * 1.5)
+            }
+            );
+
             await tx.wait()
-            console.log('补仓结果', tx);
+            //console.log('补仓结果', tx);
         }
         return true
     } catch (e) {
@@ -101,7 +142,7 @@ export const Replenishment = async (strategyAddress: string, token0Address: stri
 }
 
 export const getShares = async (posId: any, goblinAddress: string) => {
-    console.log(posId, goblinAddress)
+    //////console.log(posId, goblinAddress)
     try {
         const tokenGoblin = new Contract(goblinAddress, GoblinABI, getSigner());
         const res = await tokenGoblin.shares(posId);
@@ -114,7 +155,7 @@ export const getShares = async (posId: any, goblinAddress: string) => {
     }
 }
 export const getshareToBalance = async (shares: any, goblinAddress: string) => {
-    // console.log(shares, goblinAddress)
+    // //////console.log(shares, goblinAddress)
     try {
         const tokenGoblin = new Contract(goblinAddress, GoblinABI, getSigner());
         const res = await tokenGoblin.shareToBalance(ethers.utils.parseEther(shares));
@@ -130,7 +171,7 @@ export const getTotalSupply = async (LPaddress: any) => {
         //查lp总数量
         const LPAmount = new Contract(LPaddress, ERC20, getDefaultProvider());
         const lpamount = await LPAmount.totalSupply();
-        // console.log("lpamount", Number(lpamount._hex))
+        // //////console.log("lpamount", Number(lpamount._hex))
         let Value = ethers.BigNumber.from(lpamount);
         return Value;
     } catch (e) {
@@ -143,15 +184,20 @@ export const getTotalSupply = async (LPaddress: any) => {
 //strategyAddress 平仓策略地址token0Address 币种0的地址token1Address 币种1的地址 whichWantBack 转哪种币给⽤户。0 ⽤户要token0， 1 ⽤户要token1， 2 ⽤户两种币都要。
 //借款策略id 传0  借款token的数量 传'0' 仓位查询出来的posId
 export const ClosePosition = async (strategyAddress: string, token0Address: string, token1Address: string, whichWantBack: any, posId: any) => {
-    // console.log(Number(posId))
+    // console.log(whichWantBack)
     try {
         const codeData = new Contract(KAICANG, KaicangABI, getSigner());
         const codeResult = await codeData.withdraw_encode(strategyAddress, token0Address, token1Address, whichWantBack);
-        // console.log("codeResult", codeResult)
-        const bankContract = new Contract(BANK_ADDRESS, BankABI, getSigner())
-        const tx = await bankContract.work(Number(posId), 0, 0, codeResult);
+        // //////console.log("codeResult", codeResult)
+        const bankContract = new Contract(BANK_ADDRESS, BankABI, getSigner());
+        const gas = await bankContract.estimateGas.work(Number(posId), 0, 0, codeResult);
+        // console.log(Number(gas))
+        const tx = await bankContract.work(Number(posId), 0, 0,
+            codeResult,
+            { gasLimit: Math.floor(Number(gas) * 1.5) }
+        );
         await tx.wait()
-        console.log('平仓结果', tx);
+        //////console.log('平仓结果', tx);
         return true
     } catch (e) {
         console.error('平仓错误', e);

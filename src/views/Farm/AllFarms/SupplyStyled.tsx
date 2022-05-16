@@ -8,15 +8,27 @@ export const Box = styled(BgBox)`
   display: flex;
   overflow: hidden;
   margin-bottom: 40px;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    height: auto;
+  }
 `;
 export const LBox = styled.div`
   flex: 1;
   background: rgba(25, 25, 31, 0.6);
   padding: 25px;
+  @media (max-width: 1000px) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 export const RBox = styled.div`
   flex: 2;
   padding: 25px;
+  @media (max-width: 1000px) {
+    padding: 10px;
+  }
 `;
 export const NameSize = styled.div`
   font-size: 18px;
@@ -28,6 +40,18 @@ export const IconBox = styled.div`
   align-items: center;
   margin-bottom: 40px;
   color: #fff;
+  @media (max-width: 1000px) {
+    margin-bottom: 0px;
+  }
+`;
+export const LBoxTtxt = styled.div`
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    color: #fff;
+    @media (max-width: 1000px) {
+        display: none;
+      }
 `;
 export const IconBox2 = styled.div`
   display: flex;
@@ -112,9 +136,16 @@ export const Borrow = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 80px;
+  @media (max-width: 1000px) {
+    /* flex-direction: column; */
+    height: 40px;
+  }
 `;
 export const BorrowBtnBox = styled.div`
   display: flex;
+  @media (max-width: 1000px) {
+    display: none;
+  }
 `;
 export const Tips2 = styled.div`
   width: 100%;
@@ -149,4 +180,15 @@ export const DataListDiv = styled.div`
   .AssetsSupplied {
     display: flex;
   }
+  @media (max-width: 1000px) {
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+`;
+export const Ptext = styled.div`
+width: 100%;
+color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+    line-height: 40px;
+    padding-bottom: 10px;
 `;

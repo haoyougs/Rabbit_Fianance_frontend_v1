@@ -12,7 +12,7 @@ const initialState = {
     BNB:
     {
         tokenName: 'BNB',
-        APY: 1,
+        APY: "",
         //银行BNB总存款
         TotalDeposit: 0,
         //银行BNB借存款
@@ -20,19 +20,31 @@ const initialState = {
         //用户BNB余额
         Balance: 0,
         //用户ibBNB余额
-        ibBalance: 0
+        ibBalance: 0,
+        APYObj: {
+            Lending: 0,
+            Staking: 0,
+            Total: 0,
+        }
     },
 }
 /**
  * 获取银行BNB总存款
  */
-export const TotalDepositData = createAsyncThunk<any>(
+export const TotalDepositData = createAsyncThunk<any, { library: any, account: any }>(
     'TotalDeposits',
-    async () => {
+    async ({ library, account }) => {
         try {
             const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider())
-            const ResVal = await ContractObj.totalToken(BNB_ADDRESS)
-            let Value = ethers.utils.formatUnits(ResVal, 18)
+
+            const Balances = await library?.getBalance(BANK_ADDRESS);
+            let Balance = ethers.utils.formatUnits(Balances, 18)
+            // console.log("Balance", Balance)
+
+            const banks = await ContractObj.banks(BNB_ADDRESS);
+            const totalDebt = ethers.utils.formatUnits(banks.totalDebt, 18);
+            let Value = parseFloat(Balance) + parseFloat(totalDebt);
+            // console.log("Value", Value)
             return Value
         } catch (e) {
             return e

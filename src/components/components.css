@@ -1,18 +1,45 @@
-.list-l1 {
+.subMenu {
+  animation: slide-in-top 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: 0.1s;
+}
+
+/* .list-l1 {
   animation: slide-in-bottom 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
+
 .list-l2 {
   animation: slide-in-bottom 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   animation-delay: 0.2s;
 }
+
 .list-l3 {
   animation: slide-in-bottom 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
   animation-delay: 0.5s;
-}
+} */
+
 .list-l1:hover,
 .list-l2:hover,
 .list-l3:hover {
-  background-color: #ffffff20 !important;
+  /* background-color: #fff !important; */
+  opacity: 1;
+}
+
+.subList:hover {
+  opacity: 1;
+}
+
+@keyframes slide-in-top {
+  0% {
+    height: 0%;
+    /* transform: translateY(0px); */
+    opacity: 0;
+  }
+
+  100% {
+    height: 1005;
+    /* transform: translateY(20); */
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-bottom {
@@ -20,6 +47,7 @@
     transform: translateY(20px);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -27,6 +55,41 @@
 }
 
 .LinkBg {
-  background-color: #ffffff20 !important;
+  background-color: rgba(255, 255, 255, 0.05);
   opacity: 1 !important;
+}
+
+.subLinkBg {
+  /* background-color: #ffffff20 !important; */
+  opacity: 1 !important;
+}
+
+.MenuBtn {
+  animation: menuBtn-rotate 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes menuBtn-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.NavBoxMobile {
+  animation: navBoxMobile-rotate 0.6s;
+}
+
+@keyframes navBoxMobile-rotate {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

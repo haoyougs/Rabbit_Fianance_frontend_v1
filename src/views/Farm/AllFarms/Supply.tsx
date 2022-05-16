@@ -14,7 +14,7 @@ import {
   AvailableBalance,
 } from "hooks/useSupply";
 import {
-  FarmPancakeUSDT_BNB, PANCAKE_ROUTE,
+  // FarmPancakeUSDT_BNB, PANCAKE_ROUTE,
   FarmAddressArrs
 } from "config/LPAddress";
 import { BANK_ADDRESS, BNB_ADDRESS } from "config/address";
@@ -29,11 +29,19 @@ import store from "state";
 import { useSelector } from "react-redux";
 import { NoticeBox } from "components/notice";
 import {
-  Box, LBox, RBox, NameSize, IconBox, IconBox2, BtnBox, Tips1,
+  Box, LBox, RBox, NameSize, IconBox, LBoxTtxt, IconBox2, BtnBox, Tips1,
   Title, BalanceBox, InpBox, Input, Suffix, Borrow, BorrowBtnBox, Tips2,
-  Tips3, DataList, DataListDiv
+  Tips3, DataList, DataListDiv, Ptext
 } from "./SupplyStyled";
-import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks";
+import { subStringNum } from "utils/subStringNum"
+import { Popover } from 'antd';
+import FarmApr from "assets/page/FarmApr.png"
+import { getApy } from "utils/ApyCommon";
+import {
+  getBorrowApr
+} from "hooks/useFarms";
+import { borrowAprCommon } from "utils/BorrowApr";
 /**
  * SupplyBox 开仓页面
  * @returns
@@ -41,10 +49,14 @@ import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/ho
 type RoutesType = string | undefined;
 export const SupplyPage: React.FC = () => {
   let Routes = useParams();
+  // console.log(Routes)
   const TokenNames: RoutesType = Routes.name;
   const TokenIndex: RoutesType = Routes.index;
   const Leverages: RoutesType = Routes.leverage;
   const MaxLeverage: RoutesType = Routes.MaxLeverage;
+  const Apy: any = Routes.apy;
+  const APYData: any = JSON.parse(window.atob(Apy));
+  // console.log(APYData)
   const { account, library } = useWeb3React();
   //杠杆比例
   const RatioArrs: number[] = [0.25, 0.5, 0.75, 1]
@@ -53,7 +65,7 @@ export const SupplyPage: React.FC = () => {
   const setNotice2 = UpdateNotice2();
   const setNoticeText = UpdateNoticeText();
   //当前币种的info
-  const [CurrentTokenInfo, setCurrentTokens] = useState<any>({});
+  const [CurrentTokenInfo, setCurrentTokenInfo] = useState<any>({});
   const [Token0Pid, setToken0Pid] = useState<any>();
   const [Token1Pid, setToken1Pid] = useState<any>();
   //钱包中的币种余额
@@ -84,6 +96,16 @@ export const SupplyPage: React.FC = () => {
   const [Ratio0Select, setRatio0Select] = useState<string>("");
   //token1 选择比例
   const [Ratio1Select, setRatio1Select] = useState<string>("");
+  //farm提示文字
+  const [FarmText, setFarmText] = useState<any>("");
+  //底部APY用的数据
+  const [APY, setAPY] = useState<any>(null);
+  const [Farm_Apr, setFarm_Apr] = useState<any>(null);
+  const [Trading_Free, setTrading_Free] = useState<any>(null);
+  const [RABBIT_Rewards, setRABBIT_Rewards] = useState<any>(null);
+  const [Borrow_Apr, setBorrow_Apr] = useState<any>(null);
+  const [Total_Apr, setTotal_Apr] = useState<any>(null);
+
   //获取当前的CurrentTokens 和Token0Pid，Token1Pid
   const CurrentToken = () => {
     const CurrentToken = FarmAddressArrs[Number(TokenIndex)];
@@ -98,15 +120,24 @@ export const SupplyPage: React.FC = () => {
       setLoanSwitch1(false);
       setCurrenName(TokenNames?.split("-")[0])
     };
-    console.log("CurrentToken", CurrentToken);
-    setCurrentTokens(CurrentToken);
+    // console.log("CurrentToken", CurrentToken);
+    setCurrentTokenInfo(CurrentToken);
+  }
+  //更新APY下面的子项
+  const updateAPYItme = () => {
+    setFarm_Apr(APYData?.Farm_Apr || 0);
+    setTrading_Free(APYData?.Trading_Free || 0);
+    setRABBIT_Rewards(APYData?.RABBIT_Rewards || 0);
+    setBorrow_Apr(APYData?.Borrow_Apr || 0);
   }
   useEffect(() => {
     CurrentToken();
+    //更新APY下面的子项
+    updateAPYItme();
   }, [TokenIndex]);
   //获取 可借款数量
   const getTotalBorrowed = async () => {
-    // console.log(444, CurrentTokenInfo)
+    // //////console.log(444, CurrentTokenInfo)
     //根据切换当前币，切换address
     const TokenAddress = LoanSwitch0 ? CurrentTokenInfo.LPtokenAddress0 : CurrentTokenInfo.LPtokenAddress1;
     if (!TokenAddress) {
@@ -118,22 +149,31 @@ export const SupplyPage: React.FC = () => {
     } else {
       res = await AvailableBalance(TokenAddress)
     }
-    // console.log("可借款数量", res, CurrenName)
+    //console.log("可借款数量", res, CurrenName)
     setTotalBorrowedData(res);
   }
   //获取 可借款数量
   useEffect(() => {
     getTotalBorrowed()
   }, [LoanSwitch0, LoanSwitch1]);
-  // console.log(333, Leverages)
   //滑动条
   const [InputSlider, setInputSlider] = useState<any>(Leverages);
+  //更新Total_Apr和APY
+  useEffect(() => {
+    const total_apr = Farm_Apr * InputSlider +
+      Trading_Free * InputSlider +
+      RABBIT_Rewards * InputSlider -
+      Borrow_Apr * (InputSlider - 1);
+    setTotal_Apr(total_apr);
+    const APY = getApy(Farm_Apr, Trading_Free, RABBIT_Rewards, Borrow_Apr, InputSlider);
+    setAPY(APY)
+  }, [Borrow_Apr, InputSlider])
   const SliderChange = (e: any) => {
     let a = e.target;
     setInputSlider(a.value);
   };
   const SliderClick = (value: any) => {
-    // console.log(value)
+    // //////console.log(value)
     setInputSlider(value);
   };
   //获取总借款数量
@@ -162,7 +202,7 @@ export const SupplyPage: React.FC = () => {
     const res = await DataInfo(token0, tokne1, Amount0, Amount1, InputSlider,
       //LoanSwitch0, baseToken,
       type);
-    // console.log(222, res);
+    // //////console.log(222, res);
     const { tvl, userTvl, token0Price, token1Price, token0Amount, token1Amount, debts } = res;
     let Borrowed;
     if (LoanSwitch0 == true) {
@@ -172,6 +212,9 @@ export const SupplyPage: React.FC = () => {
     if (LoanSwitch1 == true) {
       Borrowed = (tvl - userTvl) / token1Price;
       setAssetsBorroweds(Borrowed);
+    }
+    if (Borrowed == 0) {
+      setFarmText("")
     }
     setPositionValu0(token0Amount);
     setPositionValu1(token1Amount);
@@ -183,7 +226,7 @@ export const SupplyPage: React.FC = () => {
     if (!CurrentTokenInfo.LPtokenAddress0) {
       return;
     }
-    getDataList()
+    getDataList();
   }, [Amount0, Amount1, LoanSwitch0, LoanSwitch1, CurrentTokenInfo, InputSlider]);
 
   //获取币余额，最大值最小值
@@ -197,8 +240,9 @@ export const SupplyPage: React.FC = () => {
       CurrentTokenInfo.LPtokenAddress0,
       TokenNames?.split("-")[0]
     ).then((res) => {
-      setBalance0(res);
-      // console.log("token0币余额", res);
+      const value = subStringNum(res, 6)
+      setBalance0(value);
+      //////console.log("token0币余额", res);
     });
     await TokenBalanceOf(
       account,
@@ -206,15 +250,16 @@ export const SupplyPage: React.FC = () => {
       CurrentTokenInfo.LPtokenAddress1,
       TokenNames?.split("-")[1]
     ).then((res) => {
-      // console.log("token1币余额", res);
-      setBalance1(res);
+      //////console.log("token1币余额", res);
+      const value = subStringNum(res, 6)
+      setBalance1(value);
     });
     if (CurrentTokenInfo.BorrowToken0?._Pid) {
       await MaxMinLoan(
         BANK_ADDRESS,
         CurrentTokenInfo.BorrowToken0?._Pid
       ).then((res) => {
-        // console.log("token0大小值", res)
+        //console.log("token0大小值", res)
         setLoan0Max(res?.Max);
         setLoan0Min(res?.Min);
       });
@@ -224,7 +269,7 @@ export const SupplyPage: React.FC = () => {
         BANK_ADDRESS,
         CurrentTokenInfo.BorrowToken1?._Pid
       ).then((res) => {
-        // console.log("token1大小值", res)
+        //console.log("token1大小值", res)
         setLoan1Max(res?.Max);
         setLoan1Min(res?.Min);
       });
@@ -242,7 +287,7 @@ export const SupplyPage: React.FC = () => {
         library,
         CurrentTokenInfo.AddTwoStrategyAddr
       ).then((res) => {
-        console.log("是否授权0", res);
+        //////console.log("是否授权0", res);
         // setTokenApproved0(res as boolean);
         if (res) {
           setApproveBtn0(false);
@@ -264,13 +309,13 @@ export const SupplyPage: React.FC = () => {
         library,
         CurrentTokenInfo.AddTwoStrategyAddr
       ).then((res) => {
-        console.log("是否授权1", res);
+        //////console.log("是否授权1", res);
         // setTokenApproved1(res as boolean);
         if (res) {
-          // console.log("是否授权11", res);
+          // //////console.log("是否授权11", res);
           setApproveBtn1(false);
         } else {
-          // console.log("是否授权222", res);
+          // //////console.log("是否授权222", res);
           setApproveBtn1(true);
         }
       });
@@ -294,13 +339,13 @@ export const SupplyPage: React.FC = () => {
     setApprovdDisabled(false);
     ApproveWay(
       TokenNames?.split("-")[0],
-      account,
-      ERC20,
       CurrentTokenInfo.LPtokenAddress0,
+      ERC20,
+      account,
       library,
       CurrentTokenInfo.AddTwoStrategyAddr
     ).then((res) => {
-      // console.log(res);
+      // //////console.log(res);
       if (res) {
         setNoticeText("Approve succeed");
 
@@ -319,13 +364,13 @@ export const SupplyPage: React.FC = () => {
     setApprovdDisabled(false);
     ApproveWay(
       TokenNames?.split("-")[1],
-      account,
-      ERC20,
       CurrentTokenInfo.LPtokenAddress1,
+      ERC20,
+      account,
       library,
       CurrentTokenInfo.AddTwoStrategyAddr
     ).then((res) => {
-      console.log(res);
+      //////console.log(res);
       if (res) {
         setNoticeText("Approve succeed");
         setNotice(true);
@@ -345,7 +390,7 @@ export const SupplyPage: React.FC = () => {
     }
   }, [ApproveBtn0, ApproveBtn1]);
   useEffect(() => {
-    // console.log(999, Amount0 != 0, Amount1 != 0)
+    // //////console.log(999, Amount0 != 0, Amount1 != 0)
     if (Amount0 != 0 || Amount1 != 0) {
       setFarmDisabled(true)
     } else {
@@ -354,19 +399,47 @@ export const SupplyPage: React.FC = () => {
   }, [Amount0, Amount1]);
   const balance0Ratio = (ratio: number) => {
     setRatio0Select(ratio.toString() + "0");
-    setAmount0((Balance0 * ratio).toFixed(6));
+    const value = subStringNum(Balance0 * ratio, 6);
+    setAmount0(value);
   }
   const balance1Ratio = (ratio: number) => {
     setRatio1Select(ratio.toString() + "1");
-    setAmount1((Balance1 * ratio).toFixed(6));
+    const value = subStringNum(Balance1 * ratio, 6);
+    setAmount1(value);
   };
+  //更新 Borrow_Apr
+  const updateBorrow_Apr = async (AddressApr: any) => {
+    const Borrow = await getBorrowApr(AddressApr);
+    const Borrow_Apr = borrowAprCommon(Borrow.BorrowedValue, Borrow.DepositValue);
+    setBorrow_Apr(Borrow_Apr)
+  }
   const LoanSwitch0Click = () => {
     setLoanSwitch0(true);
     setLoanSwitch1(false);
+    let AddressApr;
+    let Names = CurrentTokenInfo.BorrowToken0.name;
+    //是BNB
+    if (Names == "BNB") {
+      AddressApr = BNB_ADDRESS
+    } else {
+      //
+      AddressApr = CurrentTokenInfo.LPtokenAddress0
+    }
+    updateBorrow_Apr(AddressApr);
   };
   const LoanSwitch1Click = () => {
     setLoanSwitch0(false);
     setLoanSwitch1(true);
+    let AddressApr;
+    let Names = CurrentTokenInfo.BorrowToken1.name;
+    //是BNB
+    if (Names == "BNB") {
+      AddressApr = BNB_ADDRESS
+    } else {
+      //
+      AddressApr = CurrentTokenInfo.LPtokenAddress1
+    }
+    updateBorrow_Apr(AddressApr);
   };
   //输入框部分
   const AmountChange0 = (e: any) => {
@@ -416,12 +489,13 @@ export const SupplyPage: React.FC = () => {
       token1IsBNB
     ).then((res) => {
       //刷新页面数据
-      setCurrentTokens({})
+      setCurrentTokenInfo({})
       CurrentToken();
       setFarmDisabled(true)
       if (res) {
         setNoticeText("Farm succeed");
         setNotice(true);
+        window.location.href = '/allFarms'
       } else {
         setNoticeText("Farm fail");
         setNotice2(true);
@@ -429,6 +503,80 @@ export const SupplyPage: React.FC = () => {
     });
   };
   const marks = [1, 3, 4, 7, 9];
+  useEffect(() => {
+    if (!FarmBtn || !FarmDisabled) {
+      return;
+    }
+    if (LoanSwitch0) {
+      if (AssetsBorroweds < Loan0Min) {
+        setFarmText("Debt Value less than minimum value")
+      }
+      if (AssetsBorroweds > Loan0Max) {
+        setFarmText("Debt Value larger than maximum value")
+      }
+      if (AssetsBorroweds >= Loan0Min && AssetsBorroweds <= Loan0Max) {
+        setFarmText("")
+      }
+    }
+    if (LoanSwitch1) {
+      if (AssetsBorroweds < Loan1Min) {
+        setFarmText("Debt Value less than minimum value")
+      }
+      if (AssetsBorroweds > Loan1Max) {
+        setFarmText("Debt Value larger than maximum value")
+      }
+      if (AssetsBorroweds >= Loan1Min && AssetsBorroweds <= Loan1Max) {
+        setFarmText("")
+      }
+    }
+  }, [AssetsBorroweds]);
+  const contentPopover = (
+    <ApyBox>
+      <ApyList>
+        <DataListL>Yield Farm APR : </DataListL>
+        <DataListR>
+          {Farm_Apr != null ?
+            `${(parseFloat(Farm_Apr) * InputSlider * 100).toFixed(2)}%`
+            : <LoadingBox />
+          }
+        </DataListR>
+      </ApyList>
+      <ApyList>
+        <DataListL>Trading Fees : </DataListL>
+        <DataListR>
+          {Trading_Free != null ?
+            `${(parseFloat(Trading_Free) * InputSlider * 100).toFixed(2)}%`
+            : <LoadingBox />
+          }
+        </DataListR>
+      </ApyList>
+      <ApyList >
+        <DataListL>RABBIT Rewards APR:</DataListL>
+        <DataListR>
+          {RABBIT_Rewards != null ? `${(parseFloat(RABBIT_Rewards) * InputSlider * 100).toFixed(2)}%`
+            : <LoadingBox />
+          }
+        </DataListR>
+      </ApyList >
+      <ApyList>
+        <DataListL>Borrowing Interest:</DataListL>
+        <DataListR>
+          {Borrow_Apr != null ?
+            `-${(Math.abs(parseFloat(Borrow_Apr)) * (InputSlider - 1) * 100).toFixed(2)}%`
+            : <LoadingBox />
+          }
+        </DataListR>
+      </ApyList>
+      <ApyList>
+        <DataListL>Total APR:</DataListL>
+        <DataListR>
+          {Total_Apr != null ? `${(parseFloat(Total_Apr) * 100).toFixed(2)}%`
+            : <LoadingBox />
+          }
+        </DataListR>
+      </ApyList>
+    </ApyBox>
+  );
   return (
     <>
       <Box className="textAnimation2">
@@ -437,30 +585,31 @@ export const SupplyPage: React.FC = () => {
             <TokenIcon IconName={`${TokenNames}`} />
             <NameSize>{TokenNames}</NameSize>
           </IconBox>
-          <IconBox2>
+          <LBoxTtxt>
             <Tips1>1</Tips1>
             Approve Assets
-          </IconBox2>
-          <IconBox2>
+          </LBoxTtxt>
+          <LBoxTtxt>
             <Tips1>2</Tips1>
             Strategy Setting
-          </IconBox2>
-          <IconBox2>
+          </LBoxTtxt>
+          <LBoxTtxt>
             <Tips1>3</Tips1>
             Start Farming
-          </IconBox2>
+          </LBoxTtxt>
           <BtnBox>
-            <Link to={"/allFarms"}>
-              <Button w={100} h={40}>
-                BACK
-              </Button>
-            </Link>
+            {/* <Link> */}
+            <Button w={100} h={40}
+              onClick={() => { window.location.href = '/allFarms' }}>
+              BACK
+            </Button>
+            {/* </Link> */}
           </BtnBox>
         </LBox>
         <RBox>
           <Title>I’d like to withdraw</Title>
           <BalanceBox>
-            Balance ：{(Balance0 / 1).toFixed(6)}
+            Balance ：{Balance0 ? Balance0 : <LoadingBox />}
             {/* {TokenNames?.split("-")[0]} */}
           </BalanceBox>
           <InpBox>
@@ -483,7 +632,7 @@ export const SupplyPage: React.FC = () => {
             ))}
           </BtnBox>
           <BalanceBox>
-            Balance ：{(Balance1 / 1).toFixed(6)}
+            Balance ：{Balance1 ? Balance1 : <LoadingBox />}
             {/* {TokenNames?.split("-")[1]} */}
           </BalanceBox>
           <InpBox>
@@ -506,6 +655,7 @@ export const SupplyPage: React.FC = () => {
             ))}
           </BtnBox>
           {/* <Slider marks={marks} step={null} defaultValue={37} /> */}
+          <Ptext>Leverage</Ptext>
           <SliderInp
             max={MaxLeverage}
             min={1}
@@ -526,9 +676,8 @@ export const SupplyPage: React.FC = () => {
                 I'd like to borrow (min:{Loan1Min},max:{Loan1Max})
               </span>
             ) : null}
-
-            <span className="Available">Available Balance :
-              {parseFloat(TotalBorrowedData).toFixed(6)}</span>
+            <BorrowBalance className="Available">Available Balance :
+              {parseFloat(TotalBorrowedData).toFixed(6)}</BorrowBalance>
           </Borrow>
           <BorrowBtnBox>
             {Token0Pid ?
@@ -544,6 +693,22 @@ export const SupplyPage: React.FC = () => {
               </Button>
               : ""}
           </BorrowBtnBox>
+          <MBorrowBtnBox>
+            {Token0Pid ?
+              <Button w={80} h={30} mr={10} onClick={LoanSwitch0Click}
+                Select={LoanSwitch0}>
+                {TokenNames?.split("-")[0]}
+              </Button>
+              : ""}
+            {Token1Pid ?
+              <Button w={80} h={30} onClick={LoanSwitch1Click}
+                Select={LoanSwitch1}>
+                {TokenNames?.split("-")[1]}
+              </Button>
+              : ""}
+          </MBorrowBtnBox>
+          <MBorrowBalance className="Available">Available Balance :
+            {parseFloat(TotalBorrowedData).toFixed(6)}</MBorrowBalance>
           <Tips2>
             <div>
               <GantianIcon />
@@ -561,52 +726,64 @@ export const SupplyPage: React.FC = () => {
           </Tips3>
           <DataList>
             <DataListDiv>
-              <div>Assets Supplied</div>
-              <div className="AssetsSupplied">
+              <DataListL>Assets Supplied</DataListL>
+              <DataListR>
                 {(Amount0 / 1).toFixed(6)} ${TokenNames?.split("-")[0]}
                 + {(Amount1 / 1).toFixed(6)} ${TokenNames?.split("-")[1]}
-              </div>
+              </DataListR>
             </DataListDiv>
             <DataListDiv>
-              <div>Assets Borrowed</div>
-              <div>
+              <DataListL>Assets Borrowed</DataListL>
+              <DataListR>
                 {(AssetsBorroweds / 1).toFixed(3)}
                 {LoanSwitch0 == true ? `${TokenNames?.split("-")[0]}` : `${TokenNames?.split("-")[1]}`}
-
-              </div>
+              </DataListR>
             </DataListDiv>
             <DataListDiv>
-              <div>Total Assets in Position Value</div>
-              <div>
+              <DataListL>Total Assets in Position Value</DataListL>
+              <DataListR>
                 {PositionValu0 != null ? (
                   `${(PositionValu0 / 1).toFixed(6)}
                   ${TokenNames?.split("-")[0]}
                   + ${(PositionValu1 / 1).toFixed(6)}
                   ${TokenNames?.split("-")[1]}`
                 ) : (
-                  <LoadingBox width={50} height={14} />
+                  <LoadingBox />
                 )}
-              </div>
+              </DataListR>
             </DataListDiv>
             <DataListDiv>
-              <div>Debt Ratio</div>
-              <div>
+              <DataListL>Debt Ratio</DataListL>
+              <DataListR>
                 {(DebtRatio * 100).toFixed(2)}%
-              </div>
+              </DataListR>
             </DataListDiv>
             <DataListDiv>
-              <div>Total APY</div>
-              <div style={{ color: "rgb(48, 162, 122)" }}>
-                <LoadingBox width={50} height={14} />
-                {/* <GantianIcon /> */}
-              </div>
+              <DataListL>Total APY</DataListL>
+              <DataListR style={{ color: "rgb(48, 162, 122)" }}>
+                {APY != null ?
+                  `${(parseFloat(APY) * 100).toFixed(2)}%`
+                  : <LoadingBox />
+                }
+                <PopoverBox>
+                  <Popover placement="topRight"
+                    content={contentPopover}
+                    trigger="click"
+                    overlayClassName="vaultApy">
+                    <APYImg src={FarmApr}></APYImg>
+                  </Popover>
+                </PopoverBox>
+              </DataListR>
             </DataListDiv>
           </DataList>
+          <MBContent>
+            {contentPopover}
+          </MBContent>
           {ApproveBtn0 ? (
             <Button
               w={0}
               h={40}
-              mt={40}
+              mt={20}
               disabled={ApprovdDisabled}
               onClick={ApprovedClick0}
             >
@@ -617,7 +794,7 @@ export const SupplyPage: React.FC = () => {
             <Button
               w={0}
               h={40}
-              mt={40}
+              mt={20}
               disabled={ApprovdDisabled}
               onClick={ApprovedClick1}
             >
@@ -625,18 +802,102 @@ export const SupplyPage: React.FC = () => {
             </Button>
           ) : null}
           {FarmBtn ? (
-            <Button
-              w={0}
-              h={40}
-              mt={40}
-              disabled={FarmDisabled}
-              onClick={FarmClick}
-            >
-              Farm {InputSlider}x{FarmBtn}
-            </Button>
+            FarmText ?
+              <FarmTextBox>
+                {FarmText}
+              </FarmTextBox>
+              :
+              <Button
+                w={0}
+                h={40}
+                mt={20}
+                disabled={FarmDisabled}
+                onClick={FarmClick}
+              >
+                Farm {InputSlider}x
+              </Button>
           ) : null}
         </RBox>
       </Box>
     </>
   );
 };
+const FarmTextBox = styled.div`
+    background-color: rgba(255, 255, 255, 0);
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    height: 40px;
+    justify-content: center;
+    outline: none;
+    color: rgb(158, 55, 61);
+    cursor: pointer;
+    width: 100%;
+    pointer-events: none;
+    opacity: 1;
+    user-select: none;
+;
+`
+const APYImg = styled.img`
+width:15px;
+margin-left: 5px;
+`
+const ApyBox = styled.div`
+  @media (max-width: 1000px) {
+    border-top:solid 1px rgba(255, 255, 255, 0.2);
+    margin: 10px 0;
+    padding-top: 10px;
+  }
+`
+const ApyList = styled.div`
+display: flex;
+justify-content: space-between;
+margin: 10px 0;
+@media (max-width: 1000px) {
+    /* flex-direction: column; */
+    margin: 0;
+  }
+`
+const BorrowBalance = styled.span`
+@media (max-width: 1000px) {
+    display: none;
+  }
+`
+const MBorrowBalance = styled.div`
+height: 40px;
+display: flex;
+align-items: center;
+@media (min-width: 1000px) {
+    display: none;
+  }
+`
+const MBorrowBtnBox = styled.div`
+  display: flex;
+  @media (min-width: 1000px) {
+    display: none;
+  }
+`;
+const DataListL = styled.div`
+  @media (max-width: 1000px) {
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 30px;
+  }
+`;
+const DataListR = styled.div`
+  @media (max-width: 1000px) {
+    color: rgba(255, 255, 255, 1);
+    line-height: 30px;
+  }
+`;
+const PopoverBox = styled.span`
+  @media (max-width: 1000px) {
+    display: none;
+  }
+`;
+const MBContent = styled.span`
+@media (min-width: 1000px) {
+  display: none;
+}
+`;

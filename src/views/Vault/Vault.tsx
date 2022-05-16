@@ -6,7 +6,6 @@ import { TvlValue } from "hooks/useVault";
 import { AuditBox } from "components/backgroundBox/AuditBox";
 import { ListBox } from "./farmlist";
 import '../index.css'
-import { NoticeBox } from "components/notice";
 import { useWeb3React } from "@web3-react/core";
 /**
  * Vault页面内容部分
@@ -17,7 +16,7 @@ export const Vault: React.FC = () => {
 
   //获取Total Value Locked
   useEffect(() => {
-    // console.log(111, account)
+    // //////console.log(111, account)
     //没有钱包地址，不请求
     if (!account) {
       setTvl(0);

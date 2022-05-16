@@ -36,9 +36,11 @@ select {
   margin: 0;
   padding: 0;
 }
+
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   min-height: 100%;
@@ -49,6 +51,7 @@ body {
   font-size: 14px;
   color: #333;
 }
+
 h1,
 h2,
 h3,
@@ -57,6 +60,7 @@ h5,
 h6 {
   font-weight: normal;
 }
+
 ul,
 ol {
   list-style: none;
@@ -75,4 +79,7 @@ a {
 div {
   box-sizing: border-box;
 }
-input { outline: none; } 
+
+input {
+  outline: none;
+}

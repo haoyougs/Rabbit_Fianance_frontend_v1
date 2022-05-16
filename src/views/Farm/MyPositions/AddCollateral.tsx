@@ -16,12 +16,15 @@ import { TokenBalance1, TokneBalanceS } from "hooks/useMyPosition";
 import { Approveds, ApproveWay } from "utils/tokenApproved";
 import { ERC20 } from "config/ABI";
 import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import { subStringNum } from "utils/subStringNum";
 interface parameter {
   onClick: () => void;
   info: any;
+  freshParent: any;
+
 }
 
-export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
+export const AddCollateralPage: React.FC<parameter> = ({ onClick, info, freshParent }) => {
   //获取钱包地址
   let { account, library } = useWeb3React();
   //杠杆比例
@@ -32,7 +35,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   const Names: string = info.LPAddress.LPtokenName
   const Token0Name: string = Names?.split("-")[0];
   const Token1Name: string = Names?.split("-")[1];
-  // console.log(info, Ellipsis);
+  // //////console.log(info, Ellipsis);
   //获取账户余额的变量
   let [Token0Balance, setToken0Balance] = useState<any>();
   let [Token1Balance, setToken1Balance] = useState<any>();
@@ -61,25 +64,29 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   useEffect(() => {
     // 获取token0余额
     if (account) {
-      // console.log(account);
+      // //////console.log(account);
       if (token0IsBNB) {
         TokenBalance1(library, account).then((res) => {
-          setToken0Balance(res);
+          const value = subStringNum(res, 6)
+          setToken0Balance(value);
         });
       } else {
         TokneBalanceS(account, library, info.LPAddress.LPtokenAddress0).then((res) => {
-          const result = ethers.utils.formatUnits(ethers.BigNumber.from(res), 18)
-          setToken0Balance(result);
+          const result = ethers.utils.formatUnits(ethers.BigNumber.from(res), 18);
+          const value = subStringNum(result, 6)
+          setToken0Balance(value);
         });
       }
       if (token1IsBNB) {
         TokenBalance1(library, account).then((res) => {
-          setToken1Balance(res);
+          const value = subStringNum(res, 6)
+          setToken1Balance(value);
         });
       } else {
         TokneBalanceS(account, library, info.LPAddress.LPtokenAddress1).then((res) => {
           const result = ethers.utils.formatUnits(ethers.BigNumber.from(res), 18)
-          setToken1Balance(result);
+          const value = subStringNum(result, 6)
+          setToken1Balance(value);
         });
       }
     }
@@ -121,7 +128,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         library,
         info.LPAddress.AddTwoStrategyAddr
       ).then((res) => {
-        console.log("是否授权0", res);
+        //////console.log("是否授权0", res);
         // setTokenApproved0(res as boolean);
         if (res) {
           setApproveBtn0(false);
@@ -143,13 +150,13 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         library,
         info.LPAddress.AddTwoStrategyAddr
       ).then((res) => {
-        console.log("是否授权1", res);
+        //////console.log("是否授权1", res);
         // setTokenApproved1(res as boolean);
         if (res) {
-          console.log("是否授权11", res);
+          //////console.log("是否授权11", res);
           setApproveBtn1(false);
         } else {
-          console.log("是否授权222", res);
+          //////console.log("是否授权222", res);
           setApproveBtn1(true);
         }
       });
@@ -177,7 +184,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
       library,
       info.LPAddress.AddTwoStrategyAddr
     ).then((res) => {
-      // console.log(res);
+      // //////console.log(res);
       if (res) {
         setNoticeText("Approve succeed");
         setNotice(true);
@@ -201,7 +208,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
       library,
       info.LPAddress.AddTwoStrategyAddr
     ).then((res) => {
-      console.log(res);
+      //////console.log(res);
       if (res) {
         setNoticeText("Approve succeed");
         setNotice(true);
@@ -221,7 +228,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
     }
   }, [ApproveBtn0, ApproveBtn1]);
   useEffect(() => {
-    // console.log(999, Amount0 != 0, Amount1 != 0)
+    // //////console.log(999, Amount0 != 0, Amount1 != 0)
     if (Amount0 != 0 || Amount1 != 0) {
       setFarmDisabled(true)
     } else {
@@ -235,6 +242,13 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   //Updated Assets in Position Value 中的数据
   let [AssetsPositionValue0, setAssetsPositionValue0] = useState<any>();
   let [AssetsPositionValue1, setAssetsPositionValue1] = useState<any>();
+  //更新前的债务率
+
+  const computeRisk = (totalValue: any, positionsValue: any, LiquidationFactor: any) => {
+    const risk = totalValue / positionsValue / LiquidationFactor;
+    return risk;
+  }
+  let RiskRatioBefore = computeRisk(Data.totalValue, Data.positionsValue, LPAddress.LiquidationFactor);
 
   // //更新后的债务率
   let [TotalValueAfter, setTotalValueAfter] = useState<any>();
@@ -250,29 +264,29 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         info.LPAddress.LPtokenAddress0,
         info.LPAddress.LPtokenAddress1
       ).then((res) => {
-        console.log("res", res)
+        //////console.log("res", res)
         let token0Price = 1;
         //非稳定币价格
         let token1Price = 1 / (Math.floor(res * 100000) / 100000);
-        console.log(222, token1Price, Amount0, Amount1);
+        //////console.log(222, token1Price, Amount0, Amount1);
 
         const new_Amount0 = Amount0 ? Amount0 : 0;
         const new_Amount1 = Amount1 ? Amount1 : 0;
-        console.log(res);
+        //////console.log(res);
         //非稳定币价格
-        console.log(222, new_Amount0, new_Amount1);
+        //////console.log(222, new_Amount0, new_Amount1);
         // 获取平均后的币种各个币种的数量得合计
         let TotalToken = token0Price * parseFloat(new_Amount0) + token1Price * parseFloat(new_Amount1);
         //单币的价格
         const singleToken = TotalToken / 2
-        console.log(111, TotalToken, singleToken);
+        //////console.log(111, TotalToken, singleToken);
         let token0Totalvalue = singleToken / token0Price;
         let token1Totalvalue = singleToken / token1Price;
         setAddedtoPosition0(token0Totalvalue);
         setAddedtoPosition1(token1Totalvalue);
         //借款币是不是token0
         const borrowToken0 = Data.borrowToken == Data.token0 ? true : false;
-        console.log(borrowToken0)
+        //////console.log(borrowToken0)
         // // 更新后的头寸value价值
         let positionsValue =
           Number(ethers.utils.formatUnits(Data.positionsValue, 18)) / 2;
@@ -280,7 +294,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         let PositionValue1;
         //假如是稳定币
         if (Ellipsis) {
-          // console.log(333, positionsValue)
+          // //////console.log(333, positionsValue)
           if (borrowToken0) {
             PositionValue0 = positionsValue * 1 + token0Totalvalue;
             PositionValue1 = positionsValue / token1Price + token1Totalvalue;
@@ -291,7 +305,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
           setAssetsPositionValue0(PositionValue0);
           setAssetsPositionValue1(PositionValue1);
         } else {
-          console.log(444, positionsValue)
+          //////console.log(444, positionsValue)
           //以第一个计价
           if (borrowToken0) {
             PositionValue0 = positionsValue * 1 + token0Totalvalue;
@@ -306,15 +320,15 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
         // //更新后的总价值
         let totalValue = PositionValue0 + PositionValue1 * token1Price;
         let RiskRatioAfter =
-          Number(ethers.utils.formatUnits(Data.totalValue, 18)) / totalValue;
-        setTotalValueAfter(RiskRatioAfter);
+          (Number(ethers.utils.formatUnits(Data.totalValue, 18)) / totalValue) / LPAddress.LiquidationFactor;
+        if (new_Amount0 == 0 && new_Amount1 == 0) {
+          setTotalValueAfter(RiskRatioBefore);
+        } else {
+          setTotalValueAfter(RiskRatioAfter);
+        }
       });
     }
   }, [Amount0, Amount1, info]);
-  //更新前的债务率
-  let RiskRatioBefore =
-    Number(ethers.utils.formatUnits(Data.totalValue, 18)) /
-    Number(ethers.utils.formatUnits(Data.positionsValue, 18));
 
   //获取数据
   let Store = useSelector(store.getState);
@@ -330,7 +344,7 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   });
   //补仓操作
   const ConfirmClick = () => {
-    console.log(Amount0, Amount1)
+    //////console.log(Amount0, Amount1)
     const strategyAddress = info.LPAddress.AddTwoStrategyAddr;
     const token0Address = Data.token0;
     const token1Address = Data.token1;
@@ -347,11 +361,13 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
       token0IsBNB,
       token1IsBNB
     ).then((res) => {
-
       if (res == true) {
+        onClick()
+        freshParent()
         setNotice(res);
         setNoticeText("Add Collateral succeed");
       } else {
+
         setNotice2(true);
         setNoticeText("Add Collateral fail");
       }
@@ -360,108 +376,127 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
   return (
     <>
       <BG onClick={onClick} />
-      <Box>
-        <TitleBox>
-          <div>Add Collateral {LPAddress.LPtokenName}</div>
-          <CloseBtn src={closeImg} onClick={onClick} />
-        </TitleBox>
-        <InpModular>
-          <BalanceText>
-            Balance:{" "}
-            {Token0Balance !== 0.0 ? Number(Token0Balance).toFixed(6) : 0.0}{" "}
-            {Token0Name}
-          </BalanceText>
-          <Inputs>
-            <TokenIcon IconName={Token0Name} />
-            <Input
-              type="text"
-              value={Amount0}
-              placeholder="0.00"
-              onChange={AmountChange0}
-            ></Input>
-            <CurrencyBox>{Token0Name}</CurrencyBox>
-          </Inputs>
-          <BtnBox>
-            {RatioArrs.map((item, key) => (
-              <Button key={key} w={120} h={40}
-                onClick={() => balance0Ratio(item)}
-                Select={Ratio0Select == (item.toString() + "0")}>
-                {item * 100}%
-              </Button>
-            ))}
-          </BtnBox>
-        </InpModular>
-        <InpModular>
-          <BalanceText>
-            Balance:{" "}
-            {Token1Balance !== 0.0 ? Number(Token1Balance).toFixed(6) : 0.0}{" "}
-            {Token1Name}
-          </BalanceText>
-          <Inputs>
-            <TokenIcon IconName={Token1Name} />
-            <Input
-              type="text"
-              value={Amount1}
-              placeholder="0.00"
-              onChange={AmountChange1}
-            ></Input>
-            <CurrencyBox>{Token1Name}</CurrencyBox>
-          </Inputs>
-          <BtnBox>
-            {RatioArrs.map((item, key) => (
-              <Button key={key} w={120} h={40}
-                onClick={() => balance1Ratio(item)}
-                Select={Ratio1Select == (item.toString() + "1")}>
-                {item * 100}%
-              </Button>
-            ))}
-          </BtnBox>
-        </InpModular>
-
-        <TexBox1>
-          <div>Assets to be Added to Position</div>
-          <div>
-            {AddedtoPosition0 ? (
-              <>{(AddedtoPosition0 / 1).toFixed(6)} {Token0Name}</>
-            ) : (
-              <>0.0 USDT</>
-            )}{" "}
-            +{" "}
-            {AddedtoPosition1 ? (
-              <>{(AddedtoPosition1 / 1).toFixed(6)} {Token1Name}</>
-            ) : (
-              <>0.0 BNB</>
-            )}{" "}
-          </div>
-        </TexBox1>
-        <TexBox2>
-          <TexBox3>
-            <div>Updated Assets in Position Value</div>
+      <OutContainer>
+        <Box>
+          <TitleBox>
+            <div>Add Collateral {LPAddress.LPtokenName}</div>
+            <CloseBtn src={closeImg} onClick={onClick} />
+          </TitleBox>
+          <InpModular>
+            <BalanceText>
+              Balance:{" "}
+              {Token0Balance !== 0.0 ? Number(Token0Balance).toFixed(6) : 0.0}{" "}
+              {Token0Name}
+            </BalanceText>
+            <Inputs>
+              <TokenIcon IconName={Token0Name} />
+              <Input
+                type="text"
+                value={Amount0}
+                placeholder="0.00"
+                onChange={AmountChange0}
+              ></Input>
+              <CurrencyBox>{Token0Name}</CurrencyBox>
+            </Inputs>
+            <BtnBox>
+              {RatioArrs.map((item, key) => (
+                <Button key={key} w={120} h={40}
+                  onClick={() => balance0Ratio(item)}
+                  Select={Ratio0Select == (item.toString() + "0")}>
+                  {item * 100}%
+                </Button>
+              ))}
+            </BtnBox>
+            <MBtnBox>
+              {RatioArrs.map((item, key) => (
+                <Button key={key} w={66} h={30}
+                  onClick={() => balance0Ratio(item)}
+                  Select={Ratio0Select == (item.toString() + "0")}>
+                  {item * 100}%
+                </Button>
+              ))}
+            </MBtnBox>
+          </InpModular>
+          <InpModular>
+            <BalanceText>
+              Balance:{" "}
+              {Token1Balance !== 0.0 ? Number(Token1Balance).toFixed(6) : 0.0}{" "}
+              {Token1Name}
+            </BalanceText>
+            <Inputs>
+              <TokenIcon IconName={Token1Name} />
+              <Input
+                type="text"
+                value={Amount1}
+                placeholder="0.00"
+                onChange={AmountChange1}
+              ></Input>
+              <CurrencyBox>{Token1Name}</CurrencyBox>
+            </Inputs>
+            <BtnBox>
+              {RatioArrs.map((item, key) => (
+                <Button key={key} w={120} h={40}
+                  onClick={() => balance1Ratio(item)}
+                  Select={Ratio1Select == (item.toString() + "1")}>
+                  {item * 100}%
+                </Button>
+              ))}
+            </BtnBox>
+            <MBtnBox>
+              {RatioArrs.map((item, key) => (
+                <Button key={key} w={66} h={30}
+                  onClick={() => balance1Ratio(item)}
+                  Select={Ratio1Select == (item.toString() + "1")}>
+                  {item * 100}%
+                </Button>
+              ))}
+            </MBtnBox>
+          </InpModular>
+          <TexBox1>
+            <div style={{ width: "50%" }}>Assets to be Added to Position</div>
             <div>
-              {AssetsPositionValue0 != undefined || AssetsPositionValue1 != undefined ?
-                <>
-                  {AssetsPositionValue0 ?
-                    <>{(AssetsPositionValue0 / 1).toFixed(6)} {Token0Name}</>
-                    :
-                    <>0.0 {Token0Name}</>
-                  }
-                  {" "}+{" "}
-                  {AssetsPositionValue1 ?
-                    <>{(AssetsPositionValue1 / 1).toFixed(6)} {Token1Name}</>
-                    :
-                    <>0.0 {Token1Name}</>
-                  }
-                </>
-                : <LoadingBox height={12} />}
+              {AddedtoPosition0 ? (
+                <>{(AddedtoPosition0 / 1).toFixed(6)} {Token0Name}</>
+              ) : (
+                <>0.0 {Token0Name}</>
+              )}{" "}
+              +{" "}
+              {AddedtoPosition1 ? (
+                <>{(AddedtoPosition1 / 1).toFixed(6)} {Token1Name}</>
+              ) : (
+                <>0.0 {Token1Name}</>
+              )}{" "}
             </div>
-          </TexBox3>
-          {Ellipsis ?
+          </TexBox1>
+          <TexBox2>
+            <TexBox3>
+              <div>Updated Assets in Position Value</div>
+              <div style={{ textAlign: "end" }}>
+                {AssetsPositionValue0 != undefined || AssetsPositionValue1 != undefined ?
+                  <>
+                    <span>{AssetsPositionValue0 ?
+                      <>{(AssetsPositionValue0 / 1).toFixed(6)} {Token0Name}</>
+                      :
+                      <>0.0 {Token0Name}</>
+                    }
+                    </span>
+                    {" "}+{" "}
+                    <span>
+                      {AssetsPositionValue1 ?
+                        <>{(AssetsPositionValue1 / 1).toFixed(6)} {Token1Name}</>
+                        :
+                        <>0.0 {Token1Name}</>
+                      }
+                    </span>
+                  </>
+                  : <LoadingBox height={12} />}
+              </div>
+            </TexBox3>
+
             <TexBox3>
               <div>Risk ratio before margin call</div>
               <div>{(RiskRatioBefore * 100).toFixed(2)}%</div>
             </TexBox3>
-            : null}
-          {Ellipsis ?
             <TexBox3>
               <div>Risk ratio after margin call</div>
               <div>
@@ -474,53 +509,51 @@ export const AddCollateralPage: React.FC<parameter> = ({ onClick, info }) => {
                 )}
               </div>
             </TexBox3>
-            : null}
-        </TexBox2>
-        {ApproveBtn0 ? (
-          <Button
-            w={0}
-            h={40}
-            mt={40}
-            disabled={ApprovdDisabled}
-            onClick={ApprovedClick0}
-          >
-            Approved {Token0Name}
-          </Button>
-        ) : null}
-        {ApproveBtn1 ? (
-          <Button
-            w={0}
-            h={40}
-            mt={40}
-            disabled={ApprovdDisabled}
-            onClick={ApprovedClick1}
-          >
-            Approved {Token1Name}
-          </Button>
-        ) : null}
-        {FarmBtn ? (
-          <Button w={0} h={40} disabled={FarmDisabled} onClick={ConfirmClick}>
-            Confirm
-          </Button>
-        ) : null}
-      </Box>
-
+          </TexBox2>
+          {ApproveBtn0 ? (
+            <Button
+              w={0}
+              h={40}
+              mt={40}
+              disabled={ApprovdDisabled}
+              onClick={ApprovedClick0}
+            >
+              Approved {Token0Name}
+            </Button>
+          ) : null}
+          {ApproveBtn1 ? (
+            <Button
+              w={0}
+              h={40}
+              mt={40}
+              disabled={ApprovdDisabled}
+              onClick={ApprovedClick1}
+            >
+              Approved {Token1Name}
+            </Button>
+          ) : null}
+          {FarmBtn ? (
+            <Button w={0} h={40} disabled={FarmDisabled} onClick={ConfirmClick}>
+              Confirm
+            </Button>
+          ) : null}
+        </Box>
+      </OutContainer>
     </>
   );
 };
 
-const Box = styled.div`
-  width: 552px;
-  background-color: rgb(25, 25, 31);
-  padding: 30px;
-  border-radius: 10px;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin-top: -310px;
-  margin-left: -276px;
-  z-index: 1001;
-  animation: fade-in-top 0.6s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+const OutContainer = styled.div`
+    /* box-sizing: border-box; */
+    margin: 0px auto;
+    max-width: 600px;
+    padding: 0px 24px;
+    width: 100%;
+    position: fixed;
+    top: 50%;
+    margin-top: -320px;
+    z-index: 1001;
+    animation: fade-in-top 0.6s;
   @keyframes fade-in-top {
     0% {
       transform: translateY(-50px);
@@ -530,6 +563,20 @@ const Box = styled.div`
       transform: translateY(0);
       opacity: 1;
     }
+  }
+  @media (max-width: 1000px) {
+    padding: 0 20px;
+    margin-left: -1rem;
+  }
+`
+const Box = styled.div`
+  width: 552px;
+  background-color: rgb(25, 25, 31);
+  padding: 30px;
+  border-radius: 10px;
+  @media (max-width: 1000px) {
+    width: 100%;
+    padding: 10px 10px 20px;
   }
 `;
 const BG = styled.div`
@@ -560,6 +607,9 @@ const CloseBtn = styled.img`
 const InpModular = styled.div`
   width: 100%;
   margin-top: 20px;
+  @media (max-width: 1000px) {
+    margin-top: 10px;
+  }
 `;
 const BalanceText = styled.div`
   width: 100%;
@@ -595,8 +645,18 @@ const BtnBox = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 15px;
+  @media (max-width: 1000px) {
+    display: none;
+  }
 `;
-
+const MBtnBox = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  @media (min-width: 1000px) {
+    display: none;
+  }
+`;
 const TexBox1 = styled.div`
   padding: 20px 0;
   color: #fff;
@@ -613,4 +673,7 @@ const TexBox3 = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 5px 0;
+  @media (max-width: 1000px) {
+    font-size: 12px;
+  }
 `;

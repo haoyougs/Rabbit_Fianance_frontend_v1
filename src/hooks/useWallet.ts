@@ -12,7 +12,7 @@ export const useWallet = () => {
         try {
             Login();
         } catch (e: any) {
-            console.log(123)
+            //////console.log(123)
         }
 
     }, []);
