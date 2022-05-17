@@ -154,17 +154,20 @@ export const TotalBorrowed = async (TokenAddress: string) => {
     }
 }
 //BNB可使用的余额
-export const AvailableBNBBalance = async () => {
+export const AvailableBNBBalance = async (library: any) => {
     try {
-        const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider());
-        //银行总额
-        const ResVal = await ContractObj.totalToken(BNB_ADDRESS);
-        let totalVal = ethers.utils.formatUnits(ResVal, 18);
-        //BNB银行债务
-        const banks = await ContractObj.banks(BNB_ADDRESS);
-        const totalDebt = ethers.utils.formatUnits(banks.totalDebt, 18);
-        // //////console.log(totalVal, totalDebt)
-        let value = parseFloat(totalVal) - parseFloat(totalDebt);
+        // const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider());
+        // //银行总额
+        // const ResVal = await ContractObj.totalToken(BNB_ADDRESS);
+        // let totalVal = ethers.utils.formatUnits(ResVal, 18);
+        // //BNB银行债务
+        // const banks = await ContractObj.banks(BNB_ADDRESS);
+        // const totalDebt = ethers.utils.formatUnits(banks.totalDebt, 18);
+        // console.log(totalVal, totalDebt)
+        // let value = parseFloat(totalVal) - parseFloat(totalDebt);
+
+        const Balances = await library?.getBalance(BANK_ADDRESS);
+        let value = ethers.utils.formatUnits(Balances, 18);
         return value;
     } catch (e) {
         return e
@@ -173,14 +176,19 @@ export const AvailableBNBBalance = async () => {
 /**
  * 获取可使用的余额
  */
-export const AvailableBalance = async (TokenAddress: string) => {
+export const AvailableBalance = async (TokenAddress: string, library: any) => {
     try {
         //////console.log(123);
-        const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider());
+        // const ContractObj = new Contract(BANK_ADDRESS, BankABI, getDefaultProvider());
         //总额（总可借款量，不包括债务的。）
-        const banks = await ContractObj.banks(TokenAddress);
-        const totalVal = ethers.utils.formatUnits(banks.totalVal, 18);
-        let value = parseFloat(totalVal);
+        // const banks = await ContractObj.banks(TokenAddress);
+        // const totalVal = ethers.utils.formatUnits(banks.totalVal, 18);
+        // let value = parseFloat(totalVal);
+
+        const Tokenaddress = new Contract(TokenAddress, ERC20, library);
+        const Balances = await Tokenaddress.balanceOf(BANK_ADDRESS);
+        let value = ethers.utils.formatUnits(Balances, 18);
+        // console.log(Balances)
         return value;
     } catch (e) {
         return e

@@ -414,7 +414,7 @@ export const AllFarmsPage: React.FC = () => {
               <TdBox className="TdWdith">
                 <Link to={`/positions/${item.New_LPtokenName ? item.New_LPtokenName : item.LPtokenName}/${item.index}/${item.Leverage}/${item.MaxLeverage}/
                     ${window.btoa(JSON.stringify(item.APY))}`}>
-                  <Button w={100} h={35} ml={0}
+                  <Button disabled={item.APY != null} w={100} h={35} ml={0}
                   >
                     {item.Leverage}X Farm
                   </Button>

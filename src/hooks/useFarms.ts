@@ -200,13 +200,15 @@ export const getTradeFree = async (Type: any, LPaddress: any, MdexTradeFree: any
         }
     } else {
         for (let item in PancakeTradeFree) {
-            if (item.toUpperCase() == LPaddress.toUpperCase()) {
-                const parseData = JSON.parse(PancakeTradeFree[item]);
-                const data = parseData?.data?.pairDayDatas[0];
-                // console.log(data);
-                const volume_24hr = data.dailyVolumeUSD;
-                const pool_tvl = data.reserveUSD;
-                Trading_Free = (parseFloat(volume_24hr) * 365 * 0.003 * 0.66) / parseFloat(pool_tvl);
+            if (PancakeTradeFree[item].indexOf("<html>") < 0) {
+                if (item.toUpperCase() == LPaddress.toUpperCase()) {
+                    const parseData = JSON.parse(PancakeTradeFree[item]);
+                    const data = parseData?.data?.pairDayDatas[0];
+                    console.log(parseData);
+                    const volume_24hr = data.dailyVolumeUSD;
+                    const pool_tvl = data.reserveUSD;
+                    Trading_Free = (parseFloat(volume_24hr) * 365 * 0.003 * 0.66) / parseFloat(pool_tvl);
+                }
             }
         }
     }

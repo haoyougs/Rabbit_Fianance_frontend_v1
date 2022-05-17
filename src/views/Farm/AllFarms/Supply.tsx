@@ -137,7 +137,10 @@ export const SupplyPage: React.FC = () => {
   }, [TokenIndex]);
   //获取 可借款数量
   const getTotalBorrowed = async () => {
-    // //////console.log(444, CurrentTokenInfo)
+    if (TotalBorrowedData) {
+      return;
+    }
+    // console.log(444, CurrentTokenInfo)
     //根据切换当前币，切换address
     const TokenAddress = LoanSwitch0 ? CurrentTokenInfo.LPtokenAddress0 : CurrentTokenInfo.LPtokenAddress1;
     if (!TokenAddress) {
@@ -145,17 +148,20 @@ export const SupplyPage: React.FC = () => {
     }
     let res;
     if (CurrenName == "BNB") {
-      res = await AvailableBNBBalance();
+      res = await AvailableBNBBalance(library);
     } else {
-      res = await AvailableBalance(TokenAddress)
+      res = await AvailableBalance(TokenAddress, library);
     }
-    //console.log("可借款数量", res, CurrenName)
+    // console.log("可借款数量", res)
     setTotalBorrowedData(res);
   }
   //获取 可借款数量
   useEffect(() => {
+    if (!library) {
+      return;
+    }
     getTotalBorrowed()
-  }, [LoanSwitch0, LoanSwitch1]);
+  }, [LoanSwitch0, LoanSwitch1, library]);
   //滑动条
   const [InputSlider, setInputSlider] = useState<any>(Leverages);
   //更新Total_Apr和APY
@@ -413,7 +419,7 @@ export const SupplyPage: React.FC = () => {
     const Borrow_Apr = borrowAprCommon(Borrow.BorrowedValue, Borrow.DepositValue);
     setBorrow_Apr(Borrow_Apr)
   }
-  const LoanSwitch0Click = () => {
+  const LoanSwitch0Click = async () => {
     setLoanSwitch0(true);
     setLoanSwitch1(false);
     let AddressApr;
@@ -422,12 +428,18 @@ export const SupplyPage: React.FC = () => {
     if (Names == "BNB") {
       AddressApr = BNB_ADDRESS
     } else {
-      //
       AddressApr = CurrentTokenInfo.LPtokenAddress0
     }
     updateBorrow_Apr(AddressApr);
+    let res;
+    if (Names == "BNB") {
+      res = await AvailableBNBBalance(library);
+    } else {
+      res = await AvailableBalance(AddressApr, library);
+    }
+    setTotalBorrowedData(res);
   };
-  const LoanSwitch1Click = () => {
+  const LoanSwitch1Click = async () => {
     setLoanSwitch0(false);
     setLoanSwitch1(true);
     let AddressApr;
@@ -440,6 +452,13 @@ export const SupplyPage: React.FC = () => {
       AddressApr = CurrentTokenInfo.LPtokenAddress1
     }
     updateBorrow_Apr(AddressApr);
+    let res;
+    if (Names == "BNB") {
+      res = await AvailableBNBBalance(library);
+    } else {
+      res = await AvailableBalance(AddressApr, library);
+    }
+    setTotalBorrowedData(res);
   };
   //输入框部分
   const AmountChange0 = (e: any) => {

@@ -43,6 +43,7 @@ export const TvlEvent = createAsyncThunk<any, {
         try {
             //查询单币价格
             const Uprices = await getUsdPrice(LPtokenAddress1);
+
             // 单币价格
             let SingleTokenPriceS = Number(Uprices)
             //查询lp池子深度，就是池子中持有多少币；
@@ -50,7 +51,8 @@ export const TvlEvent = createAsyncThunk<any, {
             const pondDepth = await tokenAmount.balanceOf(LPaddress)
             let PondDepthS = ethers.utils.formatUnits(pondDepth, 18);
             let depth = Number(PondDepthS)
-            let TotalPrice = (SingleTokenPriceS * depth) * 2
+            let TotalPrice = (SingleTokenPriceS * depth) * 2;
+
             //查lp总数量
             const LPAmount = new Contract(LPaddress, ERC20, getDefaultProvider());
             const lpamount = await LPAmount.totalSupply()
@@ -86,7 +88,13 @@ export const TvlEvent = createAsyncThunk<any, {
             const Leverage = initialState[index as number].Leverage;
 
             const Farm_Apr = await getFarmsAPR(type, tid, LPaddress, Address);
+            // if (index == 1) {
+            //     console.log(111, LPaddress)
+            // }
             const Trading_Free = await getTradeFree(type, LPaddress, MdexTradeFree, PancakeTradeFree);
+            // if (index == 1) {
+            //     console.log(222, LPaddress)
+            // }
             const Rabbit = await getRabbitRewards(FairLaunch_Pid, index);
             const RABBIT_Rewards = TVLvalue ? ((Rabbit.apr / TVLvalue)) : 0;
             const Borrow = await getBorrowApr(AddressApr);

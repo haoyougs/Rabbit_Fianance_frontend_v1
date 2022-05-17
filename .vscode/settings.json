@@ -9,4 +9,9 @@
     "editor.tabSize": 4,
     "editor.wordWrapColumn": 80,
     "files.trimTrailingWhitespace": true,
+    "editor.quickSuggestions": {
+        "other": "on",
+        "comments": "off",
+        "strings": "off"
+    },
 }

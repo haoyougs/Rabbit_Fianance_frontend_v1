@@ -112,18 +112,31 @@ export const Navlist: React.FC<{ isMobile?: boolean, callBack?: any }> = ({ isMo
         <LIs
           to="/" className={location.pathname === "/" ? "LinkBg" : ""}>
           <IconImgs src={a1img} />
-          <SizeBox onClick={() => menuClcik(false)}>Vault</SizeBox>
+          <SizeBox onClick={() => menuClcik(false)}>Lend</SizeBox>
+        </LIs>
+        <LIs
+          to="/allFarms"
+          className={location.pathname === "/allFarms" ? "LinkBg" : ""}
+        >
+          <IconImgs src={a2img} />
+          <SizeBox onClick={() => menuClcik(false)}>Leveraged</SizeBox>
         </LIs>
         <LIs
           to="/stake"
           className={location.pathname === "/stake" ? "LinkBg" : ""}
         >
           <IconImgs src={a2img} />
-          <SizeBox onClick={() => menuClcik(false)}>Stake</SizeBox>
+          <SizeBox onClick={() => menuClcik(false)}>Trade</SizeBox>
         </LIs>
-        <LIs3Box Bgcolor={Bgcolor}>
+        <LIs
+          to="/liquidation"
+          className={location.pathname === "/liquidation" ? "LinkBg" : ""}
+        >
+          <IconImgs src={a2img} />
+          <SizeBox onClick={() => menuClcik(false)}>My Position</SizeBox>
+        </LIs>
+        {/* <LIs3Box Bgcolor={Bgcolor}>
           <LIs3 Bgcolor={Bgcolor} onClick={() => setBgcolor(!Bgcolor)}>
-            <IconImgs src={a3img} />
             <SizeBox>Farm</SizeBox>
             <IconImgs2 src={xiaimg} Bgcolor={Bgcolor} />
           </LIs3>
@@ -157,9 +170,9 @@ export const Navlist: React.FC<{ isMobile?: boolean, callBack?: any }> = ({ isMo
               </LIs2>
             </div>
           ) : null}
-        </LIs3Box>
+        </LIs3Box> */}
       </Uls>
-      <BottomBox>
+      {/* <BottomBox>
         <LinkBoxa>
           <TokenLogoimg src={tokenLogo}></TokenLogoimg>
           <Price>$ {RPrice ? subStringNum(RPrice, 4) : null}</Price>
@@ -199,14 +212,15 @@ export const Navlist: React.FC<{ isMobile?: boolean, callBack?: any }> = ({ isMo
             <FooterItem href={item.href} target="_blank" key={key} icon1={item.icon1} icon2={item.icon2}
             />)}
         </LinajieB>
-      </BottomBox>
+      </BottomBox> */}
     </Box >
   );
 };
 
 const Box = styled.div`
-  width: 252px;
   height: 100%;
+  width: 190px;
+  background-color: #101124;
   margin: 0 auto;
   display: flex;
   /* justify-content: space-between; */
@@ -218,18 +232,18 @@ const Box = styled.div`
 const Logo = styled.img`
   width: 132px;
   height: 48px;
-  display: none;
-  @media (max-width: 1000px) {
+  /* display: none; */
+  /* @media (max-width: 1000px) {
     display: none;
-  }
+  } */
 `;
 const Uls = styled.ul`
-  margin-top:4px;
+width: 100%;
   min-height: calc(100% - 248px);
   margin-bottom: 0;
 `;
 const LIs = styled(Link)`
-  width: 242px;
+  width: 100%;
   height: 40px;
   padding: 10px 0;
   padding-left: 24px;
@@ -245,7 +259,7 @@ const LIs = styled(Link)`
 `;
 const LIs2 = styled(Link)`
   /* background-color: #ffffff10; */
-  width: 242px;
+  width: 100%;
   padding: 10px 0;
   padding-left: 44px;
   display: flex;
@@ -260,7 +274,7 @@ const LIs2 = styled(Link)`
   } */
 `;
 const LIs3Box = styled.div<{ Bgcolor: boolean }>`
-  width: 242px;
+  width: 100%;
   height: auto;
   background-color: ${(props) => (props.Bgcolor ? "#577ace" : "")};
 `

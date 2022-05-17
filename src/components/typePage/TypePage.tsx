@@ -18,6 +18,7 @@ import { useSelector } from "react-redux";
 import { UpdateNotice, UpdateNotice2 } from "state/TypePage/hooks";
 // import MobileMenu from '../MobileMenu';
 import MenuIcon from 'assets/page/caidan_m.png';
+import { LinkOut } from "./LinkOut"
 
 // import { InjectConnector } from '../../utils/web3'
 // import { InjectedConnector } from '@web3-react/injected-connector'
@@ -78,38 +79,39 @@ export const TypePageBox: React.FC<{ children: any }> = ({ children }) => {
         </div>
       ) : null}
       <Box>
-        {/* 顶部logo 和链接钱包按钮 */}
-        {/* <SwitchNet></SwitchNet> */}
-        <TopBox>
-          <Logo src={Logoimg}></Logo>
-          {account ?
-            <BtnBoxs>
-              <Button w={150} h={40} onClick={accountOnclik}>
-                {hidehash(account)}
-              </Button>
-            </BtnBoxs> :
-            <BtnBoxs>
-              <Button w={150} h={40} onClick={accountOnclik}>
-                Unlock Wallet
-              </Button>
-            </BtnBoxs>
-          }
-          <MobileMenuBtn className={visible ? "MenuBtn" : ""}
-            src={MenuIcon} onClick={() => setvisible(!visible)} />
-        </TopBox>
-        {
-          visible ? <StyledMobileMenuWrapper>
-            <NavBoxMobile className={visible ? "NavBoxMobile" : ""}>
-              <Navlist isMobile={visible} callBack={setvisible}></Navlist>
-            </NavBoxMobile>
-          </StyledMobileMenuWrapper> : null
-        }
+        {/* 左侧导航栏 */}
+        <LeftBox>
+          <Navlist />
+        </LeftBox>
+        {/* 内容部分 */}
         <BodyBox>
-          {/* 左侧导航栏 */}
-          <LeftBox>
-            <Navlist />
-          </LeftBox>
-          {/* 内容部分 */}
+          <TopBox>
+            <TopLeft>
+              <LinkOut></LinkOut>
+            </TopLeft>
+            {/* <Logo src={Logoimg}></Logo> */}
+            {account ?
+              <BtnBoxs>
+                <Button w={150} h={40} onClick={accountOnclik}>
+                  {hidehash(account)}
+                </Button>
+              </BtnBoxs> :
+              <BtnBoxs>
+                <Button w={150} h={40} onClick={accountOnclik}>
+                  Unlock Wallet
+                </Button>
+              </BtnBoxs>
+            }
+            <MobileMenuBtn className={visible ? "MenuBtn" : ""}
+              src={MenuIcon} onClick={() => setvisible(!visible)} />
+          </TopBox>
+          {
+            visible ? <StyledMobileMenuWrapper>
+              <NavBoxMobile className={visible ? "NavBoxMobile" : ""}>
+                <Navlist isMobile={visible} callBack={setvisible}></Navlist>
+              </NavBoxMobile>
+            </StyledMobileMenuWrapper> : null
+          }
           <ChildrenBox ref={ChildrenBoxRef}>{children}</ChildrenBox>
         </BodyBox>
       </Box>
@@ -152,8 +154,8 @@ const Box = styled.div`
   min-height: 100vh;
   height: 100vh;
   display: flex;
-  flex-direction: column;
-  background-image: linear-gradient(134deg, rgb(71, 115, 207), rgb(118, 110, 177) 82%, rgb(241, 79, 125) 110%);
+  /* flex-direction: column; */
+  background: #17182c;
   @media (max-width: 1000px) {
     padding: 0 1rem;
   }
@@ -173,6 +175,8 @@ const TopBox = styled.div`
     height: 80px;
   }
 `;
+const TopLeft = styled.div`
+`
 const StyledMobileMenuWrapper = styled.div`
     display: flex;
     box-pack:center;
@@ -193,10 +197,10 @@ const NavBoxMobile = styled.div`
 `
 const BodyBox = styled.div`
   flex: 1;
-  display: flex;
+  /* display: flex; */
 `;
 const LeftBox = styled.div`
-  width: 288px;
+  width: auto;
   height: 100%;
   @media (max-width: 1000px) {
     display:none
