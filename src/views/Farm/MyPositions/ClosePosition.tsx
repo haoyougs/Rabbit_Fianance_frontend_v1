@@ -405,6 +405,10 @@ const OutContainer = styled.div`
       opacity: 1;
     }
   }
+  @media (min-width: 1000px) {
+      left:50%;
+      margin-left: -270px;
+    }
   @media (max-width: 1000px) {
     padding: 0 20px;
     margin-left: -1rem;

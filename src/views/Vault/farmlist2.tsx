@@ -85,7 +85,6 @@ export const TokenList: React.FC = () => {
     for (let i = 0; i < (ibTokneData.length); i++) {
       if (i > 0) {
         const item = ibTokneData[i];
-        // console.log(111, item)
         const res = await getTotalAllocPoint(item.pid, item.ibTokneAddress,
           item.AmountsOutAddress);
         newObj[i - 1].APYObj = {
@@ -105,17 +104,19 @@ export const TokenList: React.FC = () => {
         if (!isNaN(APY)) {
           newObj[i - 1].APY = APY;
         };
-        setNEW_Data(newObj)
       }
+      setNEW_Data([])
+      setNEW_Data(newObj)
     };
   }
   useEffect(() => {
-    if (!Data[4].TotalBorrowed) {
-      return;
+    // if (!Data[4].TotalBorrowed) {
+    //   return;
+    // }
+    if (Data[4].TotalBorrowed != "" && Data[4].TotalDeposit != "") {
+      getAPRTVL()
     }
-    getAPRTVL()
-  }, [account, Data])
-  const navigate = useNavigate();
+  }, [account, Data[4].TotalBorrowed, Data[4].TotalDeposit])
   useEffect(() => {
     //没有钱包地址，不请求
     if (!account) {

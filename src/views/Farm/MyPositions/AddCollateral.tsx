@@ -553,21 +553,25 @@ const OutContainer = styled.div`
     top: 50%;
     margin-top: -320px;
     z-index: 1001;
+    @media (min-width: 1000px) {
+      left:50%;
+      margin-left: -320px;
+    }
     animation: fade-in-top 0.6s;
-  @keyframes fade-in-top {
-    0% {
-      transform: translateY(-50px);
-      opacity: 0;
+    @keyframes fade-in-top {
+      0% {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
+    @media (max-width: 1000px) {
+      padding: 0 20px;
+      margin-left: -1rem;
     }
-  }
-  @media (max-width: 1000px) {
-    padding: 0 20px;
-    margin-left: -1rem;
-  }
 `
 const Box = styled.div`
   width: 552px;
