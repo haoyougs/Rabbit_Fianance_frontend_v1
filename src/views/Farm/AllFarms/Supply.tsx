@@ -42,6 +42,7 @@ import {
   getBorrowApr
 } from "hooks/useFarms";
 import { borrowAprCommon } from "utils/BorrowApr";
+import { initialState } from "state/AllFarm/State";
 /**
  * SupplyBox 开仓页面
  * @returns
@@ -105,9 +106,11 @@ export const SupplyPage: React.FC = () => {
   const [RABBIT_Rewards, setRABBIT_Rewards] = useState<any>(null);
   const [Borrow_Apr, setBorrow_Apr] = useState<any>(null);
   const [Total_Apr, setTotal_Apr] = useState<any>(null);
-
+  const [Ellipsis, setEllipsis] = useState<any>(null);
   //获取当前的CurrentTokens 和Token0Pid，Token1Pid
   const CurrentToken = () => {
+    const ellipsis = initialState[Number(TokenIndex)].Ellipsis;
+    setEllipsis(ellipsis)
     const CurrentToken = FarmAddressArrs[Number(TokenIndex)];
     setToken0Pid(CurrentToken?.BorrowToken0?._Pid)
     setToken1Pid(CurrentToken?.BorrowToken1?._Pid)
@@ -740,7 +743,8 @@ export const SupplyPage: React.FC = () => {
           <Tips3>
             <div>Price Impact and Trading Fees</div>
             <div style={{ color: "rgb(240, 72, 72)" }}>
-              {CurrentTokenInfo.Type == "Pancake" ? "-0.25%" : "-0.30%"}
+              {Ellipsis ? "-0.04%" :
+                CurrentTokenInfo.Type == "Pancake" ? "-0.25%" : "-0.30%"}
             </div>
           </Tips3>
           <DataList>
