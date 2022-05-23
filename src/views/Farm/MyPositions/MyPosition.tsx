@@ -23,7 +23,8 @@ import { getApyObj } from "utils/getApyObj";
 import { BNB_ADDRESS, W_BNB_ADDRESS } from "config/address";
 import { subStringNum } from "utils/subStringNum";
 import { getApy } from "utils/ApyCommon";
-import Icon2 from 'assets/RewardSummary.png'
+import Icon2 from 'assets/RewardSummary.png';
+import { TokenToAddress } from 'utils/getUsdPrice';
 import {
   getMdexTradeFree,
   getPancakeTradeFree
@@ -128,11 +129,20 @@ export const MyPositionsPage: React.FC = () => {
     SelectData.forEach((S_item: any) => {
       if (goblinArrs.indexOf(S_item.item.goblin) == -1) {
         let Name;
-        if (!S_item.LPAddress?.BorrowToken0?._Pid && S_item.LPAddress?.BorrowToken1?._Pid) {
-          Name = S_item.LPAddress?.BorrowToken1.name
+        const current_TokenToAddress =
+          TokenToAddress.filter((t: any) =>
+            t.address.toUpperCase() == S_item.item.borrowToken.toUpperCase());
+        // console.log(S_item.item);
+        if (current_TokenToAddress) {
+          Name = current_TokenToAddress[0].name;
         } else {
-          Name = S_item.LPAddress?.BorrowToken0.name
+          Name = ""
         }
+        // if (!S_item.LPAddress?.BorrowToken0?._Pid && S_item.LPAddress?.BorrowToken1?._Pid) {
+        //   Name = S_item.LPAddress?.BorrowToken1.name
+        // } else {
+        //   Name = S_item.LPAddress?.BorrowToken0.name
+        // }
         Result.push({
           "item": [S_item],
           "goblin": S_item.item.goblin,
@@ -147,7 +157,7 @@ export const MyPositionsPage: React.FC = () => {
         Result[a_index].item.push(S_item)
       }
     });
-    // //////console.log(Result)
+    // console.log(Result)
     GETReward(LPAddressArr, Result)
   }, [SwitchPancake, BaseData]);
   const [AddShou, setAddShou] = useState(false);
@@ -228,6 +238,19 @@ export const MyPositionsPage: React.FC = () => {
     } else {
       return value
     }
+  }
+  const getName = (borrowToken: any) => {
+    let Name;
+    const current_TokenToAddress =
+      TokenToAddress.filter((t: any) =>
+        t.address.toUpperCase() == borrowToken.toUpperCase());
+    // console.log(current_TokenToAddress);
+    if (current_TokenToAddress) {
+      Name = current_TokenToAddress[0].name;
+    } else {
+      Name = ""
+    };
+    return Name;
   }
   return (
     <>
@@ -313,7 +336,8 @@ export const MyPositionsPage: React.FC = () => {
                                   ethers.utils.formatUnits(o_item.item.positionsValue)
                                 ), 6)
                               }
-                              {ob.Name}
+                              {getName(o_item.item.borrowToken)}
+                              {/* {ob.Name} */}
                             </PositionValues>
                           </ContBox>
                           <ContBox>
@@ -322,7 +346,9 @@ export const MyPositionsPage: React.FC = () => {
                               {subStringNum(
                                 ethers.utils.formatUnits(o_item.item.totalValue)
                                 , 6)}
-                              {ob.Name}
+                              {getName(o_item.item.borrowToken)}
+
+                              {/* {ob.Name} */}
                               {/* {<LoadingBox height={14} />} */}
                             </PositionValues>
                           </ContBox>
@@ -336,7 +362,9 @@ export const MyPositionsPage: React.FC = () => {
                               ) -
                                 Number(ethers.utils.formatUnits(o_item.item.totalValue))), 6)
                               }
-                              {ob.Name}
+                              {getName(o_item.item.borrowToken)}
+
+                              {/* {ob.Name} */}
                             </PositionValues>
                           </ContBox>
                           <MAPRBox>
@@ -344,7 +372,8 @@ export const MyPositionsPage: React.FC = () => {
                               ApyObjArr.length ?
                                 <MyPositionPopover
                                   data={selectData(o_item.index)}
-                                  currentToken={ob.Name}
+                                  currentToken=
+                                  {getName(o_item.item.borrowToken)}
                                 ></MyPositionPopover>
                                 : <LoadingBox width={200} height={14} />}
                           </MAPRBox>
@@ -367,7 +396,8 @@ export const MyPositionsPage: React.FC = () => {
                                     <Popover placement="right"
                                       content={<MyPositionPopover
                                         data={selectData(o_item.index)}
-                                        currentToken={ob.Name}
+                                        currentToken={getName(o_item.item.borrowToken)}
+
                                       ></MyPositionPopover>}
                                       trigger="click" overlayClassName="vaultApy">
                                       <APYImg src={FarmApr}></APYImg>

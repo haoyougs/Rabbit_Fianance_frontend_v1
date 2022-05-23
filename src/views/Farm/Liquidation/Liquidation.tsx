@@ -12,6 +12,8 @@ import shangIcon from "assets/xiangshang.png";
 import xiaIcon from "assets/xiangxia.png";
 import { https } from "utils/https";
 import { TokenName } from "config/TokenName";
+import { TokenToAddress } from 'utils/getUsdPrice';
+
 import {
   FarmAddressArrs
 } from "config/LPAddress";
@@ -45,7 +47,18 @@ export const LiquidationPage: React.FC = () => {
           item.LPtokenName = name0 + '-' + name1
         } else {
           item.LPtokenName = "RABBIT-BNB";
-        }
+        };
+        let Name;
+        const current_TokenToAddress =
+          TokenToAddress.filter((t: any) =>
+            t.address.toUpperCase() == item.BorrowToken.toUpperCase());
+        if (current_TokenToAddress) {
+          Name = current_TokenToAddress[0].name;
+        } else {
+          Name = ""
+        };
+        item.Name = Name;
+        // console.log(Name)
       });
       setLiquidation(data)
     })()
@@ -57,7 +70,7 @@ export const LiquidationPage: React.FC = () => {
         <RewardSummaryIcon>All Positions</RewardSummaryIcon>
         <RewardSummaryList>
           <TheadBox>
-            <ThBox style={{ width: "20%" }}>Liquidation list</ThBox>
+            <ThBox style={{ width: "20%", minWidth: "150px" }}>Liquidation list</ThBox>
             <ThBox>Supply value</ThBox>
             <ThBox>Loan value</ThBox>
             <ThBox>Position value</ThBox>
@@ -67,7 +80,7 @@ export const LiquidationPage: React.FC = () => {
           <TbodyBox>
             {Liquidation.map((item: any, key: any) => (
               <TrBox key={key}>
-                <TdBox style={{ width: "20%" }}>
+                <TdBox style={{ width: "20%", minWidth: "150px" }}>
                   {item.LPtokenName ? <>
                     <TokenIcon IconName={item.LPtokenName} />
                     <span>{item.LPtokenName}</span>
@@ -80,7 +93,8 @@ export const LiquidationPage: React.FC = () => {
                 </TdBox>
                 <TdBox>
                   {item.PositionsValue && item.TotalValue ?
-                    `${(item.PositionsValue - item.TotalValue).toFixed(2)}`
+                    `${(item.PositionsValue - item.TotalValue).toFixed(2)}
+                    `
                     :
                     <LoadingBox />
                   }
