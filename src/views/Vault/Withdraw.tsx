@@ -19,7 +19,9 @@ import {
   getIbTokenBalance,
   TokneBalanceS
 } from "state/Vault/hooks";
-import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks"
+import { UpdateNotice, UpdateNotice2, UpdateNoticeText } from "state/TypePage/hooks";
+import { Contract, ethers } from "ethers";
+import { getDefaultProvider, getSigner } from 'utils/provider'
 /**
  * withdraw 取款页面
  * @returns
@@ -43,6 +45,8 @@ export const WithdrawBox: React.FC = () => {
   const [ApproveBtn, setApproveBtn] = useState(false);
   const [WithdrawBtn, setWithdrawBtn] = useState(false);
 
+  const [Total, setTotal] = useState<any>(0);
+  const [IbTotal, setIbTotal] = useState<any>(0);
   //获取
   const [VAultListAddressInfo, setVAultListAddressInfo] = useState<any>({})
   useEffect(() => {
@@ -54,6 +58,23 @@ export const WithdrawBox: React.FC = () => {
   // // 当前的tokenAddress
   const IB_TOKEN_ADDRESS = TokenNames === "BNB" ? ibBNB_ADDRESS : VAultListAddressInfo?.ibtokenAddress;
 
+  const getTotal = async () => {
+    // console.log(123)
+    const Banks = new Contract(BANK_ADDRESS, BankABI, getSigner());
+    const totalToken = await Banks.totalToken(TOKEN_ADDRESS);
+    let total = ethers.utils.formatUnits(totalToken._hex, 18)
+    // console.log(111, total);
+    setTotal(total)
+
+    const ibBanks = new Contract(IB_TOKEN_ADDRESS, ERC20, getDefaultProvider())
+    const ibtotalToken = await ibBanks.totalSupply();
+    let ibtotal = ethers.utils.formatUnits(ibtotalToken._hex, 18)
+    // console.log(222, ibtotal);
+    setIbTotal(ibtotal);
+  };
+  useEffect(() => {
+    getTotal();
+  }, [IB_TOKEN_ADDRESS])
   useEffect(() => {
     if (TokenNames === "BNB") {
       if (!account) {
@@ -162,26 +183,34 @@ export const WithdrawBox: React.FC = () => {
     navigate("/");
   };
   //输入框事件
-  const AmountChange = (e: any) => {
+  const AmountChange = async (e: any) => {
+    if (!IbTotal) {
+      return;
+    }
     let { value } = e.target;
     const reg = /^-?\d*(\.\d*)?$/;
     if ((!isNaN(value) && reg.test(value)) || value === "") {
       if (value > IbBalances) {
-        value = parseFloat(IbBalances).toFixed(6);
+        value = parseFloat(IbBalances);
       }
       setPamount(value);
     }
-    const BNBValue = (value / IbRotio).toFixed(6);
+    const BNBValue = parseFloat(value) * parseFloat(Total) / parseFloat(IbTotal)
     setBalances(BNBValue);
   };
   // 最多可取出的币
   const MaxClick = () => {
+    if (!IbTotal) {
+      return;
+    }
     if (0 >= Number(IbBalances)) {
       return;
     }
-    const Value = (parseFloat(IbBalances) / IbRotio).toFixed(6);
+    setPamount(parseFloat(IbBalances));
+
+    const Value = parseFloat(IbBalances) * parseFloat(Total) / parseFloat(IbTotal);
     setBalances(Value);
-    setPamount(parseFloat(IbBalances).toFixed(6));
+
   };
   useEffect(() => {
     if (Pamount > 0) {

@@ -223,7 +223,7 @@ export const TokenList: React.FC = () => {
                 {item?.ibBalance ?
 
                   <>
-                    <TopText>{(item.ibBalance / 1).toFixed(6)}</TopText>
+                    <TopText>{subStringNum(item.ibBalance, 6)}</TopText>
                     <BottomText style={{ marginLeft: "5px" }}>ib{item.tokenName}</BottomText>
                   </>
 
@@ -235,7 +235,7 @@ export const TokenList: React.FC = () => {
               <div>
                 {item?.Balance ?
                   <>
-                    <TopText>{(item.Balance / 1).toFixed(6)}</TopText>
+                    <TopText>{subStringNum(item.Balance, 6)}</TopText>
                     <BottomText style={{ marginLeft: "5px" }}>{item.tokenName}</BottomText>
                   </>
 

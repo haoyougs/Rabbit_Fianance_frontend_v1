@@ -75,6 +75,7 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
   const getTokenAssets = async () => {
     const debtValue = Number(ethers.utils.formatUnits(Data.totalValue, 18));
     setDebtValue(debtValue)
+    // setDebtValue(105.079952)
     //对应的份额
     const shares = await getShares(posId, LPAddress.Goblin);
     // //////console.log("shares", shares)
@@ -92,10 +93,12 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
     const token0Amount = ethers.BigNumber.from(shareToBalance).mul(ethers.BigNumber.from(token0)).div(ethers.BigNumber.from(TotalLP))
     const token1Amount = ethers.BigNumber.from(shareToBalance).mul(ethers.BigNumber.from(token1)).div(ethers.BigNumber.from(TotalLP))
 
-    const token0AmountData = ethers.utils.formatUnits(token0Amount, 18)
-    const token1AmountData = ethers.utils.formatUnits(token1Amount, 18)
+    const token0AmountData = ethers.utils.formatUnits(token0Amount, 18);
+    const token1AmountData = ethers.utils.formatUnits(token1Amount, 18);
     setToken0Amount(parseFloat(token0AmountData));
     setToken1Amount(parseFloat(token1AmountData));
+    // setToken0Amount(0.238520);
+    // setToken1Amount(79.171950)
     const positionsValue = ethers.utils.formatUnits(info.item.positionsValue);
     //////console.log(123, positionsValue)
     setBrow(positionsValue)
@@ -107,14 +110,17 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
   }, [account])
   useEffect(() => {
     if (Token0Amount && Token1Amount) {
+      let ToTrade;
       if (borrowToken0) {
         const Fees = Number(Token1Amount * 0.0004).toLocaleString();
         setTradeFees(Fees);
         if (DebtValue > Token0Amount) {
           const amountToTrade0 = DebtValue - Token0Amount;
-          setAmountToTrade(amountToTrade0)
+          setAmountToTrade(amountToTrade0);
+          ToTrade = amountToTrade0;
         } else {
-          setAmountToTrade(0)
+          setAmountToTrade(0);
+          ToTrade = 0;
         }
 
       } else {
@@ -122,14 +128,20 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
         setTradeFees(Fees);
         if (DebtValue > Token1Amount) {
           const amountToTrade1 = DebtValue - Token1Amount;
-          setAmountToTrade(amountToTrade1)
+          setAmountToTrade(amountToTrade1);
+          ToTrade = amountToTrade1;
         } else {
-          setAmountToTrade(0)
+          setAmountToTrade(0);
+          ToTrade = 0;
         }
-      }
+      };
+      // console.log("ToTrade", ToTrade);
+      // console.log("borrowToken0", borrowToken0);
+      // console.log("Ellipsis", Ellipsis);
+      // console.log("CurrencyPrice", CurrencyPrice);
       if (CurrentToken == 0) {
-        //交易数量是0
-        if (AmountToTrade == 0) {
+        //交易数量为0
+        if (ToTrade == 0) {
           //交易token0 // 非稳定币
           if (!Ellipsis) {
             if (borrowToken0) {
@@ -143,11 +155,12 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
                 setReceiveToken1(Token1);
               }
             } else {
-              if (Token0Amount >= DebtValue) {
+              //交易token1
+              if (Token1Amount >= DebtValue) {
                 setReceiveToken0(Token0Amount);
                 setReceiveToken1(Token1Amount - DebtValue);
               } else {
-                const Token0 = Token1Amount - (DebtValue - Token0Amount) / CurrencyPrice
+                const Token0 = Token0Amount - (DebtValue - Token1Amount) / CurrencyPrice
                 setReceiveToken0(Token0);
                 setReceiveToken1(0);
               }
@@ -157,7 +170,6 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
             //稳定币
             if (borrowToken0) {
               // console.log(222)
-
               //哪个是债务token减去对应的债务 token
               setReceiveToken0(Token0Amount + Token1Amount * 0.9996 - DebtValue);
               setReceiveToken1(0);
@@ -169,15 +181,16 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
           }
 
         } else {
+          //交易数量不为0
           //交易token0;
           if (borrowToken0) {
             //token1的数量减去交易数量的AmountToTrade价值多少token1
-            const AmountToTrade1 = Token1Amount - AmountToTrade / CurrencyPrice;
+            const AmountToTrade1 = Token1Amount - ToTrade * CurrencyPrice;
             setReceiveToken0(0);
             setReceiveToken1(AmountToTrade1);
           } else {
-            //token0的数量减去交易数量的AmountToTrade价值多少token0
-            const AmountToTrade0 = Token0Amount - AmountToTrade * CurrencyPrice;
+            //token0的数量减去交易数量的ToTrade价值多少token0;
+            const AmountToTrade0 = Token0Amount - ToTrade / CurrencyPrice;
             setReceiveToken0(AmountToTrade0);
             setReceiveToken1(0);
           }
@@ -187,7 +200,10 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
   }, [Token0Amount, Token1Amount])
   //点击切换事件
   const CurrentTokenHandle = (val: any) => {
-    //////console.log(borrowToken0, AmountToTrade, CurrencyPrice)
+    // console.log("AmountToTrade", AmountToTrade);
+    // console.log("borrowToken0", borrowToken0);
+    // console.log("Ellipsis", Ellipsis);
+    // console.log("CurrencyPrice", CurrencyPrice);
     setCurrentToken(val);
     //交易数量是0
     if (AmountToTrade == 0) {
@@ -210,11 +226,17 @@ export const ClosePositionPage: React.FC<parameter> = ({ onClick, info, freshPar
       const AmountToTrade0 = Token0Amount - AmountToTrade * CurrencyPrice;
       if (val == 0) {
         if (borrowToken0) {
-          setReceiveToken0(Brow - DebtValue);
-          setReceiveToken1(0);
-        } else {
+          const AmountToTrade1 = Token1Amount - AmountToTrade * CurrencyPrice;
           setReceiveToken0(0);
-          setReceiveToken1(Brow - DebtValue);
+          setReceiveToken1(AmountToTrade1);
+          // setReceiveToken0(Brow - DebtValue);
+          // setReceiveToken1(0);
+        } else {
+          const AmountToTrade0 = Token0Amount - AmountToTrade / CurrencyPrice;
+          setReceiveToken0(AmountToTrade0);
+          setReceiveToken1(0);
+          // setReceiveToken0(0);
+          // setReceiveToken1(Brow - DebtValue);
         }
       }
       if (val == 1) {

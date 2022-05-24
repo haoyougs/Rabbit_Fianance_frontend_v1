@@ -43,12 +43,12 @@ export const UsdPrice = [
     },
     {
         name: 'btc',
-        address: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
+        address: '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c',
         route: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
         AmountsOutAddress: ["0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c", "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"]
     }, {
         name: 'eth',
-        address: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',
+        address: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
         route: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
         AmountsOutAddress: ["0x2170Ed0880ac9A755fd29B2688956BD959F933F8", "0x55d398326f99059fF775485246999027B3197955"]
     }, {
@@ -152,10 +152,10 @@ export const TokenToAddress = [
     },
     {
         name: 'BTC',
-        address: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
+        address: '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c',
     }, {
         name: 'ETH',
-        address: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',
+        address: '0x2170ed0880ac9a755fd29b2688956bd959f933f8',
     }, {
         name: 'RABBIT',
         address: '0x95a1199EBA84ac5f19546519e287d43D2F0E1b41',

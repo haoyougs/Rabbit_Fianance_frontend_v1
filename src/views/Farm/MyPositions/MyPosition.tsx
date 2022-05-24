@@ -47,8 +47,7 @@ export const MyPositionsPage: React.FC = () => {
   const setNotice2 = UpdateNotice2();
   const setNoticeText = UpdateNoticeText();
   const getQueryBin = async (account: any) => {
-    // console.log(111)
-    const res = await QueryBin(account)
+    const res = await QueryBin(account);
     setBaseData(res);
     const MdexTradeFree = await getMdexTradeFree();
     const PancakeTradeFree = await getPancakeTradeFree();
@@ -58,8 +57,8 @@ export const MyPositionsPage: React.FC = () => {
       const item = res[i].item;
       let AddressApr;
       let Names;
-      //假如token1有_Pid
-      if (!FarmAddressArrs?.BorrowToken0?._Pid && FarmAddressArrs?.BorrowToken1?._Pid) {
+      //borrowToken(借款token) == LPtokenAddress1
+      if (item.borrowToken.toUpperCase() == FarmAddressArrs?.LPtokenAddress1.toUpperCase()) {
         AddressApr = FarmAddressArrs.LPtokenAddress1;
         Names = FarmAddressArrs.BorrowToken1.name
       } else {
@@ -68,7 +67,12 @@ export const MyPositionsPage: React.FC = () => {
       }
       if (Names == "BNB") {
         AddressApr = BNB_ADDRESS
+      };
+      if (item.borrowToken == "0x0000000000000000000000000000000000000000") {
+        AddressApr = BNB_ADDRESS
       }
+      // console.log(item.borrowToken, AddressApr)
+      // console.log(FarmAddressArrs)
       const ApyObj = await getApyObj(
         FarmAddressArrs.LP,
         FarmAddressArrs.LPtokenAddress1,
