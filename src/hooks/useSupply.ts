@@ -219,12 +219,12 @@ export const DataInfo = async (token0: string, token1: string,
     type: any) => {
     const ROUTE = type == "Pancake" ? PANCAKE_ROUTE : MDEX_ROUTE;
     let res = await AssetsBorrowed(ROUTE, token0, token1);
-    // //////console.log("res", res);
+    // console.log("res", res);
     let token0Price = 1;
     //非稳定币价格
-    let token1Price = 1 / (Math.floor(res * 100000) / 100000);
+    let token1Price = 1 / (Math.floor(res * 10000000000000) / 10000000000000);
     // //////console.log("token0Price", token0Price)
-    // //////console.log("token1Price", token1Price)
+    // console.log("token1Price", token1Price)
     const new_Amount0 = Amount0 ? Amount0 : 0;
     const new_Amount1 = Amount1 ? Amount1 : 0;
     // userTvl⽤户出的价值

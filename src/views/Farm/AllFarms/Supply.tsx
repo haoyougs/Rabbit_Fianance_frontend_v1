@@ -758,7 +758,7 @@ export const SupplyPage: React.FC = () => {
             <DataListDiv>
               <DataListL>Assets Borrowed</DataListL>
               <DataListR>
-                {(AssetsBorroweds / 1).toFixed(3)}
+                {AssetsBorroweds ? (AssetsBorroweds / 1).toFixed(3) : 0}
                 {LoanSwitch0 == true ? `${TokenNames?.split("-")[0]}` : `${TokenNames?.split("-")[1]}`}
               </DataListR>
             </DataListDiv>
@@ -778,7 +778,7 @@ export const SupplyPage: React.FC = () => {
             <DataListDiv>
               <DataListL>Debt Ratio</DataListL>
               <DataListR>
-                {(DebtRatio * 100).toFixed(2)}%
+                {DebtRatio ? (DebtRatio * 100).toFixed(2) : 0}%
               </DataListR>
             </DataListDiv>
             <DataListDiv>
